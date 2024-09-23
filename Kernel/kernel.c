@@ -17,7 +17,7 @@
 #include <exceptions.h>
 #include <memman.h>
 #include "./test/include/test_mm.h"
-// #include <test_mm.h>
+#define STRING_SIZE "1000000"
 
 
 extern uint8_t text;
@@ -61,9 +61,8 @@ int main() {
 
     uint64_t size = (uint64_t) heapEndAddress - (uint64_t) heapStartAddress;
     mem_init(heapStartAddress, size);
-    printf_color("Entra al test\n", 0x00FF00, 0x00);
-
-    test_mm(1, "0x100000");
+    const char *str = STRING_SIZE;
+    test_mm(1, (char **)&str);    
 
     printf_color("Welcome to the AmongOS kernel!\n", 0x00FF00, 0x00);
 

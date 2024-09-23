@@ -11,7 +11,6 @@ typedef struct MM_rq {
 
 uint64_t test_mm(uint64_t argc, char *argv[]) {
 
-  printf("test_mm\n");
 
   mm_rq mm_rqs[MAX_BLOCKS];
   uint8_t rq;
@@ -20,18 +19,15 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
 
   if (argc != 1)
     return -1;
-printf("llega despues del argc\n");
 
-  // todo fix
-  // if ((max_memory = satoi(argv[0])) <= 0) {
-  //   printf("muere en satoio\n");
+  if ((max_memory = satoi(argv[0])) <= 0) {
+    return -1;
+  }
 
-  //   return -1;
-  // }
-  max_memory = 10000000;
   while (1) {
     rq = 0;
     total = 0;
+
     // Request as many blocks as we can
     while (rq < MAX_BLOCKS && total < max_memory) {
       mm_rqs[rq].size = GetUniform(max_memory - total - 1) + 1;
@@ -39,18 +35,15 @@ printf("llega despues del argc\n");
 
       if (mm_rqs[rq].address) {
         total += mm_rqs[rq].size;
-        printf("reservando memoria\n");
         rq++;
       }
     }
-    printf("termine de reservar memoria\n");
+
     // Set
     uint32_t i;
     for (i = 0; i < rq; i++){
       if (mm_rqs[i].address) {
-        // Aca se queda colgado
         memset(mm_rqs[i].address, i, mm_rqs[i].size);
-        printf("seteando memoria\n");
       }  
 
     }
@@ -60,18 +53,14 @@ printf("llega despues del argc\n");
       if (mm_rqs[i].address) {
         if (!memcheck(mm_rqs[i].address, i, mm_rqs[i].size)) {
           printf("test_mm ERROR\n");
-          //return -1;
-        } else {
-          printf("test_mm: Malloc check OK\n");
-        }
+          return -1;
+        } 
       }
 
     // Free
     for (i = 0; i < rq; i++)
       if (mm_rqs[i].address){
-        printf("asdasdasdasd\n");
         mem_free(mm_rqs[i].address);
-        printf("liberando memoria\n");
       }
   }
 }
