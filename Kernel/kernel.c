@@ -13,6 +13,7 @@
 #include <video.h>
 #include <exceptions.h>
 
+
 extern uint8_t text;
 extern uint8_t rodata;
 extern uint8_t data;
@@ -51,6 +52,7 @@ void *initializeKernelBinary() {
 int main() {
 
     idt_loader();
+
 
     printf_color("Welcome to the AmongOS kernel!\n", 0x00FF00, 0x00);
 

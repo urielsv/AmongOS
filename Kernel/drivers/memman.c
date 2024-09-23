@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <stdint.h>
+#include <memman.h>
 
 #define MEM_BLOCK_SIZE 4096
 
@@ -40,21 +41,33 @@ static mem_node create_block(void *start_addr, size_t size) {
 
 void *mem_alloc(size_t size) {
 
+    if(size == 0)
+        return NULL;
+
     mem_node *current_node = memory_manager->mem_list;
-    for (; current_node->next != NULL; current_node = current_node->next) {
+    mem_node * prev_node = NULL;
+
+    if(current_node == NULL)
+
+    for (; current_node != NULL; prev_node = current_node, current_node = current_node->next) {
         if (current_node->is_free && current_node->size >= size) {
             mem_node new_node = create_block(current_node->start_addr, size);
-            new_node.next = current_node->next;
+            if(prev_node != NULL){
+            prev_node->next = &new_node;
+            }
             current_node->start_addr += size;
             current_node->size -= size;
+            new_node.next = current_node;
             return new_node.start_addr;
         }
     }
 
-    if (current_node->start_addr + current_node->size + size + sizeof(mem_node) > memory_manager->heap_end_addr) {
+    if (prev_node->start_addr + prev_node->size + size + sizeof(mem_node) > memory_manager->heap_end_addr) {
         return (void*)0;
     }
-    
+    mem_node new_node = create_block(current_node->start_addr + current_node->size, size);
+    current_node->next = &new_node;
+    return new_node.start_addr;
 
 }
 
@@ -62,7 +75,7 @@ void *mem_alloc(size_t size) {
 
 void mem_free(void *ptr) {
     mem_node *current_node = memory_manager->mem_list;
-    for (; current_node->next != NULL; current_node = current_node->next) {
+    for (; current_node != NULL; current_node = current_node->next) {
         if (current_node->start_addr == ptr) {
             current_node->is_free = 1;
             return;
