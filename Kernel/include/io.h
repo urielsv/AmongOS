@@ -27,5 +27,5 @@ void set_position(uint64_t new_x, uint64_t new_y);
 
 
 // @deprecated (Use userland-side function from stdio)
-uint64_t scanf(const char *fmt, ...);
+// uint64_t scanf(const char *fmt, ...);
 #endif

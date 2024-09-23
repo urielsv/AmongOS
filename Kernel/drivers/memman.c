@@ -1,6 +1,8 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <stddef.h>
 #include <stdint.h>
-#include <memman.h>
+#include "memman.h"
 
 #define MEM_BLOCK_SIZE 4096
 
@@ -10,7 +12,7 @@ static uint64_t mem_size;
 typedef struct mem_node{
     void *start_addr;
     size_t size;
-    mem_node *next;
+    void *next;
     uint8_t is_free;
 } mem_node;
 
@@ -27,7 +29,7 @@ void mem_init(void *start_addr, size_t size) {
     memory_manager = (mem_manager *)start_addr;
     memory_manager->heap_start_addr = start_addr + sizeof(mem_manager);
     memory_manager->heap_end_addr = start_addr + size;
-    memory_manager->mem_list = (mem_node *)(start_addr + sizeof(mem_manager));
+    //memory_manager->mem_list = (mem_node *)(start_addr + sizeof(mem_manager));
 }
 
 static mem_node create_block(void *start_addr, size_t size) {
@@ -47,7 +49,11 @@ void *mem_alloc(size_t size) {
     mem_node *current_node = memory_manager->mem_list;
     mem_node * prev_node = NULL;
 
-    if(current_node == NULL)
+    if (current_node == NULL) {
+        mem_node new_node = create_block(memory_manager->heap_start_addr, size);
+        memory_manager->mem_list = &new_node;
+        return new_node.start_addr;
+    }
 
     for (; current_node != NULL; prev_node = current_node, current_node = current_node->next) {
         if (current_node->is_free && current_node->size >= size) {

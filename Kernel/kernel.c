@@ -1,5 +1,8 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <idtLoader.h>
-#include <io.h>
+// #include <io.h>
+#include <stdio.h>
 #include <keyboard.h>
 #include <lib.h>
 #include <moduleLoader.h>
@@ -12,6 +15,9 @@
 #include <userland.h>
 #include <video.h>
 #include <exceptions.h>
+#include <memman.h>
+#include "./test/include/test_mm.h"
+// #include <test_mm.h>
 
 
 extern uint8_t text;
@@ -53,6 +59,11 @@ int main() {
 
     idt_loader();
 
+    uint64_t size = (uint64_t) heapEndAddress - (uint64_t) heapStartAddress;
+    mem_init(heapStartAddress, size);
+    printf_color("Entra al test\n", 0x00FF00, 0x00);
+
+    test_mm(1, "0x100000");
 
     printf_color("Welcome to the AmongOS kernel!\n", 0x00FF00, 0x00);
 

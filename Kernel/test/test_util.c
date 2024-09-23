@@ -1,6 +1,10 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <stdint.h>
+// #include "include/io.h"
 #include <stdio.h>
-#include "syscall.h"
+#include "include/syscall.h"
+#include "include/test_util.h"
 
 // Random
 static uint32_t m_z = 362436069;

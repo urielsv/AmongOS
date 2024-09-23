@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "io.h"
 #include "keyboard.h"
 #include <video.h>
@@ -51,11 +53,11 @@ void putchar(char c) {
     putchar_color(c, 0xFFFFFF, 0x000000);
 }
 
-uint64_t scanf(const char *fmt, ...) {
+// uint64_t scanf(const char *fmt, ...) {
 
-    printf("InvalArgumentException");
-    while (*fmt) {
-        if (*fmt == '%') {
-        }
-    }
-}
+//     printf("InvalArgumentException");
+//     while (*fmt) {
+//         if (*fmt == '%') {
+//         }
+//     }
+// }
