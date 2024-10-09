@@ -88,3 +88,18 @@ int create_process(const char * path, int args, char *argv[]) {
     return 0;
 }
 
+int kill_process(uint64_t pid) {
+
+    return 0;
+}
+
+int block_process(uint64_t pid) {
+
+    return 0;
+}
+
+int unblock_process(uint64_t pid) {
+
+    return 0;
+}
+
