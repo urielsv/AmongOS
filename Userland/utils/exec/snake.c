@@ -66,8 +66,8 @@ void snake() {
 void main_menu() {
     uint64_t width, height;
     screen_info(&width, &height);
-    player_t player1; 
-    player_t player2;
+    player_t player1 = {0}; 
+    player_t player2 = {0};
 
     clear(COLOR_BLACK);
     amongus(0, height / 2 + 160);

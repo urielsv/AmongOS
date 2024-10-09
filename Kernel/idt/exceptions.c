@@ -10,7 +10,7 @@
 #define INVALID_OPCODE  6
 #define BUFF_SIZE 30
 
-static flag = 0;
+static int flag = 0;
 static void restore_state(uint64_t* stack);
 
 typedef struct{

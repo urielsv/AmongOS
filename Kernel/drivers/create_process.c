@@ -2,7 +2,7 @@
 #include "../include/memman.h"
 #include "../include/syscalls.h"
 
-enum State { RUNNING, BLOCKED, READY, EXITED };
+enum State { BLOCKED, READY, EXITED };
 enum priority { LOW, LOW_MEDIUM, MEDIUM, HIGH_MEDIUM, HIGH };
 
 typedef struct {
@@ -67,7 +67,8 @@ int create_process_pcb(process_t *process) {
     return 0;
 }
 
-int create_process(void) {
+//TODO: seguir desde aca
+int create_process(const char * path, int args, char *argv[]) {
 
     process_t *process = (process_t *) mem_alloc(sizeof(process_t));
 

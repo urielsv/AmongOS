@@ -28,7 +28,7 @@ uint64_t printf(const char *str, ...) {
 
 uint64_t printf_color(const char *str, uint64_t fgcolor, uint64_t bgcolor) {
     int i = 0;
-    uint64_t tempx, tempy;
+  //  uint64_t tempx, tempy;
     while (str[i]) {
         putchar_color(str[i++], fgcolor, bgcolor);
     }
