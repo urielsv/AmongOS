@@ -1,6 +1,7 @@
 #include "../include/create_process.h"
 #include "../include/memman.h"
 #include "../include/syscalls.h"
+#include "../include/stdio.h"
 
 enum State { BLOCKED, READY, EXITED };
 enum priority { LOW, LOW_MEDIUM, MEDIUM, HIGH_MEDIUM, HIGH };
@@ -37,7 +38,7 @@ int create_process_stack(process_t *process) {
     process->stack_frame = (stack_frame_t *) mem_alloc(sizeof(stack_frame_t));
 
     if (process->stack_frame == NULL) {
-        //TODO: aca va un mensaje de error
+        printf("Error creating stack frame\n");
         return -1;
     }
 
@@ -56,7 +57,7 @@ int create_process_pcb(process_t *process) {
     process->pcb = (PCB_t *) mem_alloc(sizeof(PCB_t));
 
     if (process->pcb == NULL) {
-        //TODO: aca va un mensaje de error
+        printf("Error creating pcb\n");
         return -1;
     }
 
@@ -73,12 +74,12 @@ int create_process(const char * path, int args, char *argv[]) {
     process_t *process = (process_t *) mem_alloc(sizeof(process_t));
 
     if (process == NULL) {
-        //TODO: aca va un mensaje de error
+        printf("Error creating process\n");
         return -1;
     }
 
     if (create_process_stack(process) == -1 || create_process_pcb(process) == -1) {
-        //TODO: aca va un mensaje de error
+        printf("Error creating process\n");
         mem_free(process);
         return -1;
     }

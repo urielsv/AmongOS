@@ -7,7 +7,7 @@
 #include "time.h"
 #include "video.h"
 #include <exceptions.h>
-#include <lib.h>
+#include "lib.h"
 #include <naiveConsole.h>
 
 #define REGS_SIZE 19
@@ -176,6 +176,7 @@ void save_registers(uint64_t *stack) {
 void test_exc_zero() {
     int a = 0;
     int b = 1 / a;
+    (void)b;
 }
 
 void test_exc_invalid_opcode() {

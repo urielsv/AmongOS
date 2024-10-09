@@ -2,7 +2,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "io.h"
 #include "keyboard.h"
-#include <video.h>
+#include "video.h"
 
 // starting position
 static uint64_t x = 0;
