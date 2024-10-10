@@ -186,11 +186,11 @@ create_process_stack_frame:
 
 	mov r8, rsp 	; Preservar rsp
 	mov r9, rbp		; Preservar rbp
-	mov rsp, rdx 	; sp del proceso
-	mov rbp, rdx	; bp del proceso
+	mov rsp, rsi 	; sp del proceso
+	mov rbp, rsi	; bp del proceso
 
 	push 0x0		; ss
-	push rdx		; rsp
+	push rsi		; rsp
 	push 0x202		; rflags
 	push 0x8		; cs
 	push rdi		; rip
