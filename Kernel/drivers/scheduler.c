@@ -20,16 +20,13 @@ typedef struct process_node {
 
 } process_node_t;
 
-typedef struct {
-
+struct scheduler_cdt {
     int process_count;
     process_node_t* head;
     process_node_t* current;
     process_t* processes[MAX_PROCESSES];
+};
 
-} scheduler_cdt;
-
-typedef scheduler_cdt* scheduler_adt;
 
 enum priority { LOW, LOW_MEDIUM, MEDIUM, HIGH_MEDIUM, HIGH };
 enum State { BLOCKED, READY, EXITED };
@@ -198,11 +195,29 @@ int kill_process(uint64_t pid) {
 
 int block_process(uint64_t pid) {
 
+    scheduler_adt scheduler = getSchedulerADT();
+
+    if (scheduler->processes[pid] == NULL) {
+        printf("Process %llu not found\n", pid);
+        return -1;
+    }
+
+    scheduler->processes[pid]->state = BLOCKED;
+    remove_process(pid);
     return 0;
 }
 
 int unblock_process(uint64_t pid) {
 
+    scheduler_adt scheduler = getSchedulerADT();
+
+    if (scheduler->processes[pid] == NULL) {
+        printf("Process %llu not found\n", pid);
+        return -1;
+    }
+
+    scheduler->processes[pid]->state = READY;
+    add_process(scheduler->processes[pid]);
     return 0;
 }
 

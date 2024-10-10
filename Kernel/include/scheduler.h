@@ -8,6 +8,7 @@
 #define SCHEDULER_ADDRESS 0x60000
 
 typedef int (*Function)(int argc, char **args);
+typedef struct scheduler_cdt* scheduler_adt;
 
 int create_process(Function code, int argc, char **argv);
 int kill_process(uint64_t pid);
