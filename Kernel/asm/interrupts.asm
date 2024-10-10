@@ -8,6 +8,8 @@ global asm_irq00_handler, asm_irq01_handler
 
 global asm_exception00_handler, asm_exception06_handler
 
+global create_process_stack_frame
+
 extern irq_dispatcher, syscall_dispatcher, exception_dispatcher, save_registers
 
 SECTION .text
@@ -179,3 +181,23 @@ asm_exception06_handler:
 ; Syscall (id) interrupt
 asm_syscall80_handler:
     syscall_handler 80
+
+create_process_stack_frame:
+
+	mov r8, rsp 	; Preservar rsp
+	mov r9, rbp		; Preservar rbp
+	mov rsp, rdx 	; sp del proceso
+	mov rbp, rdx	; bp del proceso
+
+	push 0x0		; ss
+	push rdx		; rsp
+	push 0x202		; rflags
+	push 0x8		; cs
+	push rdi		; rip
+	
+	push_state
+	mov rax, rsp
+	mov rsp, r8
+	mov rbp, r9
+
+	ret

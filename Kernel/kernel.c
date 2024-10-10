@@ -17,6 +17,8 @@
 #include <exceptions.h>
 #include <memman.h>
 #include "./test/include/test_mm.h"
+#include "./test/include/test_processes.h"
+
 #define STRING_SIZE "1000000"
 
 
@@ -61,8 +63,11 @@ int main() {
 
     uint64_t size = (uint64_t) heapEndAddress - (uint64_t) heapStartAddress;
     mem_init(heapStartAddress, size);
-    const char *str = STRING_SIZE;
-    test_mm(1, (char **)&str);    
+    // const char *str = STRING_SIZE;
+    // test_mm(1, (char **)&str);    
+
+    char *argv[] = {"10", NULL};
+    test_processes(1, argv);
 
     printf_color("Welcome to the AmongOS kernel!\n", 0x00FF00, 0x00);
 

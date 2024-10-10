@@ -3,73 +3,34 @@
 #include "../include/syscalls.h"
 #include "../include/stdio.h"
 
+#define MAX_PROCESSES 10
+#define STACK_SIZE (1<<12)
+
 enum State { BLOCKED, READY, EXITED };
 enum priority { LOW, LOW_MEDIUM, MEDIUM, HIGH_MEDIUM, HIGH };
+
+
 
 typedef struct {
 
     uint64_t pid;
-    uint64_t priority;
+    uint16_t priority;
     enum State state;
-    uint64_t stack_pointer;
-
-} PCB_t;
-
-typedef struct {
-
-    uint64_t align; 
-    uint64_t ss; 
-    uint64_t rsp; 
-    uint64_t rflags; 
-    uint64_t cs; 
-    uint64_t rip; 
-
-} stack_frame_t;
-
-typedef struct {
-
-    stack_frame_t * stack_frame;
-    PCB_t * pcb;
+    void * stack_base;
+    void * stack_pointer;
+    char ** argv;
+    uint64_t argc;
 
 } process_t;
 
-int create_process_stack(process_t *process) {
+int process_count = 0;
 
-    process->stack_frame = (stack_frame_t *) mem_alloc(sizeof(stack_frame_t));
+int create_process(Function code, int argc, char **argv) {
 
-    if (process->stack_frame == NULL) {
-        printf("Error creating stack frame\n");
+    if (process_count >= MAX_PROCESSES) {
+        printf("Max processes reached\n");
         return -1;
     }
-
-    process->stack_frame->align = 0x0; //0x0 si stack frame es multiplo de 8 bytes
-    process->stack_frame->ss = 0x0; 
-    process->stack_frame->rsp = 0x0; // TODO: no es cero
-    process->stack_frame->rflags = 0x202;
-    process->stack_frame->cs = 0x8;
-    process->stack_frame->rip = 0x0; // TODO: no es cero
-
-    return 0;
-}
-
-int create_process_pcb(process_t *process) {
-
-    process->pcb = (PCB_t *) mem_alloc(sizeof(PCB_t));
-
-    if (process->pcb == NULL) {
-        printf("Error creating pcb\n");
-        return -1;
-    }
-
-    process->pcb->pid = pid();
-    process->pcb->priority = LOW;
-    process->pcb->state = READY;
-    process->pcb->stack_pointer = (uint64_t) process->stack_frame->rsp; //TODO: revisar
-    return 0;
-}
-
-//TODO: seguir desde aca
-int create_process(const char * path, int args, char *argv[]) {
 
     process_t *process = (process_t *) mem_alloc(sizeof(process_t));
 
@@ -78,14 +39,22 @@ int create_process(const char * path, int args, char *argv[]) {
         return -1;
     }
 
-    if (create_process_stack(process) == -1 || create_process_pcb(process) == -1) {
-        printf("Error creating process\n");
-        mem_free(process);
+   process->stack_base = mem_alloc(STACK_SIZE);
+
+    if (process->stack_base == NULL) {
+        printf("Error creating stack frame\n");
         return -1;
     }
 
+    process->argv = argv;
+    process->argc = argc;
+    //process->pid = pid(); cual es el pid que deberia ir?
+    process->state = READY;
+    process->priority = LOW;
+    process->stack_pointer = create_process_stack_frame ((void *) code, (void *) ((uint64_t) process->stack_base + STACK_SIZE), (void *) argv);
+    process_count++;
 
-    return 0;
+    return process->pid;
 }
 
 int kill_process(uint64_t pid) {
