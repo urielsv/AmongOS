@@ -10,7 +10,7 @@ global asm_exception00_handler, asm_exception06_handler
 
 global create_process_stack_frame
 
-extern irq_dispatcher, syscall_dispatcher, exception_dispatcher, save_registers
+extern irq_dispatcher, syscall_dispatcher, exception_dispatcher, save_registers, scheduler
 
 SECTION .text
 
@@ -164,7 +164,24 @@ pic_slave_mask:
 
 ;Timer interrupt(timer tick)
 asm_irq00_handler:
-    irq_handler 0
+
+    ;irq_handler 0
+	;caso especial para el scheduler
+
+    push_state
+
+	mov rdi, 0 ; pasaje de parametro
+	call irq_dispatcher
+
+	mov rdi, rsp
+	call scheduler
+	mov rsp, rax
+
+	mov al, 20h
+	out 20h, al
+
+	pop_state
+	iretq
 
 ;Keyboard interrupt
 asm_irq01_handler:
