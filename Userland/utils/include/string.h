@@ -27,4 +27,13 @@ int8_t strcmp(const char* src, const char* tgt);
  * @returns Length of the string.
  */
 uint64_t strlen(char* buff);
+
+
+/*
+ * @brief Copy the string from src to dest.
+ * @param dest pointer to the destination array where the content is to be copied.
+ * @param src string to be copied.
+ */
+void strcpy(char* dest, char* src)
+
 #endif

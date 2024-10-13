@@ -25,11 +25,11 @@ struct scheduler_cdt {
     process_node_t* head;
     process_node_t* current;
     process_t* processes[MAX_PROCESSES];
+    uint16_t current_pid;
 };
 
 
 enum priority { LOW, LOW_MEDIUM, MEDIUM, HIGH_MEDIUM, HIGH };
-enum State { BLOCKED, READY, EXITED };
 
 
 scheduler_adt init_scheduler() {
@@ -45,6 +45,7 @@ scheduler_adt init_scheduler() {
     scheduler->head = NULL;
     scheduler->current = NULL;
 
+    scheduler->current_pid = 0;
     return scheduler;
 }
 
