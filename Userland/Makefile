@@ -13,6 +13,7 @@ sampleDataModule:
 clean:
 	cd utils; make clean
 	rm -rf *.bin
+	rm -rf *.elf
 
 
 .PHONY: utilsModule all clean

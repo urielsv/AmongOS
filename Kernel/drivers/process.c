@@ -1,12 +1,15 @@
 // #include "../include/create_process.h"
-// #include "../include/memman.h"
+ #include "../include/memman.h"
 // #include "../include/syscalls.h"
 // #include "../include/stdio.h"
 
 
 #include "../include/process.h"
-#include "../include/linkedListDT.h"
-#include <string.h>
+#include "../include/linkedListADT.h"
+#include "../include/lib.h"
+
+
+
 
 
 static char **alloc_args(char **args, uint64_t argc);
@@ -21,7 +24,7 @@ void init_process(process_t *process, uint16_t pid, Function code,
     process->argv = alloc_args(args, argc);
     process->argc = argc;
     process->name = mem_alloc(strlen(name) + 1);
-    strcpy(process->name, name);
+    memcpy(process->name, name, strlen(name) + 1);
     void *stack_end = (void *) ((uint64_t)process->stack_base + STACK_SIZE);
 
     process->stack_pointer = create_process_stack_frame((void *) code, stack_end, (void *) process->argv);
@@ -33,7 +36,7 @@ static char **alloc_args(char **args, uint64_t argc) {
     char **argv = (char **) mem_alloc(sizeof(char **) * (argc + 1));
     for (int i = 0; i < argc; i++) {
         argv[i] = mem_alloc(strlen(args[i]) + 1);
-        strcpy(argv[i], args[i]);
+        memcpy(argv[i], args[i], strlen(args[i]) + 1);
     }
     argv[argc] = NULL;
     return argv;
@@ -60,6 +63,6 @@ process_amongus_t * get_process_amongus(process_t * process){
     process_amongus->argv = process->argv;
     process_amongus->argc = process->argc;
     process_amongus->name = mem_alloc(strlen(process->name) + 1);
-    strcpy(process_amongus->name, process->name);
+    memcpy(process_amongus->name, process->name, strlen(process->name) + 1);
     return process_amongus;
 }

@@ -34,6 +34,6 @@ uint64_t strlen(char* buff);
  * @param dest pointer to the destination array where the content is to be copied.
  * @param src string to be copied.
  */
-void strcpy(char* dest, char* src)
+void strcpy(char* dest, char* src);
 
 #endif

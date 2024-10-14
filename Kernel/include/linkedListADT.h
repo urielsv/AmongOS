@@ -1,13 +1,16 @@
 #ifndef LINKEDLISTADT_H
 #define LINKEDLISTADT_H
 
-typedef linkedListCDT * linkedListADT;
-typedef struct {
+typedef struct linkedListCDT_t * linkedListADT;
+typedef struct node_t node_t; 
+
+typedef struct node_t {
     void * process;
-    node_t * next;
-    note_t * prev;
+    struct node_t * next;
+    struct node_t * prev;
 } node_t;
 
+#include <stdint.h>
 
 linkedListADT createLinkedList();
 void addNode(linkedListADT list, void * process);

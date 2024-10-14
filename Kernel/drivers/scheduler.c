@@ -1,18 +1,19 @@
 #include "../include/scheduler.h"
 #include "../include/memman.h"
+#include "../include/process.h"
 #define IDLE_PID 0
 
-typedef struct {
+// typedef struct {
 
-    uint64_t pid;
-    uint16_t priority;
-    uint16_t state;
-    void * stack_base;
-    void * stack_pointer;
-    char ** argv;
-    uint64_t argc;
+//     uint64_t pid;
+//     uint16_t priority;
+//     uint16_t state;
+//     void * stack_base;
+//     void * stack_pointer;
+//     char ** argv;
+//     uint64_t argc;
 
-} process_t;
+// } process_t;
 
 typedef struct process_node {
 
@@ -30,7 +31,7 @@ struct scheduler_cdt {
 };
 
 
-enum priority { LOW=0, LOW_MEDIUM, MEDIUM, HIGH_MEDIUM, HIGH };
+//enum priority { LOW=0, LOW_MEDIUM, MEDIUM, HIGH_MEDIUM, HIGH };
 
 
 scheduler_adt init_scheduler() {

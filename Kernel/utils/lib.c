@@ -18,6 +18,14 @@ void *memset(void *destination, int32_t c, uint64_t length) {
     return destination;
 }
 
+uint64_t strlen(const char *str) {
+    uint64_t count = 0;
+    while (str[count] != '\0') {
+        count++;
+    }
+    return count;
+}
+
 void *memcpy(void *destination, const void *source, uint64_t length) {
     /*
      * memcpy does not support overlapping buffers, so always do it
