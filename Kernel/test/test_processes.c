@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "syscall.h"
 #include "include/test_util.h"
-#include "../include/create_process.h"
+#include "../include/scheduler.h"
 #include "include/test_processes.h"
 
 enum State { RUNNING,

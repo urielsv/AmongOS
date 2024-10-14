@@ -1,5 +1,6 @@
 #include "../include/scheduler.h"
 #include "../include/memman.h"
+#define IDLE_PID 0
 
 typedef struct {
 
@@ -29,7 +30,7 @@ struct scheduler_cdt {
 };
 
 
-enum priority { LOW, LOW_MEDIUM, MEDIUM, HIGH_MEDIUM, HIGH };
+enum priority { LOW=0, LOW_MEDIUM, MEDIUM, HIGH_MEDIUM, HIGH };
 
 
 scheduler_adt init_scheduler() {
@@ -51,6 +52,28 @@ scheduler_adt init_scheduler() {
 
 scheduler_adt getSchedulerADT() {
 	return (scheduler_adt) SCHEDULER_ADDRESS;
+}
+
+//Agrega o remueve nodos de la lista de punteros a procesos segun la prioridad.
+int32_t set_priority(uint16_t pid, uint8_t new_priority) {
+
+    scheduler_adt scheduler = getSchedulerADT();
+    process_t * process_pointer = scheduler->processes[pid];
+
+    if (process_pointer == NULL || pid == IDLE_PID || new_priority > HIGH)
+		return -1;
+
+    int old_priority = process_pointer->priority;
+    process_pointer->priority = new_priority;
+
+    //Es una manera ineficiente de hacerlo, pero la idea es que sea funcional.
+    remove_all_process_appearances_from_list(pid);
+    for (int i = 0; i <= new_priority; i++) {
+        add_process_to_list(process_pointer);
+    }
+
+    return new_priority;
+
 }
 
 
@@ -75,7 +98,7 @@ void* scheduler(void* stack_pointer) {
     return scheduler->current->process->stack_pointer;
 }
 
-int add_process(process_t* process) {
+int add_process_to_list(process_t* process) {
 
     scheduler_adt scheduler = getSchedulerADT();
 
@@ -127,11 +150,11 @@ int create_process(Function code, int argc, char **argv) {
     process->argv = argv;
     process->argc = argc;
     //process->pid = pid(); cual es el pid que deberia ir?
-    process->state = READY;
+    //process->state = READY;
     process->priority = LOW;
     process->stack_pointer = create_process_stack_frame ((void *) code, (void *) ((uint64_t) process->stack_base + STACK_SIZE), (void *) argv);
 
-    if (add_process(process) == -1) {
+    if (add_process_to_list(process) == -1) {
         printf("Error adding process\n");
         return -1;
     }
@@ -143,7 +166,7 @@ int create_process(Function code, int argc, char **argv) {
 }
 
 
-void remove_process(uint64_t pid) {
+void remove_all_process_appearances_from_list(uint64_t pid) {
 
     scheduler_adt scheduler = getSchedulerADT();
 
@@ -184,7 +207,7 @@ int kill_process(uint64_t pid) {
         return -1;
     }
 
-    remove_process(pid);
+    remove_all_process_appearances_from_list(pid);
     mem_free(scheduler->processes[pid]->stack_base);
     mem_free(scheduler->processes[pid]->stack_pointer);
     mem_free(scheduler->processes[pid]->argv);
@@ -203,8 +226,8 @@ int block_process(uint64_t pid) {
         return -1;
     }
 
-    scheduler->processes[pid]->state = BLOCKED;
-    remove_process(pid);
+    //scheduler->processes[pid]->state = BLOCKED;
+    remove_all_process_appearances_from_list(pid);
     return 0;
 }
 
@@ -217,8 +240,8 @@ int unblock_process(uint64_t pid) {
         return -1;
     }
 
-    scheduler->processes[pid]->state = READY;
-    add_process(scheduler->processes[pid]);
+    //scheduler->processes[pid]->state = READY;
+    add_process_to_list(scheduler->processes[pid]);
     return 0;
 }
 
