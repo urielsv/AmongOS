@@ -1,7 +1,7 @@
 #include "../include/linkedListADT.h"
 #include "../include/memman.h"
 
-typedef struct {
+typedef struct linkedListCDT_t {
     node_t * head;
     node_t * tail;
     node_t * current;
