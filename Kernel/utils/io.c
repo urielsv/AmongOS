@@ -22,20 +22,20 @@ void set_position(uint64_t new_x, uint64_t new_y) {
 }
 
 // 8 x 16 pixels
-uint64_t printf(const char *str, ...) {
-    return printf_color(str, 0xFFFFFF, 0x000000);
+uint64_t ker_write(const char *str, ...) {
+    return ker_write_color(str, 0xFFFFFF, 0x000000);
 }
 
-uint64_t printf_color(const char *str, uint64_t fgcolor, uint64_t bgcolor) {
+uint64_t ker_write_color(const char *str, uint64_t fgcolor, uint64_t bgcolor) {
     int i = 0;
   //  uint64_t tempx, tempy;
     while (str[i]) {
-        putchar_color(str[i++], fgcolor, bgcolor);
+        putchar_color_k(str[i++], fgcolor, bgcolor);
     }
     return i;
 }
 
-void putchar_color(char c, uint64_t fgcolor, uint64_t bgcolor) {
+void putchar_color_k(char c, uint64_t fgcolor, uint64_t bgcolor) {
     switch (c) {
     case '\n':
         new_line(&x, &y);
@@ -49,8 +49,8 @@ void putchar_color(char c, uint64_t fgcolor, uint64_t bgcolor) {
     }
 }
 
-void putchar(char c) {
-    putchar_color(c, 0xFFFFFF, 0x000000);
+void putchar_k(char c) {
+    putchar_color_k(c, 0xFFFFFF, 0x000000);
 }
 
 // uint64_t scanf(const char *fmt, ...) {

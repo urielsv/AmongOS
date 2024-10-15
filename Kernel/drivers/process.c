@@ -7,9 +7,7 @@
 #include "../include/process.h"
 #include "../include/linkedListADT.h"
 #include "../include/lib.h"
-
-
-
+#include <string.h>
 
 
 static char **alloc_args(char **args, uint64_t argc);

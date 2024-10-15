@@ -16,14 +16,16 @@
 #include <syscalls.h>
 
 
-uint64_t printf(const char *fmt, ...);
-uint64_t printf_color(const char * str, uint64_t fgcolor, uint64_t bgcolor);
+uint64_t ker_write(const char *fmt, ...);
+uint64_t ker_write_color(const char *str, uint64_t fgcolor, uint64_t bgcolor);
 
-void putchar(char c);
-void putchar_color(char c, uint64_t fgcolor, uint64_t bgcolor);
+void putchar_k(char c);
+void putchar_color_k(char c, uint64_t fgcolor, uint64_t bgcolor);
 
 // Set the writing position to a new position
 void set_position(uint64_t new_x, uint64_t new_y);
+
+void clear(uint32_t hex);
 
 
 // @deprecated (Use userland-side function from stdio)

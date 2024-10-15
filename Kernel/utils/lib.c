@@ -18,13 +18,13 @@ void *memset(void *destination, int32_t c, uint64_t length) {
     return destination;
 }
 
-uint64_t strlen(const char *str) {
-    uint64_t count = 0;
-    while (str[count] != '\0') {
-        count++;
-    }
-    return count;
-}
+// uint64_t strlen(const char *str) {
+//     uint64_t count = 0;
+//     while (str[count] != '\0') {
+//         count++;
+//     }
+//     return count;
+// }
 
 void *memcpy(void *destination, const void *source, uint64_t length) {
     /*
@@ -84,13 +84,13 @@ void getTime() {
     ncPrintDec(getSeconds());
 }
 
-void itoa(char *str, int num, int width) {
-    for (int i = width - 1; i >= 0; i--) {
-        str[i] = num % 10 + '0';
-        num /= 10;
-    }
-    str[width] = '\0';
-}
+// void itoa(char *str, int num, int width) {
+//     for (int i = width - 1; i >= 0; i--) {
+//         str[i] = num % 10 + '0';
+//         num /= 10;
+//     }
+//     str[width] = '\0';
+// }
 
 uint64_t get_random_number(int seed) {
 

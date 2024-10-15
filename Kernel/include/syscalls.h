@@ -14,7 +14,8 @@
 #define SYSCALLS_H
 
 #include <stdint.h>
-
+#include <stddef.h>
+#include <process.h>
 
 /*
  * @name sys_write
@@ -178,5 +179,11 @@ void save_registers(uint64_t *stack);
 void test_exc_zero();
 
 void test_exc_invalid_opcode();
+
+void sys_mem_alloc(size_t size);
+
+void sys_mem_free(void *address);
+
+void sys_create_process(Function code, char **argv, int argc, char *name, uint8_t priority, uint8_t unkillable);
 
 #endif

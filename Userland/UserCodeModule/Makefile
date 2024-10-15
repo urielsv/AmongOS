@@ -6,13 +6,16 @@ SOURCES=$(wildcard *.c)
 SOURCES_EXEC=$(wildcard exec/*.c)
 SOURCES_LIBC=$(wildcard libc/*.c)
 SOURCES_ASM=$(wildcard libasm/*.asm)
+SOURCES_SHARED= $(wildcard ../../Shared/*.c)
+
 
 OBJECTS=$(SOURCES:.c=.o)
 OBJECTS_EXEC=$(SOURCES_EXEC:.c=.o)
 OBJECTS_LIBC=$(SOURCES_LIBC:.c=.o)
 OBJECTS_ASM=$(SOURCES_ASM:.asm=.o)
+OBJECTS_SHARED= $(SOURCES_SHARED:.c=.o)
 
-ALL_OBJECTS= $(OBJECTS) $(OBJECTS_ASM) $(OBJECTS_EXEC) $(OBJECTS_LIBC)
+ALL_OBJECTS= $(OBJECTS) $(OBJECTS_ASM) $(OBJECTS_EXEC) $(OBJECTS_LIBC) $(OBJECTS_SHARED)
 
 all: $(MODULE)
 
@@ -21,7 +24,7 @@ $(MODULE): $(ALL_OBJECTS)
 	$(LD) $(LDFLAGS) -T userlandCodeModule.ld --oformat=elf64-x86-64 -o ../0000-userlandCodeModule.elf $^
 
 %.o: %.c
-	$(GCC) $(GCCFLAGS) -I./include -c $< -o $@
+	$(GCC) $(GCCFLAGS) -I./include -I../../Shared/include -c $< -o $@
 
 %.o : %.asm
 	$(ASM) $(ASMFLAGS) $< -o $@

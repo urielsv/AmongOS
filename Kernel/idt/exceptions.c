@@ -1,7 +1,8 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <exceptions.h>
-#include <io.h>
+// #include <io.h>
+#include <stdio.h>
 #include <naiveConsole.h>
 
 #define ERROR_FGCOLOR 0xFF0000
@@ -33,10 +34,10 @@ static uint32_t registers_len = sizeof(regs)/sizeof(regs[0]);
 void exception_dispatcher(uint32_t exception, uint64_t* stack){
     switch(exception){
         case ZERO_DIVISION:
-                printf_color("\nZero Division Error Exception\n",ERROR_FGCOLOR, ERROR_BGCOLOR);
+                //printf_color("\nZero Division Error Exception\n",ERROR_FGCOLOR, ERROR_BGCOLOR);
         break;
         case INVALID_OPCODE:
-                printf_color("\nInvadid Opcode Exception\n", ERROR_FGCOLOR,ERROR_BGCOLOR);
+                //printf_color("\nInvadid Opcode Exception\n", ERROR_FGCOLOR,ERROR_BGCOLOR);
         break;
     }
     flag = 1;
@@ -49,25 +50,25 @@ void exception_dispatcher(uint32_t exception, uint64_t* stack){
 void print_regs(uint64_t * stack){
     
     if (stack == 0){
-        printf("\nError. Before print registers, press the key '0'\n");
+        //printf("\nError. Before print registers, press the key '0'\n");
         return;
     }
     
-    putchar('\n'); 
+    //putchar('\n'); 
  
     for(int i = 0; i < registers_len - 2; i++){ 
-        printf(regs[i]);
+        //printf(regs[i]);
         char buff[16];
         uintToBase(stack[i],buff,16);
-        printf(buff);
-        putchar('\n');
+        //printf(buff);
+        //putchar('\n');
     }
     if(flag == 0){
-        printf(regs[registers_len -2]);
+        //printf(regs[registers_len -2]);
         char buff1[16];
         uintToBase(stack[16], buff1,16);
-        printf(buff1);
-        putchar('\n');
+        //printf(buff1);
+        //putchar('\n');
 
         // test rp value
         // char buff2[16];
@@ -75,20 +76,20 @@ void print_regs(uint64_t * stack){
         // printf(buff2);
         // putchar('\n');
     }else if(flag == 1){
-        printf(regs[registers_len -2]);
+        //printf(regs[registers_len -2]);
         char buff1[16];
         uintToBase(rp.ip, buff1,16);
-        printf(buff1);
-        putchar('\n');
+        //printf(buff1);
+        //putchar('\n');
 
         flag = 0;
     }
-    printf(regs[registers_len - 1]);
+    //printf(regs[registers_len - 1]);
     
     char buff2[16]; 
     uintToBase(stack[registers_len + 1], buff2, 16);  
-    printf(buff2); 
-    putchar('\n');
+    //printf(buff2); 
+    //putchar('\n');
 
 }
 
@@ -105,14 +106,14 @@ static void
 restore_state(uint64_t* stack)
 {
     
-	printf("Restoring state from: IP=0x");
+	//printf("Restoring state from: IP=0x");
     char buffer[30];
 	uintToBase(stack[registers_len - 2], buffer, 16);
-	printf(buffer);
-	printf("  SP=0x");
+	//printf(buffer);
+	//printf("  SP=0x");
 	uintToBase(rp.sp, buffer, 16);
-	printf(buffer);
-	printf("\n\n");
+	//printf(buffer);
+	//printf("\n\n");
     
 	// restauramos los valores
 	stack[registers_len - 2] = rp.ip;  // RIP

@@ -1,8 +1,8 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <idtLoader.h>
-// #include <io.h>
-#include <stdio.h>
+#include <io.h>
+// #include <stdio.h>
 #include <keyboard.h>
 #include <lib.h>
 #include <moduleLoader.h>
@@ -16,9 +16,8 @@
 #include <video.h>
 #include <exceptions.h>
 #include <memman.h>
-#include "./test/include/test_mm.h"
-#include "./test/include/test_processes.h"
-#include "./include/scheduler.h"
+// #include "./include/scheduler.h"
+
 
 #define STRING_SIZE "1000000"
 
@@ -72,9 +71,10 @@ int main() {
     // test_mm(1, (char **)&str);    
     
     char *argv[] = {"10", NULL};
-    test_processes(1, argv);
+    // test_processes(1, argv);
 
-    printf_color("Welcome to the AmongOS kernel!\n", 0x00FF00, 0x00);
+    // printf("Test");
+    ker_write_color("Welcome to the AmongOS kernel!\n", 0x00FF00, 0x00);
 
     set_restore_point((uint64_t) userlandCodeModuleAddress, asm_getsp(),asm_getbp());
 

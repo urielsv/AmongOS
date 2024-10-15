@@ -1,11 +1,49 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+#include <stdio.h>
 #include <stdarg.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 #include <colors.h>
+#include <syscalls.h>
+
+void putchar_color(char c, uint64_t fgcolor, uint64_t bgcolor) {
+    write(1, &c, 1, fgcolor, bgcolor);
+}
+
+void putchar(char c) {
+    putchar_color(c, 0xFFFFFF, 0x000000);
+}
+
+
+uint8_t getchar() {
+    return read_char();
+}
+
+int64_t gets(char *buff, uint64_t length) {
+    uint64_t i = 0;
+    char c;
+    do {
+        c = getchar();
+        if (c >= 0x20 && c <= 0x7F) {
+            buff[i] = c;
+            putchar(buff[i++]);
+        }
+
+        if (c == '\n') {
+            buff[i] = '\0';
+        }
+        if (c == '\b') {
+            if (i > 0) {
+                i--;
+                putchar('\b');
+            }
+        }
+    } while (i < length && c != '\n');
+
+    return i;
+}
 
 void scanf(const char *fmt, ...) {
     va_list args;

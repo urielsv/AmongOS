@@ -17,15 +17,6 @@
 #define NULL ((void*)0)
 
 
-void putchar_color(char c, uint64_t fgcolor, uint64_t bgcolor);
-void putchar(char c);
-
-
-// Read from keyboard a string of length characters
-int64_t gets(char *buff, uint64_t length);
-// Read a character
-uint8_t getchar();
-
 // Integer to Array
 void itoa(uint64_t number, char* buff);
 

@@ -2,6 +2,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "syscalls.h"
 #include "io.h"
+#include <stdio.h>
 #include "keyboard.h"
 #include "sound.h"
 #include "time.h"
@@ -9,6 +10,11 @@
 #include <exceptions.h>
 #include "lib.h"
 #include <naiveConsole.h>
+#include <memman.h>
+#include <scheduler.h>
+#include <process.h>
+#include <stdint.h>
+#include <stddef.h>
 
 #define REGS_SIZE 19
 
@@ -39,7 +45,10 @@ static syscall_t syscalls[] = {
     (syscall_t)&font_size, // sys_id 16
     (syscall_t)&sys_registers, // sys_id 17
     (syscall_t)&test_exc_zero, // sys_id 18
-    (syscall_t)&test_exc_invalid_opcode // sys_id 19
+    (syscall_t)&test_exc_invalid_opcode, // sys_id 19
+    (syscall_t)&sys_mem_alloc, // sys_id 20
+    (syscall_t)&sys_mem_free, // sys_id 21
+    (syscall_t)&sys_create_process // sys_id 22
 };
 
 uint64_t syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9) {
@@ -58,12 +67,13 @@ uint64_t sys_write(uint8_t fd, const char *buffer, uint64_t count, uint64_t fgco
 
     // stdout
     if (fd == 1) {
-        return printf_color(buffer, fgcolor, bgcolor);
+        return ker_write_color(buffer, fgcolor, bgcolor);
     }
 
     // stderr
-    else if (fd == 2)
-        return printf_color(buffer, 0xFF, 0x40);
+    else if (fd == 2) {
+        return ker_write_color(buffer, 0xFF, 0x40);
+    }
 
     return 0;
 }
@@ -114,9 +124,9 @@ char *sys_time() {
     uint32_t seconds = getSeconds();
 
     char hh[3], mm[3], ss[3];
-    itoa(hh, hours, 2);
-    itoa(mm, minutes, 2);
-    itoa(ss, seconds, 2);
+    itoa(hours, hh);
+    itoa(minutes, mm);
+    itoa(seconds, ss);
 
     // Format the time string as "hh:mm:ss"
     time[0] = hh[0];
@@ -137,7 +147,7 @@ void sys_sleep(uint64_t millis) {
 }
 
 void sys_sound(uint8_t freq, uint64_t duration) {
-    start_sound(freq, duration);
+    // sound(freq, duration);
 }
 
 void sys_hlt() {
@@ -162,7 +172,7 @@ void font_size(int size) {
 }
 
 void sys_registers() {
-    print_regs(regs_flag ? regs : 0);
+    // print_regs(regs_flag ? regs : 0);
     regs_flag = 0;
 }
 
@@ -181,4 +191,16 @@ void test_exc_zero() {
 
 void test_exc_invalid_opcode() {
     __asm__("ud2");
+}
+
+void sys_mem_alloc(size_t size) {
+    mem_alloc(size);
+}
+
+void sys_mem_free(void *ptr) {
+    mem_free(ptr);
+}
+
+void sys_create_process(Function code, char **argv, int argc, char *name, uint8_t priority, uint8_t unkillable) {
+    create_process(code, argv, argc, name, priority, unkillable);   
 }

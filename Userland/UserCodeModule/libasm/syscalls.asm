@@ -1,4 +1,4 @@
-GLOBAL read, write, random, read_char, draw, sleep, time, sound, hlt, clear, writing_pos, screen_info,font_size,sys_registers,test_exc_zero,test_exc_invalid_opcode
+GLOBAL read, write, random, read_char, draw, sleep, time, sound, hlt, clear, writing_pos, screen_info,font_size,sys_registers,test_exc_zero,test_exc_invalid_opcode,malloc,free, execve
 
 
 
@@ -80,5 +80,20 @@ test_exc_zero:
 
 test_exc_invalid_opcode:
     mov rax,19
+    int 0x80
+    ret
+
+malloc:
+    mov rax, 20
+    int 0x80
+    ret
+
+free:
+    mov rax, 21
+    int 0x80
+    ret
+
+execve:
+    mov rax, 22
     int 0x80
     ret

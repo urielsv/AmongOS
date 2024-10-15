@@ -16,7 +16,7 @@
 
 void * memset(void * destination, int32_t character, uint64_t length);
 void * memcpy(void * destination, const void * source, uint64_t length);
-uint64_t strlen(const char *str);
+// uint64_t strlen(const char *str);
 
 extern char *cpuVendor(char *result);
 
@@ -28,7 +28,7 @@ uint32_t getMinutes();
 uint32_t getHours();
 
 // Returns string with the number passed as parameter.
-void itoa(char* str, int num, int width);
+// void itoa(char* str, int num, int width);
 
 // Returns string with time format.
 void getTime();

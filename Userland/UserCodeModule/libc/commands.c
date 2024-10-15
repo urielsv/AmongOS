@@ -5,7 +5,7 @@
 #include <snake.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "../include/string.h"
+#include <string.h>
 #include <syscalls.h>
 
 static command_t commands[] = {
