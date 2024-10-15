@@ -65,6 +65,15 @@ void * getNode(linkedListADT list, void * process) {
     return NULL;
 }
 
+void * getNextNode(linkedListADT list) {
+    if (list->current == NULL) {
+        list->current = list->head;
+    } else {
+        list->current = list->current->next;
+    }
+    return list->current;
+}
+
 void destroyLinkedList(linkedListADT list) {
     node_t * current = list->head;
     node_t * next;

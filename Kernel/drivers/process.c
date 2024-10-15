@@ -36,7 +36,7 @@ static char **alloc_args(char **args, uint64_t argc) {
     char **argv = (char **) mem_alloc(sizeof(char **) * (argc + 1));
     for (int i = 0; i < argc; i++) {
         argv[i] = mem_alloc(strlen(args[i]) + 1);
-        memcpy(argv[i], args[i], strlen(args[i]) + 1);
+        memcpy(argv[i], args[i],strlen(args[i]) + 1);
     }
     argv[argc] = NULL;
     return argv;

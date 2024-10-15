@@ -65,6 +65,7 @@ int main() {
     uint64_t size = (uint64_t) heapEndAddress - (uint64_t) heapStartAddress;
     mem_init(heapStartAddress, size);
     init_scheduler();
+    
     // const char *str = STRING_SIZE;
     // test_mm(1, (char **)&str);    
 

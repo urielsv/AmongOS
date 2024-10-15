@@ -1,54 +1,34 @@
 #include "../include/scheduler.h"
 #include "../include/memman.h"
 #include "../include/process.h"
+#include "../include/linkedListADT.h"
 #include <stdio.h>
 #define IDLE_PID 0
 
-// typedef struct {
 
-//     uint64_t pid;
-//     uint16_t priority;
-//     uint16_t state;
-//     void * stack_base;
-//     void * stack_pointer;
-//     char ** argv;
-//     uint64_t argc;
+typedef struct scheduler_cdt {
 
-// } process_t;
-
-typedef struct process_node {
-
-    process_t* process;
-    struct process_node* next;
-
-} process_node_t;
-
-struct scheduler_cdt {
-    int process_count;
-    process_node_t* head;
-    process_node_t* current;
-    process_t* processes[MAX_PROCESSES];
-    uint16_t current_pid;
-};
-
-
-//enum priority { LOW=0, LOW_MEDIUM, MEDIUM, HIGH_MEDIUM, HIGH };
+    node_t * processes[MAX_PROCESSES];
+    linkedListADT blocked_process_list;
+	linkedListADT process_list;
+	uint16_t current_pid;
+	uint16_t next_unused_pid;
+	uint16_t remaining_processes;
+} scheduler_cdt;
 
 
 scheduler_adt init_scheduler() {
 
     scheduler_adt scheduler = (scheduler_adt) SCHEDULER_ADDRESS;
 
-    scheduler->process_count = 0;
+    scheduler->process_list = createLinkedList();
+    scheduler->blocked_process_list = createLinkedList();
 
     for (int i = 0; i < MAX_PROCESSES; i++) {
         scheduler->processes[i] = NULL;
     }
 
-    scheduler->head = NULL;
-    scheduler->current = NULL;
-
-    scheduler->current_pid = 0;
+    scheduler->next_unused_pid = 0;
     return scheduler;
 }
 
@@ -60,7 +40,7 @@ scheduler_adt getSchedulerADT() {
 int32_t set_priority(uint16_t pid, uint8_t new_priority) {
 
     scheduler_adt scheduler = getSchedulerADT();
-    process_t * process_pointer = scheduler->processes[pid];
+    process_t * process_pointer = scheduler->processes[pid]->process;
 
     if (process_pointer == NULL || pid == IDLE_PID || new_priority > HIGH)
 		return -1;
@@ -68,74 +48,73 @@ int32_t set_priority(uint16_t pid, uint8_t new_priority) {
     int old_priority = process_pointer->priority;
     process_pointer->priority = new_priority;
 
-    //Es una manera ineficiente de hacerlo, pero la idea es que sea funcional.
-    remove_all_process_appearances_from_list(pid);
-    for (int i = 0; i <= new_priority; i++) {
-        add_process_to_list(process_pointer);
+    if (old_priority != new_priority) {
+        int difference = new_priority - old_priority;
+
+        if (difference > 0) { 
+            for (int i = 0; i < difference; i++) {
+                addNode(scheduler->process_list, (void *) process_pointer);
+            }
+        } else { 
+            for (int i = 0; i < -difference; i++) {
+                removeNode(scheduler->process_list, (void *) process_pointer);
+            }
+        }
     }
 
     return new_priority;
 
 }
 
+uint16_t get_next_pid(scheduler_adt scheduler) {
+    process_t *process = (process_t *) getNextNode(scheduler->process_list);
+	if (process == NULL)
+		return IDLE_PID;
+	return process->pid;
+}
+
 
 void* scheduler(void* stack_pointer) {
 
+    static int firstTime = 1;
     scheduler_adt scheduler = getSchedulerADT();
 
-    if (scheduler->head == NULL) {
+    if (!scheduler->remaining_processes) {
         return stack_pointer;
     }
 
-    if (scheduler->current != NULL) {
-        scheduler->current->process->stack_pointer = stack_pointer;
+    //quiere decir que el proceso actual ya no puede seguir corriendo.
+
+    process_t *current_process;
+	node_t *current_process_node = scheduler->processes[scheduler->current_pid];
+
+    if (current_process_node != NULL) {
+        current_process = (process_t *) current_process_node->process;
+		if (!firstTime)
+			current_process->stack_pointer = stack_pointer;
+		else
+			firstTime = 0;
+		if (current_process->state == RUNNING)
+			current_process->state = READY;
     }
 
-    if (scheduler->current == NULL || scheduler->current->next == NULL) {
-        scheduler->current = scheduler->head;
-    } else {
-        scheduler->current = scheduler->current->next;
-    }
+    scheduler->current_pid = get_next_pid(scheduler);
+    current_process = scheduler->processes[scheduler->current_pid]->process;
 
-    return scheduler->current->process->stack_pointer;
-}
-
-int add_process_to_list(process_t* process) {
-
-    scheduler_adt scheduler = getSchedulerADT();
-
-    process_node_t* new_node = mem_alloc(sizeof(process_node_t));
-    if (new_node == NULL) {
-        return -1;
-    }
-
-    new_node->process = process;
-    new_node->next = NULL;
-
-    if (scheduler->head == NULL) {
-        scheduler->head = new_node;
-    } else {
-        process_node_t* current = scheduler->head;
-        while (current->next != NULL) {
-            current = current->next;
-        }
-        current->next = new_node;
-    }
-
-    return 0;
+    current_process->state = RUNNING;
+    return current_process->stack_pointer;
 }
 
 
-int create_process(Function code, int argc, char **argv) {
+int16_t create_process(Function code, char **args, int argc, char *name, uint8_t priority, uint8_t unkillable) {
+
 
     scheduler_adt scheduler = getSchedulerADT();
 
-    if (scheduler->process_count >= MAX_PROCESSES) {
+    if (scheduler->remaining_processes >= MAX_PROCESSES) {
         printf("Max processes reached\n");
         return -1;
     }
-
-     printf("Creating process\n");
 
     process_t *process = (process_t *) mem_alloc(sizeof(process_t));
 
@@ -144,63 +123,29 @@ int create_process(Function code, int argc, char **argv) {
         return -1;
     }
 
-   process->stack_base = mem_alloc(STACK_SIZE);
+    init_process(process, scheduler->next_unused_pid, code, args,argc, name, priority, unkillable);
 
-    if (process->stack_base == NULL) {
-        printf("Error creating stack frame\n");
-        return -1;
-    }
+    node_t *process_node;
 
-    process->argv = argv;
-    process->argc = argc;
-    process->pid = scheduler->process_count;//pid(); cual es el pid que deberia ir?
-    process->state = READY;
-    process->priority = LOW;
-    process->stack_pointer = create_process_stack_frame ((void *) code, (void *) ((uint64_t) process->stack_base + STACK_SIZE), (void *) argv);
+    if (process->pid != IDLE_PID)
+        for (int i = 0; i < process->priority; i++) {
+            addNode(scheduler->process_list, (void *) process);
+        }
+    else {
+		process_node = mem_alloc(sizeof(node_t));
+		process_node->process = (void *) process;
+	}
+    
+	scheduler->processes[process->pid] = process_node;
 
-    if (add_process_to_list(process) == -1) {
-        printf("Error adding process\n");
-        return -1;
-    }
+    while (scheduler->processes[scheduler->next_unused_pid] != NULL)
+        scheduler->next_unused_pid = (scheduler->next_unused_pid + 1) % MAX_PROCESSES;
 
-    scheduler->processes[process->pid] = process;
-    scheduler->process_count++;
+    scheduler->remaining_processes++;
 
     return process->pid;
 }
 
-
-void remove_all_process_appearances_from_list(uint64_t pid) {
-
-    scheduler_adt scheduler = getSchedulerADT();
-
-    //remove process from the process pointer list
-    process_node_t* current = scheduler->head;
-    process_node_t* prev = NULL;
-
-    while (current != NULL) {
-        if (current->process->pid == pid) {
-            if (prev == NULL) {
-                scheduler->head = current->next;
-            } else {
-                prev->next = current->next;
-            }
-
-            if (current->process == scheduler->current->process) {
-                scheduler->current = scheduler->current->next;
-                if (scheduler->current == NULL) {
-                    scheduler->current = scheduler->head;
-                }
-            }
-
-            mem_free(current);
-            scheduler->process_count--;
-            return;
-        }
-        prev = current;
-        current = current->next;
-    }
-}
 
 int kill_process(uint64_t pid) {
 
@@ -211,12 +156,20 @@ int kill_process(uint64_t pid) {
         return -1;
     }
 
-    remove_all_process_appearances_from_list(pid);
-    mem_free(scheduler->processes[pid]->stack_base);
-    mem_free(scheduler->processes[pid]->stack_pointer);
-    mem_free(scheduler->processes[pid]->argv);
-    mem_free(scheduler->processes[pid]);
-    scheduler->processes[pid] = NULL;
+    process_t *process_to_kill = (process_t *) scheduler->processes[pid]->process;
+
+    if (process_to_kill->unkilliable)
+		return -1;
+
+	// TODO: falta implementar files descriptors 
+    if (process_to_kill->state == BLOCKED) {
+        removeNode(scheduler->blocked_process_list, process_to_kill);
+    }
+    else {
+        for (int i = 0; i < process_to_kill->priority; i++) {
+            removeNode(scheduler->process_list, process_to_kill);
+        }
+    }
 
     return 0;
 }
@@ -225,13 +178,17 @@ int block_process(uint64_t pid) {
 
     scheduler_adt scheduler = getSchedulerADT();
 
-    if (scheduler->processes[pid] == NULL) {
+    if (scheduler->processes[pid] == NULL || pid == IDLE_PID) {
         printf("Process %llu not found\n", pid);
         return -1;
     }
 
-    //scheduler->processes[pid]->state = BLOCKED;
-    remove_all_process_appearances_from_list(pid);
+    process_t *process_to_block = (process_t *) scheduler->processes[pid]->process;
+    process_to_block->state = BLOCKED;
+    addNode(scheduler->blocked_process_list, process_to_block);
+    for (int i = 0; i < process_to_block->priority; i++) {
+        removeNode(scheduler->process_list, process_to_block);
+    }
     return 0;
 }
 
@@ -244,8 +201,12 @@ int unblock_process(uint64_t pid) {
         return -1;
     }
 
-    //scheduler->processes[pid]->state = READY;
-    add_process_to_list(scheduler->processes[pid]);
+    process_t *process_to_unblock = (process_t *) scheduler->processes[pid]->process;
+    process_to_unblock->state = READY;
+    removeNode(scheduler->blocked_process_list, process_to_unblock);
+    for (int i = 0; i < process_to_unblock->priority; i++) {
+        addNode(scheduler->process_list, process_to_unblock);
+    }
     return 0;
 }
 

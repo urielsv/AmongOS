@@ -17,5 +17,5 @@ void addNode(linkedListADT list, void * process);
 void removeNode(linkedListADT list, void * process);
 void * getNode(linkedListADT list, void * process);
 void destroyLinkedList(linkedListADT list);
-
+void * getNextNode(linkedListADT list);
 #endif // LINKEDLISTADT_H

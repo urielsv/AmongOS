@@ -10,12 +10,11 @@
 typedef int (*Function)(int argc, char **args);
 typedef struct scheduler_cdt* scheduler_adt;
 
-int create_process(Function code, int argc, char **argv);
+int16_t create_process(Function code, char **args, int argc, char *name, uint8_t priority, uint8_t unkillable);
 int kill_process(uint64_t pid);
 int block_process(uint64_t pid);
 int unblock_process(uint64_t pid);
-extern void * create_process_stack_frame(void * rip, void * rsp, void * argv);
-
+scheduler_adt init_scheduler();
 void* scheduler(void* stack_pointer);
 
 #endif // SCHEDULER_H
