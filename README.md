@@ -5,19 +5,23 @@ docker run -v "${PWD}:/root" --platform linux/amd64 --privileged -ti agodio/itba
 ```
 > Pare sobre el directorio del proyecto y ejecute reemplazando <container_id> por el id del contenedor de docker (puede averiguarlo con el comando `docker ps`):
 ```
-docker exec -it <container_id> /bin/bash
+docker exec -ti <container_id> /bin/bash
 ```
 > Dirigirse a la carpeta del proyecto:
 ```
 cd root
 ```
-> Generar los artefactos:
+> Instruccion para compilar:
 ```
 make all
 ```
-> Limpiar los artefactos:
+> Instruccion para limpiar los artefactos:
 ```
 make clean
+```
+> Instruccion para ejecutar la shell. Pararse sobre el directorio del proyecto (fuera del contenedor) y ejecutar:
+```
+./run.sh
 ```
 
 
