@@ -52,7 +52,7 @@ void *initializeKernelBinary() {
         sampleDataModuleAddress};
 
     loadModules(&endOfKernelBinary, moduleAddresses);
-
+    
     clearBSS(&bss, &endOfKernel - &bss);
 
     return getStackBase();
@@ -60,15 +60,17 @@ void *initializeKernelBinary() {
 
 int main() {
 
+    
     idt_loader();
-
+   
     uint64_t size = (uint64_t) heapEndAddress - (uint64_t) heapStartAddress;
     mem_init(heapStartAddress, size);
-    init_scheduler();
-    
+   
+   init_scheduler();
+
     // const char *str = STRING_SIZE;
     // test_mm(1, (char **)&str);    
-
+    
     char *argv[] = {"10", NULL};
     test_processes(1, argv);
 
