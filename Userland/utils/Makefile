@@ -30,5 +30,7 @@ clean:
 	@rm -rf *.o
 	@rm -rf exec/*.o
 	@rm -rf libasm/*.o
+	@rm -rf libc/*.o
+	
 
 .PHONY: all clean print

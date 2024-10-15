@@ -18,6 +18,7 @@
 #include <memman.h>
 #include "./test/include/test_mm.h"
 #include "./test/include/test_processes.h"
+#include "./include/scheduler.h"
 
 #define STRING_SIZE "1000000"
 
@@ -63,6 +64,7 @@ int main() {
 
     uint64_t size = (uint64_t) heapEndAddress - (uint64_t) heapStartAddress;
     mem_init(heapStartAddress, size);
+    init_scheduler();
     // const char *str = STRING_SIZE;
     // test_mm(1, (char **)&str);    
 
@@ -76,7 +78,6 @@ int main() {
     ((EntryPoint)userlandCodeModuleAddress)();
 
     while (1)
-        ;
 
     return 0;
 }

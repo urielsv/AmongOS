@@ -1,6 +1,7 @@
 #include "../include/scheduler.h"
 #include "../include/memman.h"
 #include "../include/process.h"
+#include <stdio.h>
 #define IDLE_PID 0
 
 // typedef struct {
@@ -134,6 +135,8 @@ int create_process(Function code, int argc, char **argv) {
         return -1;
     }
 
+     printf("Creating process\n");
+
     process_t *process = (process_t *) mem_alloc(sizeof(process_t));
 
     if (process == NULL) {
@@ -150,8 +153,8 @@ int create_process(Function code, int argc, char **argv) {
 
     process->argv = argv;
     process->argc = argc;
-    //process->pid = pid(); cual es el pid que deberia ir?
-    //process->state = READY;
+    process->pid = scheduler->process_count;//pid(); cual es el pid que deberia ir?
+    process->state = READY;
     process->priority = LOW;
     process->stack_pointer = create_process_stack_frame ((void *) code, (void *) ((uint64_t) process->stack_base + STACK_SIZE), (void *) argv);
 
