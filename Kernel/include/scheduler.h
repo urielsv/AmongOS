@@ -5,7 +5,7 @@
 #include <stdio.h>
 #define MAX_PROCESSES (1<<12)
 #define STACK_SIZE (1<<12)
-#define SCHEDULER_ADDRESS 0x60000
+#define SCHEDULER_ADDRESS 0x600000
 
 typedef int (*Function)(int argc, char **args);
 typedef struct scheduler_cdt* scheduler_adt;

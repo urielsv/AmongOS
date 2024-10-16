@@ -2,7 +2,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "syscalls.h"
 #include "io.h"
-#include <stdio.h>
+#include <stdlib.h>
 #include "keyboard.h"
 #include "sound.h"
 #include "time.h"

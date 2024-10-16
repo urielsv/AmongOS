@@ -2,7 +2,7 @@
 #include "../include/memman.h"
 #include "../include/process.h"
 #include "../include/linkedListADT.h"
-#include <stdio.h>
+#include <io.h>
 #define IDLE_PID 0
 
 
@@ -75,6 +75,10 @@ uint16_t get_next_pid(scheduler_adt scheduler) {
 
 
 void* scheduler(void* stack_pointer) {
+
+    // while(1) {
+    //     ker_write_color("asdasda hola", 0x00FF00, 0x00);
+    // };
 
     static int firstTime = 1;
     scheduler_adt scheduler = getSchedulerADT();

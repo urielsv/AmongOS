@@ -1,6 +1,6 @@
 #include "../include/linkedListADT.h"
 #include "../include/memman.h"
-
+#include <stddef.h>
 typedef struct linkedListCDT_t {
     node_t * head;
     node_t * tail;

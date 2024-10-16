@@ -16,6 +16,7 @@
 #include <video.h>
 #include <exceptions.h>
 #include <memman.h>
+#include <scheduler.h>
 // #include "./include/scheduler.h"
 
 
@@ -53,19 +54,20 @@ void *initializeKernelBinary() {
     loadModules(&endOfKernelBinary, moduleAddresses);
     
     clearBSS(&bss, &endOfKernel - &bss);
-
+    
+    uint64_t size = (uint64_t) heapEndAddress - (uint64_t) heapStartAddress;
+    mem_init(heapStartAddress, size);
+    init_scheduler(); 
     return getStackBase();
 }
 
 int main() {
 
-    
+
     idt_loader();
    
-    uint64_t size = (uint64_t) heapEndAddress - (uint64_t) heapStartAddress;
-    mem_init(heapStartAddress, size);
    
-   init_scheduler();
+    //init_scheduler();
 
     // const char *str = STRING_SIZE;
     // test_mm(1, (char **)&str);    
