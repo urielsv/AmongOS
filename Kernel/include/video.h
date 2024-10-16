@@ -34,5 +34,6 @@ void video_fontsize(int newsize);
 // Screen information (width and height)
 int get_width();
 int get_height();
+void new_line(uint64_t *x, uint64_t *y);
 
 #endif

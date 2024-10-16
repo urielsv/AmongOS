@@ -8,7 +8,7 @@ SOURCES_DRIVERS=$(wildcard drivers/*.c)
 SOURCES_IDT=$(wildcard idt/*.c)
 SOURCES_ASM=$(wildcard asm/*.asm)
 SOURCES_UTILS=$(wildcard utils/*.c)
-SOURCES_TEST=$(wildcard test/*.c)
+SOURCES_TEST=$(wildcard tests/*.c)
 SOURCES_SHARED= $(wildcard ../Shared/*.c)
 
 OBJECTS=$(SOURCES:.c=.o)
@@ -16,10 +16,9 @@ OBJECTS_DRIVERS=$(SOURCES_DRIVERS:.c=.o)
 OBJECTS_IDT=$(SOURCES_IDT:.c=.o)
 OBJECTS_ASM=$(SOURCES_ASM:.asm=.o)
 OBJECTS_UTILS=$(SOURCES_UTILS:.c=.o)
-OBJECTS_TEST=$(SOURCES_TEST:.c=.o)
 OBJECTS_SHARED= $(SOURCES_SHARED:.c=.o)
 
-ALL_OBJECTS= $(OBJECTS) $(OBJECTS_DRIVERS) $(OBJECTS_IDT) $(OBJECTS_ASM) $(OBJECTS_UTILS) $(OBJECTS_TEST) 
+ALL_OBJECTS= $(OBJECTS) $(OBJECTS_DRIVERS) $(OBJECTS_IDT) $(OBJECTS_ASM) $(OBJECTS_UTILS) 
 
 # Shared source files
 
@@ -42,6 +41,6 @@ $(LOADEROBJ):
 	$(ASM) $(ASMFLAGS) $(LOADERSRC) -o $(LOADEROBJ)
 
 clean:
-	rm -rf *.bin *.elf *.o drivers/*.o idt/*.o libasm/*.o libc/*.o test/*.o utils/*.o asm/*.o ../Shared/*.o
+	rm -rf *.bin *.elf *.o drivers/*.o idt/*.o libasm/*.o libc/*.o test/*.o utils/*.o asm/*.o ../Shared/*.o 
 
 .PHONY: all clean

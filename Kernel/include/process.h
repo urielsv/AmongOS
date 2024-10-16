@@ -2,11 +2,9 @@
 #define _CREATE_PROCESS_H
 
 #include <stdint.h>
+#include <definitions.h>
 #include "linkedListADT.h"
-#define STACK_SIZE (1<<12)
 
-typedef enum { BLOCKED = 0, READY, EXITED, RUNNING } state_t;
-typedef enum { LOW = 0, LOW_MEDIUM, MEDIUM, HIGH_MEDIUM, HIGH } priority_t;
 
 
 typedef struct {

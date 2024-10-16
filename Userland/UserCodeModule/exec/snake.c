@@ -56,10 +56,11 @@ struct block {
 static block_t collision_board[BOARD_SIZE][BOARD_SIZE];
 static uint8_t player_count;
 
-void snake() {
+int snake() {
 
     player_count = 0;
     main_menu();
+    return 0;
 }
 
 

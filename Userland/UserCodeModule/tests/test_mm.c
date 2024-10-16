@@ -1,6 +1,8 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "include/test_mm.h"
+#include <syscalls.h>
+#include <string.h>
 
 #define MAX_BLOCKS 128
 
@@ -11,7 +13,6 @@ typedef struct MM_rq {
 
 uint64_t test_mm(uint64_t argc, char *argv[]) {
 
-
   mm_rq mm_rqs[MAX_BLOCKS];
   uint8_t rq;
   uint32_t total;
@@ -20,9 +21,14 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
   if (argc != 1)
     return -1;
 
-  if ((max_memory = satoi(argv[0])) <= 0) {
-    return -1;
-  }
+  // if ((max_memory = satoi(argv[0])) <= 0) {
+  //  return -1;
+  // }
+
+  // printf("%d", argc);
+  // for (int i = 0; i < argc; i++) {
+  //   printf("%s", argv[i]);
+  // }
 
   while (1) {
     rq = 0;
@@ -31,8 +37,8 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
     // Request as many blocks as we can
     while (rq < MAX_BLOCKS && total < max_memory) {
       mm_rqs[rq].size = GetUniform(max_memory - total - 1) + 1;
-      mm_rqs[rq].address = malloc(mm_rqs[rq].size);
-
+      mm_rqs[rq].address = mem_alloc(mm_rqs[rq].size);
+      // printf("memoria alocada!");
       if (mm_rqs[rq].address) {
         total += mm_rqs[rq].size;
         rq++;
@@ -57,10 +63,11 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
         } 
       }
 
-    // Free
+    // mem_free
     for (i = 0; i < rq; i++)
       if (mm_rqs[i].address){
-        free(mm_rqs[i].address);
+        mem_free(mm_rqs[i].address);
+        //printf("memoria liberada!");
       }
   }
 }

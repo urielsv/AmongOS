@@ -1,17 +1,14 @@
 #include <stdio.h>
-#include "syscall.h"
+#include "include/syscall.h"
 #include "include/test_util.h"
-#include "../include/scheduler.h"
 #include "include/test_processes.h"
 #include <stdint.h>
-
-enum State { RUNNING,
-             BLOCKED,
-             KILLED };
+#include <syscalls.h>
+#include <definitions.h>
 
 typedef struct P_rq {
   int32_t pid;
-  enum State state;
+  state_t state;
 } p_rq;
 
 int64_t test_processes(uint64_t argc, char *argv[]) {
@@ -19,7 +16,7 @@ int64_t test_processes(uint64_t argc, char *argv[]) {
   
   uint8_t rq;
   uint8_t alive = 0;
-  uint8_t action;
+  // uint8_t action;
   uint64_t max_processes;
   char *argvAux[] = {0};
 
@@ -38,7 +35,7 @@ int64_t test_processes(uint64_t argc, char *argv[]) {
 
      // Create max_processes processes
     for (rq = 0; rq < max_processes; rq++) {
-      p_rqs[rq].pid = create_process(&endless_loop, argvAux, 0, "test", 0, 0);
+      p_rqs[rq].pid = exec((Function) &endless_loop, argvAux, 0, "test", 0, 0);
       
       printf("created process\n");
 
@@ -60,7 +57,7 @@ int64_t test_processes(uint64_t argc, char *argv[]) {
   //       switch (action) {
   //         case 0:
             if (p_rqs[rq].state == RUNNING || p_rqs[rq].state == BLOCKED) {
-              if (kill_process(p_rqs[rq].pid) == -1) {
+              if (kill(p_rqs[rq].pid) == -1) {
                 printf("test_processes: ERROR killing process\n");
                 return -1;
               }

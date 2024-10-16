@@ -17,6 +17,7 @@
 #include <exceptions.h>
 #include <memman.h>
 #include <scheduler.h>
+#include <stdlib.h>
 // #include "./include/scheduler.h"
 
 
@@ -63,26 +64,15 @@ void *initializeKernelBinary() {
 
 int main() {
 
+    char *args_shell[2] = {"shell", NULL};
 
+    // TODO Add Idle process (as process init)
+    create_process((Function) userlandCodeModuleAddress, args_shell, 2, "shell", 4, 1);
     idt_loader();
-   
-   
-    //init_scheduler();
-
-    // const char *str = STRING_SIZE;
-    // test_mm(1, (char **)&str);    
-    
-    char *argv[] = {"10", NULL};
-    // test_processes(1, argv);
-
-    // printf("Test");
-    ker_write_color("Welcome to the AmongOS kernel!\n", 0x00FF00, 0x00);
-
-    set_restore_point((uint64_t) userlandCodeModuleAddress, asm_getsp(),asm_getbp());
-
-    ((EntryPoint)userlandCodeModuleAddress)();
-
-    while (1)
+    while(1) {
+        asm_hlt();
+    }
 
     return 0;
 }
+

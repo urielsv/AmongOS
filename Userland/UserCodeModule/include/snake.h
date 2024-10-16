@@ -30,7 +30,7 @@ typedef struct block block_t;
 /*
  * LOGIC FUNCTIONS
  */
-void snake();
+int snake();
 void game(player_t player1, player_t player2);
 void init_player(player_t player, color_t color, controller_t controller);
 void main_menu();

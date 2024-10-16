@@ -64,7 +64,7 @@ void scanf(const char *fmt, ...) {
                 gets(va_arg(args, char *), 100);
                 break;
             case 'c':
-                gets(va_arg(args, char), 1);
+                gets(va_arg(args, char *), 1);
                 break;
             default:
                 break;
@@ -86,7 +86,7 @@ static void print_str(const char *s, uint32_t fgcolor, uint32_t bgcolor) {
 
 uint64_t printf_color(const char *fmt, uint32_t fgcolor, uint32_t bgcolor, ...) {
     va_list args;
-    va_start(args, fmt);
+    va_start(args, bgcolor);
 
     uint64_t i = 0;
     while (fmt[i]) {

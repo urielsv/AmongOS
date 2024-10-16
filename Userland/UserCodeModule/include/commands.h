@@ -18,18 +18,18 @@ typedef struct command {
 	int (*cmd)();
 } command_t;
 
-void execute_command(char* cmdname);
+int execute_command(char* cmdname);
 
 // Commands
-void print_help();
-void screen();
-void font();
-void print_amongus();
-void print_random();
-void print_time();
-void print_clear();
-void print_regs();
-void testzero();
-void opcode();
+int print_help();
+int screen();
+int font();
+int print_amongus();
+int print_random();
+int print_time();
+int print_clear();
+int print_regs();
+int testzero();
+int opcode();
 
 #endif

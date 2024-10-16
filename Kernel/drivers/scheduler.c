@@ -112,18 +112,17 @@ void* scheduler(void* stack_pointer) {
 
 int16_t create_process(Function code, char **args, int argc, char *name, uint8_t priority, uint8_t unkillable) {
 
-
     scheduler_adt scheduler = getSchedulerADT();
 
     if (scheduler->remaining_processes >= MAX_PROCESSES) {
-        //printf("Max processes reached\n");
+        ker_write("Max processes reached\n");
         return -1;
     }
 
     process_t *process = (process_t *) mem_alloc(sizeof(process_t));
 
     if (process == NULL) {
-        //printf("Error creating process\n");
+        ker_write("Error creating process\n");
         return -1;
     }
 
@@ -132,13 +131,14 @@ int16_t create_process(Function code, char **args, int argc, char *name, uint8_t
     node_t *process_node;
 
     if (process->pid != IDLE_PID) {
-        //printf("Creating process\n");
+        ker_write("Creating process\n");
         for (int i = 0; i < process->priority; i++) {
             addNode(scheduler->process_list, (void *) process);
+            
         }
     }
     else {
-        //printf("Creating idle process\n");
+        ker_write("Creating idle process\n");
 		process_node = mem_alloc(sizeof(node_t));
 		process_node->process = (void *) process;
 	}
@@ -154,19 +154,19 @@ int16_t create_process(Function code, char **args, int argc, char *name, uint8_t
 }
 
 
-int kill_process(uint64_t pid) {
+int kill_process(uint16_t pid) {
 
     scheduler_adt scheduler = getSchedulerADT();
     if(pid == IDLE_PID) {
-        //printf("Cannot kill idle process\n");
+        ker_write("Cannot kill idle process\n");
     }
     if (scheduler==NULL) {
-        //printf("Scheduler not initialized\n");
+        ker_write("Scheduler not initialized\n");
         return -1;
     }
 
     if (scheduler->processes[pid] == NULL) {
-        //printf("Process %llu not found\n", pid);
+        ker_write("Process %llu not found\n", pid);
         return -1;
     }
 
@@ -193,7 +193,7 @@ int block_process(uint64_t pid) {
     scheduler_adt scheduler = getSchedulerADT();
 
     if (scheduler->processes[pid] == NULL || pid == IDLE_PID) {
-        //printf("Process %llu not found\n", pid);
+        ker_write("Process %llu not found\n", pid);
         return -1;
     }
 
@@ -211,7 +211,7 @@ int unblock_process(uint64_t pid) {
     scheduler_adt scheduler = getSchedulerADT();
 
     if (scheduler->processes[pid] == NULL) {
-        //printf("Process %llu not found\n", pid);
+        ker_write("Process %llu not found\n", pid);
         return -1;
     }
 

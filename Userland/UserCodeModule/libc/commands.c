@@ -23,30 +23,33 @@ static command_t commands[] = {
     {"opcode", "testea la excepcion de opcode invalido", opcode},	
 };
 
-void execute_command(char *cmdname) {
+int execute_command(char *cmdname) {
     for (int i = 0; i < sizeof(commands) / sizeof(command_t); i++) {
         if (strcmp(commands[i].name, cmdname) == 0) {
             commands[i].cmd();
-            return;
+            return 0;
         }
     }
     printf("\nSUShell: '%s' command not found\n", cmdname);
+    return 0;
 }
-void print_help() {
+int print_help() {
 
     printf("\nCommand: Description\n");
     for (int i = 1; i < sizeof(commands) / sizeof(command_t); i++) {
         printf("%s: %s\n", commands[i].name, commands[i].description);
     }
+    return 0;
 }
 
-void screen() {
+int screen() {
     uint64_t width, height;
     screen_info(&width, &height);
     printf("\nW:%d, H:%d\n", width, height);
+    return 0;
 }
 
-void font() {
+int font() {
     int num;
     scanf("\nNew size: %d", &num);
     if (num <= 0 || num >= 6) {
@@ -55,9 +58,10 @@ void font() {
         font_size(num);
         clear(COLOR_BLACK);
     }
+    return 0;
 }
 
-void print_amongus() {
+int print_amongus() {
     printf_color("\n........ooooooooo.......\n", COLOR_RED, COLOR_BLACK);
     printf_color("......oo.....oooooo.....\n", COLOR_RED, COLOR_BLACK);
     printf_color("......oo...oo......oo...\n", COLOR_RED, COLOR_BLACK);
@@ -66,28 +70,35 @@ void print_amongus() {
     printf_color("......oo...oo..oo.......\n", COLOR_RED, COLOR_BLACK);
     printf_color("......oo...oo..oo.......\n", COLOR_RED, COLOR_BLACK);
     printf_color("......ooo..oo.ooo.......\n", COLOR_RED, COLOR_BLACK);
+    return 0;
 }
 
-void print_random() {
+int print_random() {
     printf("\n%d\n", random(1203929));
+    return 0;
 }
 
-void print_time() {
+int print_time() {
     printf("\n%s\n", time());
+    return 0;
 }
 
-void print_clear() {
+int print_clear() {
     clear(COLOR_BLACK);
+    return 0;
 }
 
-void print_regs() {
+int print_regs() {
     sys_registers();
+    return 0;
 }
 
-void testzero(){
+int testzero(){
     test_exc_zero();
+    return 0;
 }
 
-void opcode(){
+int opcode() {
     test_exc_invalid_opcode();
+    return 0;
 }
