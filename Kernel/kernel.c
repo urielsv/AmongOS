@@ -62,12 +62,34 @@ void *initializeKernelBinary() {
     return getStackBase();
 }
 
+
+void test(char c){
+    if(strcmp(c, "a") == 0){
+        ker_write("Test a");
+    }
+    else{
+        ker_write("Test b");
+    }
+}
+
 int main() {
 
     char *args_shell[2] = {"shell", NULL};
 
+    // ker_write("Initializing kernel\n");
     // TODO Add Idle process (as process init)
     create_process((Function) userlandCodeModuleAddress, args_shell, 2, "shell", 4, 1);
+    for(int i = 0; i < 10; i++){
+        if(i % 2 == 0){
+            char *  test_args[1] = {"a"};
+            create_process((Function) test, test_args, 1, "test a", 4, 1);
+        }
+        else{
+            char *  test_args[1] = {"b"};
+            create_process((Function) test, test_args, 1, "test b", 4, 1);
+        }
+    }
+    
     idt_loader();
     while(1) {
         asm_hlt();

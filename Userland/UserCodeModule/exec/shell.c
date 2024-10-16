@@ -12,7 +12,7 @@
 #define MAX_BUFFER_SIZE 1024
 
 void test(){
-    printf("Test\n");
+    printf("Testeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeo\n");
 }
 
 void shell() {
@@ -20,20 +20,22 @@ void shell() {
     print_header();
 
     // char *argv_test_mm[] = {"0x1000000", NULL};
-    // exec((Function) test_mm, argv_test_mm, 2, "test_mm", 1, 1);
+    //exec((Function) test_mm, argv_test_mm, 2, "test_mm", 1, 1);
     
     //exec((Function) test_processes, NULL, 0, "test_processes", 1, 1);
     
-    exec((Function) test, NULL, 0, "test", 1, 1);
+    //exec((Function) test, NULL, 0, "test", 1, 1);
 
     // SHELL LOOP
     char buff[MAX_BUFFER_SIZE];
     while (1) {
         print_ps1("user", "~");
-        gets(buff, MAX_BUFFER_SIZE);
-        execute_command(buff);
-        hlt();
+        // gets(buff, MAX_BUFFER_SIZE);
+        // execute_command(buff);
+        // hlt();
     }
+
+
 }
 
 

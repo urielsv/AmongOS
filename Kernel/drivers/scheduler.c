@@ -6,6 +6,8 @@
 #define IDLE_PID 0
 
 
+#define DEFAULT_QUANTUM 10
+
 typedef struct scheduler_cdt {
 
     node_t * processes[MAX_PROCESSES];
@@ -14,6 +16,7 @@ typedef struct scheduler_cdt {
 	uint16_t current_pid;
 	uint16_t next_unused_pid;
 	uint16_t remaining_processes;
+    uint16_t current_quantum;
 } scheduler_cdt;
 
 
@@ -29,6 +32,8 @@ scheduler_adt init_scheduler() {
     }
 
     scheduler->next_unused_pid = 0;
+    scheduler->current_quantum = DEFAULT_QUANTUM;
+
     return scheduler;
 }
 
@@ -73,41 +78,46 @@ uint16_t get_next_pid(scheduler_adt scheduler) {
 	return process->pid;
 }
 
-
 void* scheduler(void* stack_pointer) {
-
-    // while(1) {
-    //     ker_write_color("asdasda hola", 0x00FF00, 0x00);
-    // };
-
     static int firstTime = 1;
     scheduler_adt scheduler = getSchedulerADT();
 
     if (!scheduler->remaining_processes) {
-        return stack_pointer;
+        return stack_pointer; // Si no hay procesos restantes, se mantiene el mismo stack pointer
     }
-
-    //quiere decir que el proceso actual ya no puede seguir corriendo.
 
     process_t *current_process;
-	node_t *current_process_node = scheduler->processes[scheduler->current_pid];
+    node_t *current_process_node = scheduler->processes[scheduler->current_pid];
 
+    // Guardar el contexto del proceso actual
     if (current_process_node != NULL) {
         current_process = (process_t *) current_process_node->process;
-		if (!firstTime)
-			current_process->stack_pointer = stack_pointer;
-		else
-			firstTime = 0;
-		if (current_process->state == RUNNING)
-			current_process->state = READY;
+        if (!firstTime) {
+            current_process->stack_pointer = stack_pointer;
+        } else {
+            firstTime = 0;
+        }
+        if (current_process->state == RUNNING) {
+            current_process->state = READY;
+        }
     }
 
-    scheduler->current_pid = get_next_pid(scheduler);
-    current_process = scheduler->processes[scheduler->current_pid]->process;
+    // Reducir el quantum actual
+    if (--scheduler->current_quantum > 0) {
+        // Aún queda quantum, seguir con el mismo proceso
+        current_process->state = RUNNING;
+        return current_process->stack_pointer;
+    }
 
+    // Quantum expirado: cambiar de proceso
+    scheduler->current_pid = get_next_pid(scheduler);  // Obtiene el próximo proceso listo
+    scheduler->current_quantum = QUANTUM_DEFAULT;      // Reiniciar el quantum
+
+    current_process = scheduler->processes[scheduler->current_pid]->process;
     current_process->state = RUNNING;
     return current_process->stack_pointer;
 }
+
 
 
 int16_t create_process(Function code, char **args, int argc, char *name, uint8_t priority, uint8_t unkillable) {

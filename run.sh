@@ -4,11 +4,11 @@
 OS=$(uname)
 
 # Base QEMU command
-QEMU_CMD="qemu-system-x86_64 -drive file=Image/x64BareBonesImage.qcow2,format=qcow2,if=ide -m 512"
+QEMU_CMD="qemu-system-x86_64 -drive file=Image/x64AmongOS.qcow2,format=qcow2,if=ide -m 512"
 
 # Set the QEMU command for debug mode
 if [[ "$1" == "debug" ]]; then
-    QEMU_CMD="qemu-system-x86_64 -s -S -drive file=Image/x64BareBonesImage.qcow2,format=qcow2,if=ide -m 512 -d int"
+    QEMU_CMD="qemu-system-x86_64 -s -S -drive file=Image/x64AmongOS.qcow2,format=qcow2,if=ide -m 512 -d int"
 fi
 
 # Check if the OS is Darwin (macOS)
