@@ -3,12 +3,12 @@ BMFS=$(BOOTLOADER_PATH)/BMFS/bmfs.bin
 MBR=$(BOOTLOADER_PATH)/Pure64/bmfs_mbr.sys
 MP=../Toolchain/ModulePacker/mp.bin
 PURE64=$(BOOTLOADER_PATH)/Pure64/pure64.sys
-OSIMAGENAME=x64BareBonesImage
+OSIMAGENAME=x64AmongOS
 VMDK=$(OSIMAGENAME).vmdk
 QCOW2=$(OSIMAGENAME).qcow2
 IMG=$(OSIMAGENAME).img
 KERNEL=../Kernel/kernel.bin
-USERLAND=../Userland/0000-userlandCodeModule.bin ../Userland/0001-sampleDataModule.bin
+USERLAND=../Userland/userlandCodeModule.bin ../Userland/0001-sampleDataModule.bin
 
 PACKEDKERNEL=packedKernel.bin
 IMGSIZE=6291456

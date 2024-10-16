@@ -1,7 +1,7 @@
 include Makefile.inc
 
 KERNEL=kernel.bin
-# KERNEL_ELF=$(KERNEL:.bin=.elf)
+KERNEL_ELF=$(KERNEL:.bin=.elf)
 
 SOURCES=$(wildcard *.c)
 SOURCES_DRIVERS=$(wildcard drivers/*.c)
@@ -30,6 +30,7 @@ all: $(KERNEL)
 
 $(KERNEL): $(LOADEROBJ) $(STATICLIBS) $(ALL_OBJECTS)
 	$(LD) $(LDFLAGS) -T kernel.ld -o $(KERNEL) $(LOADEROBJ) $(STATICLIBS) $(ALL_OBJECTS)
+	$(LD) $(LDFLAGS) -T kernel.ld --oformat=elf64-x86-64 -o ./kernel.elf $^
 
 %.o: %.c
 	$(GCC) $(GCCFLAGS) -I./include -I../Shared/include -c $< -o $@
