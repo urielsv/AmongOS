@@ -13,6 +13,9 @@
 
 void test(){
     printf("Testeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeo\n");
+    printf("jesteeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeo\n");
+    printf("iesteeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeo\n");
+    printf("esteeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeo\n");
 }
 
 void shell() {
@@ -24,16 +27,17 @@ void shell() {
     
     //exec((Function) test_processes, NULL, 0, "test_processes", 1, 1);
     
-    //exec((Function) test, NULL, 0, "test", 1, 1);
+    // exec((Function) print_ps1, NULL, 0, "testo", 10, 1);
+    // exec((Function) print_header, NULL, 0, "test", 1, 1);
 
     // SHELL LOOP
-    char buff[MAX_BUFFER_SIZE];
-    while (1) {
-        print_ps1("user", "~");
-        // gets(buff, MAX_BUFFER_SIZE);
-        // execute_command(buff);
-        // hlt();
-    }
+    //char buff[MAX_BUFFER_SIZE];
+//    while (1) {
+ //       print_ps1("user", "~");
+ //        gets(buff, MAX_BUFFER_SIZE);
+ //        execute_command(buff);
+        //  hlt();
+ //   }
 
 
 }

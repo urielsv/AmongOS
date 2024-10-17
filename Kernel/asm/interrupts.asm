@@ -185,8 +185,8 @@ asm_irq00_handler:
 	call scheduler
 	mov rsp, rax
 
-	mov al, 20h
-	out 20h, al
+	mov al, 0x20
+	out 0x20, al
 
 	pop_state
 	iretq

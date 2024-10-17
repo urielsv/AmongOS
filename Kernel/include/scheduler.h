@@ -14,6 +14,7 @@ int kill_process(uint16_t pid);
 int block_process(uint64_t pid);
 int unblock_process(uint64_t pid);
 scheduler_adt init_scheduler();
+uint16_t get_next_ready_pid(scheduler_adt scheduler);
 void* scheduler(void* stack_pointer);
 
 #endif // SCHEDULER_H
