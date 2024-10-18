@@ -64,12 +64,7 @@ void *initializeKernelBinary() {
 
 
 void test(char c){
-//    if(strcmp(c, "a") == 0){
         ker_write("Test a");
- //   }
- //   else{
- //       ker_write("Test b");
- //   }
 }
 
 int main() {
@@ -81,8 +76,8 @@ int main() {
     // ker_write("Initializing kernel\n");
     // TODO Add Idle process (as process init)
     create_process((Function) userlandCodeModuleAddress, args_shell, 2, "shell", 4, 1);
-    // char *  test_argsa[1] = {"a"};
-    // create_process((Function) test, test_argsa, 1, "test a", 4, 1);
+     char *  test_argsa[1] = {"a"};
+     create_process((Function) test, test_argsa, 1, "test a", 4, 1);
     
    for(int i = 0; i < 10; i++){
        if(i % 2 == 0){
