@@ -66,7 +66,7 @@ void *mem_alloc(size_t size) {
     }
 
     mem_node *new_node = (mem_node *)new_block_addr;
-    new_node->start_addr = new_block_addr + sizeof(mem_node);
+    new_node->start_addr = new_block_addr + sizeof(mem_node); 
     new_node->size = size;
     new_node->is_free = 0;
     new_node->next = NULL;

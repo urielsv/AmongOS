@@ -86,7 +86,6 @@ void* scheduler(void* stack_pointer) {
     }
 
    
-    ker_write("Quantum expired\n");
 
     scheduler->current_pid = get_next_ready_pid(scheduler);
     scheduler->current_quantum = DEFAULT_QUANTUM; 
@@ -96,11 +95,13 @@ void* scheduler(void* stack_pointer) {
         current_process = (process_t *) current_process_node->process;
         current_process->state = RUNNING; 
     
+        ker_write("Quantum expired, assigning new process\n");
         return current_process->stack_pointer;
     }
 
     return stack_pointer;
 }
+
 
 
 // Crear un nuevo proceso
@@ -118,13 +119,14 @@ int16_t create_process(Function code, char **args, int argc, char *name, uint8_t
         return -1;
     }
 
-    init_process(process, scheduler->next_unused_pid, code, args, argc, name, priority, unkillable);
+     init_process(process, scheduler->next_unused_pid, code, args, argc, name, priority, unkillable); 
+    // init_process(process, scheduler->next_unused_pid, code, args, argc, name, priority, unkillable);
     node_t *process_node = mem_alloc(sizeof(node_t));
     if (process_node == NULL) {
         ker_write("Error creating process node\n");
         mem_free(process);  // Liberar proceso creado en caso de error
         return -1;
-    }
+    } 
 
     process_node->process = (void *) process;
     if (process->pid != IDLE_PID) {
@@ -137,6 +139,7 @@ int16_t create_process(Function code, char **args, int argc, char *name, uint8_t
     scheduler->next_unused_pid = (scheduler->next_unused_pid + 1) % MAX_PROCESSES;
     scheduler->remaining_processes++;
 
+    process->stack_pointer = create_process_stack_frame((void *) code, (void *) process->stack_base + STACK_SIZE, (void *) process->argv);
     return process->pid;
 }
 

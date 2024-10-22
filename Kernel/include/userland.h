@@ -16,7 +16,7 @@
 static void *const userlandCodeModuleAddress = (void*)0x400000;
 static void *const sampleDataModuleAddress = (void*)0x500000;
 
-static void *const heapStartAddress = (void*)0x1000000;
+static void *const heapStartAddress = (void*)0x1000000; 
 static void *const heapEndAddress = (void *)0x2000000;
 
 typedef int (*EntryPoint)();

@@ -26,10 +26,13 @@ void init_process(process_t *process, uint16_t pid, Function code,
     memcpy(process->name, name, strlen(name) + 1);
     void *stack_end = (void *) ((uint64_t)process->stack_base + STACK_SIZE);
 
-    process->stack_pointer = create_process_stack_frame((void *) code, stack_end, (void *) process->argv);
+   
+    process->stack_pointer = create_process_stack_frame((void *) code, (void *) stack_end, (void *) process->argv);
     process->unkilliable = unkilliable;
 
     }
+
+
 
 static char **alloc_args(char **args, uint64_t argc) {
     char **argv = (char **) mem_alloc(sizeof(char **) * (argc + 1));
