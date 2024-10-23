@@ -6,16 +6,16 @@
 #include <stdlib.h>
 
 #define IDLE_PID 0
-#define DEFAULT_QUANTUM 100
+#define DEFAULT_QUANTUM 2
 
 typedef struct scheduler_cdt {
     node_t * processes[MAX_PROCESSES];
     linkedListADT blocked_process_list;
     linkedListADT process_list;
-    uint16_t current_pid;
+    int32_t current_pid;
     uint16_t next_unused_pid;
     uint16_t remaining_processes;
-    uint16_t current_quantum;
+    int32_t current_quantum;
 } scheduler_cdt;
 
 // Inicializa el scheduler
@@ -29,7 +29,9 @@ scheduler_adt init_scheduler() {
         scheduler->processes[i] = NULL;
     }
 
+    scheduler->remaining_processes=0;
     scheduler->next_unused_pid = 0;
+    scheduler->current_pid = -1;
     scheduler->current_quantum = DEFAULT_QUANTUM;
 
     return scheduler;
@@ -39,75 +41,90 @@ scheduler_adt getSchedulerADT() {
     return (scheduler_adt) SCHEDULER_ADDRESS;
 }
 
+
 // Selecciona el siguiente proceso listo para ejecutar
-uint16_t get_next_ready_pid(scheduler_adt scheduler) {
-    for (int i = 0; i < MAX_PROCESSES; i++) {
-        scheduler->current_pid = (scheduler->current_pid + 1) % MAX_PROCESSES;
-        if (scheduler->processes[scheduler->current_pid] != NULL && 
-            ((process_t *)scheduler->processes[scheduler->current_pid]->process)->state == READY) {
-            return scheduler->current_pid;
-        }
+int32_t get_next_ready_pid() {
+    
+
+      scheduler_adt scheduler = getSchedulerADT();
+
+
+    node_t * next_node = getFirstNode(scheduler->process_list);
+    if (next_node != NULL) {
+        ker_write("!!!");
+        return ((process_t *) next_node->process)->pid;
     }
     return IDLE_PID;  // Si no hay otro proceso listo, regresar al proceso idle
+
+
+    // for (int i = 0; i < MAX_PROCESSES; i++) {
+    //     scheduler->current_pid = (scheduler->current_pid + 1) % MAX_PROCESSES;
+    //     if (scheduler->processes[scheduler->current_pid] != NULL && 
+    //         ((process_t *)scheduler->processes[scheduler->current_pid]->process)->state == READY) {
+    //         return scheduler->current_pid;
+    //     }
+    // }
 }
 
 
 void* scheduler(void* stack_pointer) {
-    static int firstTime = 1;
     scheduler_adt scheduler = getSchedulerADT();
+    scheduler->current_quantum--;
 
-    ker_write("o");
-
-    
-    if (!scheduler->remaining_processes) {
-        
-        return stack_pointer;
-    }
-
-    
-    node_t *current_process_node = scheduler->processes[scheduler->current_pid];
     process_t *current_process = NULL;
 
-    if (!firstTime && current_process_node != NULL) {
-        current_process = (process_t *) current_process_node->process;
-        current_process->stack_pointer = stack_pointer;  
-        current_process->state = READY; 
-       
-    } else {
-        firstTime = 0; 
-    }
-
-
-    if (--scheduler->current_quantum > 0) {
-        if (current_process != NULL) {
-            current_process->state = RUNNING; 
-            return current_process->stack_pointer; 
-        }
-    }
-
-   
-
-    scheduler->current_pid = get_next_ready_pid(scheduler);
-    scheduler->current_quantum = DEFAULT_QUANTUM; 
-
-    current_process_node = scheduler->processes[scheduler->current_pid];
-    if (current_process_node != NULL) {
-        current_process = (process_t *) current_process_node->process;
-        current_process->state = RUNNING; 
-    
-        ker_write("Quantum expired, assigning new process\n");
+    // Case when there are no processes (only idle process)
+    if (scheduler->current_pid == -1) {
+        scheduler->current_pid = IDLE_PID;
+        current_process = (process_t *) scheduler->processes[scheduler->current_pid]->process;
+        current_process->state = RUNNING;  
         return current_process->stack_pointer;
     }
 
-    return stack_pointer;
+    // Case when there are no more processes to execute
+    if (scheduler->remaining_processes == 0 || scheduler->current_quantum > 0) {
+        return stack_pointer;
+    }
+
+    // Case when the current process is not the idle process
+    node_t *current_process_node = scheduler->processes[scheduler->current_pid];
+    current_process = (process_t *) current_process_node->process;
+    current_process->stack_pointer = stack_pointer;
+
+ //ker_write("enter switch cases\n");
+ 
+        switch (current_process->state) {
+            
+            case RUNNING:
+                current_process->state = READY;
+                swapToLast(scheduler->process_list, current_process);
+                scheduler->current_pid = get_next_ready_pid();
+                current_process = (process_t *) scheduler->processes[scheduler->current_pid]->process;
+                //ker_write("RUNNING -> READY\n");
+                break;
+
+            case READY:
+                current_process->state = RUNNING;
+                current_process->stack_pointer = stack_pointer;
+               
+                //ker_write("READY -> RUNNING\n");
+                break;
+
+            case BLOCKED:
+            default:
+               // ker_write("Other state");
+                break;
+        }
+        scheduler->current_quantum = DEFAULT_QUANTUM;
+        return current_process->stack_pointer;    
 }
 
 
 
 // Crear un nuevo proceso
-int16_t create_process(Function code, char **args, int argc, char *name, uint8_t priority, uint8_t unkillable) {
+int32_t create_process(Function code, char **args, int argc, char *name, uint8_t priority, uint8_t unkillable) {
     scheduler_adt scheduler = getSchedulerADT();
-
+    //ker_write("Creating process\n");
     if (scheduler->remaining_processes >= MAX_PROCESSES) {
         ker_write("Max processes reached\n");
         return -1;
@@ -130,16 +147,15 @@ int16_t create_process(Function code, char **args, int argc, char *name, uint8_t
 
     process_node->process = (void *) process;
     if (process->pid != IDLE_PID) {
-        for (int i = 0; i < process->priority; i++) {
+        // for (int i = 0; i < process->priority; i++) {
             addNode(scheduler->process_list, (void *) process);
-        }
+        // }
     }
 
     scheduler->processes[process->pid] = process_node;
     scheduler->next_unused_pid = (scheduler->next_unused_pid + 1) % MAX_PROCESSES;
     scheduler->remaining_processes++;
 
-    process->stack_pointer = create_process_stack_frame((void *) code, (void *) process->stack_base + STACK_SIZE, (void *) process->argv);
     return process->pid;
 }
 

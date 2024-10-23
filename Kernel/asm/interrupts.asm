@@ -223,7 +223,7 @@ create_process_stack_frame:
 	
 	push_state
 	mov rax, rsp  
-	mov rsp, r8  ; fijate cuanto vale rsi a penas entras aca
+	mov rsp, r8  
 	mov rbp, r9
 	
 	ret

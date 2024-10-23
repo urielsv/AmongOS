@@ -32,12 +32,12 @@ void shell() {
 
     // SHELL LOOP
     //char buff[MAX_BUFFER_SIZE];
-//    while (1) {
+   while (1) {
  //       print_ps1("user", "~");
  //        gets(buff, MAX_BUFFER_SIZE);
  //        execute_command(buff);
-        //  hlt();
- //   }
+         hlt();
+   }
 
 
 }

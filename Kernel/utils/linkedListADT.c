@@ -53,6 +53,33 @@ void removeNode(linkedListADT list, void * process) {
         current = current->next;
     }
 }
+node_t * getFirstNode(linkedListADT list) {
+    return list->head;
+}
+
+void * swapToLast(linkedListADT list, void * process) {
+    node_t * prev = NULL;
+    node_t * current = list->head;
+    while (current != NULL) {
+        if (current->process == process) {
+            if (current == list->tail) {
+                return process;
+            }
+            if (prev == NULL) {
+                list->head = current->next;
+            } else {
+                prev->next = current->next;
+            }
+            list->tail->next = current;
+            list->tail = current;
+            current->next = NULL;
+            return process;
+        }
+        prev = current;
+        current = current->next;
+    }
+    return NULL;
+}
 
 void * getNode(linkedListADT list, void * process) {
     node_t * current = list->head;

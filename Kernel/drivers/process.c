@@ -13,7 +13,7 @@
 
 static char **alloc_args(char **args, uint64_t argc);
 
-void init_process(process_t *process, uint16_t pid, Function code, 
+void init_process(process_t *process, int32_t pid, Function code, 
                 char **args, uint64_t argc, char *name, priority_t priority, 
                 uint8_t unkilliable) {
     process->pid = pid;

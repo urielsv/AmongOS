@@ -8,7 +8,7 @@
 
 
 typedef struct {
-    uint64_t pid;
+    int32_t pid;
     priority_t priority;
     state_t state;
 
@@ -27,7 +27,7 @@ typedef int (*Function)(int argc, char **args);
 
 //snapshot xD
 typedef struct process_amongus_t { 
-    uint64_t pid;
+    uint32_t pid;
     uint16_t priority;
     uint16_t state;
     void * stack_base;
@@ -38,7 +38,7 @@ typedef struct process_amongus_t {
 }process_amongus_t;
 
 
-void init_process(process_t *process, uint16_t pid, Function code, char **args, uint64_t argc, char *name, priority_t priority, uint8_t unkilliable);
+void init_process(process_t *process, int32_t pid, Function code, char **args, uint64_t argc, char *name, priority_t priority, uint8_t unkilliable);
 extern void * create_process_stack_frame(void * rip, void * rsp, void * argv);
 
 #endif
