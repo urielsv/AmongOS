@@ -67,13 +67,12 @@ void *initializeKernelBinary()
 // 1. Implementar end of process logic (free resouces, remove from list
 // 2. Fixear pasaje de parametros de scheduler
 
-void test(char c)
+void test(int argc, char **argv)
 {
+    // int num = get_random_number(69);
+    // num % 2 ? ker_write("Hola") : ker_write("Chau");
 
-    int num = get_random_number(69);
-    num % 2 ? ker_write("Hola") : ker_write("Chau");
-
-    c == 'a' ? ker_write("a") : ker_write("b");
+    argv[0][0] == 'a' ? ker_write("a") : ker_write("b");
     while (1)
     {
         hlt();
@@ -83,7 +82,7 @@ void test(char c)
 int main()
 {
 
-    char *args_shell[2] = {"shell", NULL};
+    char *args_shell[2] = {"BUTTITA", NULL};
 
     create_process((Function)userlandCodeModuleAddress, args_shell, 2, "shell", 4, 1);
 
@@ -91,12 +90,12 @@ int main()
     {
         if (i % 2 == 0)
         {
-            char *test_args[2] = {"a", NULL};
+            char *test_args[1] = {"a"};
             create_process((Function)test, test_args, 1, "test a", 4, 0);
         }
         else
         {
-            char *test_args[2] = {"b", NULL};
+            char *test_args[1] = {"b"};
             create_process((Function)test, test_args, 1, "test b", 4, 0);
         }
     }

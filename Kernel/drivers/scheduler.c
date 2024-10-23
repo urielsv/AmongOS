@@ -137,7 +137,7 @@ int32_t create_process(Function code, char **args, int argc, char *name, uint8_t
     }
 
      init_process(process, scheduler->next_unused_pid, code, args, argc, name, priority, unkillable); 
-    // init_process(process, scheduler->next_unused_pid, code, args, argc, name, priority, unkillable);
+   
     node_t *process_node = mem_alloc(sizeof(node_t));
     if (process_node == NULL) {
         ker_write("Error creating process node\n");

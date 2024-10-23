@@ -27,31 +27,32 @@ void init_process(process_t *process, int32_t pid, Function code,
     void *stack_end = (void *)((uint64_t)process->stack_base + STACK_SIZE);
 
     process->stack_pointer = create_process_stack_frame(
-        (void *)code,
-        (void *)stack_end,
-        (void *)process->argv,
-        (uint64_t)argc,
-        (void *)process_handler);
+        (void *)code, // rdi
+        (void *)stack_end, // rsi
+        (void *)process->argv, // rdx
+        (uint64_t)argc, // rcx
+        (void *)process_handler // r8
+        );
     process->unkilliable = unkilliable;
-}
-
-// NOT WORKING! LOL!! (Me voy a suicidar)
-void process_handler(Function code, char **argv, int argc)
-{
-    code(argc, argv);
-    ker_write("here the process ends\n");
 }
 
 static char **alloc_args(char **args, uint64_t argc)
 {
-    char **argv = (char **)mem_alloc(sizeof(char **) * (argc + 1));
+    char **argv = mem_alloc(sizeof(char *) * argc);
     for (int i = 0; i < argc; i++)
     {
         argv[i] = mem_alloc(strlen(args[i]) + 1);
         memcpy(argv[i], args[i], strlen(args[i]) + 1);
     }
-    argv[argc] = NULL;
     return argv;
+}
+
+// NOT WORKING! LOL!! (Me voy a suicidar)
+void process_handler(Function code, char **argv, int argc)
+{
+    ker_write("process\n");
+    int64_t ret = code(argc, argv);
+    ker_write("here the process ends\n");
 }
 
 void free_process(process_t *process)

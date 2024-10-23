@@ -207,25 +207,36 @@ asm_exception06_handler:
 asm_syscall80_handler:
     syscall_handler 80
 
+
+; Parameters:
+;(void *)code, // rdi
+;(void *)stack_end, // rsi
+;(void *)argv, // rdx
+;(uint64_t)argc, // rcx
+;(void *)process_handler // r8
 create_process_stack_frame:
-    mov r8, rsp     ; Preserve rsp 
-    mov r9, rbp     ; Preserve rbp
+	; Previous stack
+    mov r14, rsp     ; Preserve rsp 
+    mov r15, rbp     ; Preserve rbp
+
+	; New stack (for the program)
     mov rsp, rsi     ; Set sp of the process 
     mov rbp, rsi     ; Set bp of the process
 
+	; se mira y no se toca
     push 0x0         ; ss 
     push rsi         ; rsp
     push 0x202       ; rflags
     push 0x8         ; cs 
-    push rdi         ; rip
+    push r8         ; rip (we start at process_handler)
 
-	mov rdx, rbx	; process handler
-    push_state
-    mov rdi, rdx     ; argv
-    mov rsi, rcx     ; argc
+	mov rdi, rdi		; code
+    mov rsi, rdx     	; argv
+    mov rdx, rcx     	; argc
+	push_state
 
     mov rax, rsp  
-    mov rsp, r8
-    mov rbp, r9
+    mov rsp, r14
+    mov rbp, r15
     
     ret
