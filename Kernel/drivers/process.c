@@ -35,6 +35,7 @@ void init_process(process_t *process, int32_t pid, Function code,
     process->unkilliable = unkilliable;
 }
 
+// NOT WORKING! LOL!! (Me voy a suicidar)
 void process_handler(Function code, char **argv, int argc)
 {
     code(argc, argv);

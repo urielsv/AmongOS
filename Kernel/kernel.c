@@ -91,13 +91,13 @@ int main()
     {
         if (i % 2 == 0)
         {
-            char *test_args[1] = {"a"};
-            create_process((Function)test, test_args, 1, "test a", 4, 1);
+            char *test_args[2] = {"a", NULL};
+            create_process((Function)test, test_args, 1, "test a", 4, 0);
         }
         else
         {
-            char *test_args[1] = {"b"};
-            create_process((Function)test, test_args, 1, "test b", 4, 1);
+            char *test_args[2] = {"b", NULL};
+            create_process((Function)test, test_args, 1, "test b", 4, 0);
         }
     }
 

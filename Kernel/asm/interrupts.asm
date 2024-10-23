@@ -219,11 +219,11 @@ create_process_stack_frame:
     push 0x8         ; cs 
     push rdi         ; rip
 
+	mov rdx, rbx	; process handler
+    push_state
     mov rdi, rdx     ; argv
     mov rsi, rcx     ; argc
-	mov rdx, rbx	; process handler
 
-    push_state
     mov rax, rsp  
     mov rsp, r8
     mov rbp, r9
