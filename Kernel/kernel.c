@@ -73,6 +73,7 @@ void test(char c)
     int num = get_random_number(69);
     num % 2 ? ker_write("Hola") : ker_write("Chau");
 
+    c == 'a' ? ker_write("a") : ker_write("b");
     while (1)
     {
         hlt();

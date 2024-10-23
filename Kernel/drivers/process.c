@@ -1,21 +1,21 @@
 // #include "../include/create_process.h"
- #include "../include/memman.h"
+#include "../include/memman.h"
 // #include "../include/syscalls.h"
 // #include "../include/stdio.h"
-
 
 #include "../include/process.h"
 #include "../include/linkedListADT.h"
 #include "../include/lib.h"
 #include <string.h>
 #include <stdlib.h>
-
+#include <io.h>
 
 static char **alloc_args(char **args, uint64_t argc);
 
-void init_process(process_t *process, int32_t pid, Function code, 
-                char **args, uint64_t argc, char *name, priority_t priority, 
-                uint8_t unkilliable) {
+void init_process(process_t *process, int32_t pid, Function code,
+                  char **args, uint64_t argc, char *name, priority_t priority,
+                  uint8_t unkilliable)
+{
     process->pid = pid;
     process->priority = priority;
     process->state = READY;
@@ -24,29 +24,39 @@ void init_process(process_t *process, int32_t pid, Function code,
     process->argc = argc;
     process->name = mem_alloc(strlen(name) + 1);
     memcpy(process->name, name, strlen(name) + 1);
-    void *stack_end = (void *) ((uint64_t)process->stack_base + STACK_SIZE);
+    void *stack_end = (void *)((uint64_t)process->stack_base + STACK_SIZE);
 
-   
-    process->stack_pointer = create_process_stack_frame((void *) code, (void *) stack_end, (void *) process->argv);
+    process->stack_pointer = create_process_stack_frame(
+        (void *)code,
+        (void *)stack_end,
+        (void *)process->argv,
+        (uint64_t)argc,
+        (void *)process_handler);
     process->unkilliable = unkilliable;
+}
 
-    }
+void process_handler(Function code, char **argv, int argc)
+{
+    code(argc, argv);
+    ker_write("here the process ends\n");
+}
 
-
-
-static char **alloc_args(char **args, uint64_t argc) {
-    char **argv = (char **) mem_alloc(sizeof(char **) * (argc + 1));
-    for (int i = 0; i < argc; i++) {
+static char **alloc_args(char **args, uint64_t argc)
+{
+    char **argv = (char **)mem_alloc(sizeof(char **) * (argc + 1));
+    for (int i = 0; i < argc; i++)
+    {
         argv[i] = mem_alloc(strlen(args[i]) + 1);
-        memcpy(argv[i], args[i],strlen(args[i]) + 1);
+        memcpy(argv[i], args[i], strlen(args[i]) + 1);
     }
     argv[argc] = NULL;
     return argv;
 }
 
-
-void free_process(process_t * process){
-    for (int i = 0; i < process->argc; i++) {
+void free_process(process_t *process)
+{
+    for (int i = 0; i < process->argc; i++)
+    {
         mem_free(process->argv[i]);
     }
     mem_free(process->argv);
@@ -55,8 +65,9 @@ void free_process(process_t * process){
     mem_free(process);
 }
 
-process_amongus_t * get_process_amongus(process_t * process){
-    process_amongus_t * process_amongus = (process_amongus_t *) mem_alloc(sizeof(process_amongus_t));
+process_amongus_t *get_process_amongus(process_t *process)
+{
+    process_amongus_t *process_amongus = (process_amongus_t *)mem_alloc(sizeof(process_amongus_t));
     process_amongus->pid = process->pid;
     process_amongus->priority = process->priority;
     process_amongus->state = process->state;

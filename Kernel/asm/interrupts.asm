@@ -208,22 +208,24 @@ asm_syscall80_handler:
     syscall_handler 80
 
 create_process_stack_frame:
+    mov r8, rsp     ; Preserve rsp 
+    mov r9, rbp     ; Preserve rbp
+    mov rsp, rsi     ; Set sp of the process 
+    mov rbp, rsi     ; Set bp of the process
 
-	mov r8, rsp 	; Preservar rsp 
-	mov r9, rbp		; Preservar rbp
-	mov rsp, rsi 	; sp del proceso 
-	mov rbp, rsi	; bp del proceso ;; ACA ESTA BIEN RSP!!
+    push 0x0         ; ss 
+    push rsi         ; rsp
+    push 0x202       ; rflags
+    push 0x8         ; cs 
+    push rdi         ; rip
 
-	push 0x0		; ss 
-	push rsi		; rsp ; NOOO CHAU RSP
-	push 0x202		; rflags
-	push 0x8		; cs 
-	push rdi		; rip
-	
-	
-	push_state
-	mov rax, rsp  
-	mov rsp, r8  
-	mov rbp, r9
-	
-	ret
+    mov rdi, rdx     ; argv
+    mov rsi, rcx     ; argc
+	mov rdx, rbx	; process handler
+
+    push_state
+    mov rax, rsp  
+    mov rsp, r8
+    mov rbp, r9
+    
+    ret
