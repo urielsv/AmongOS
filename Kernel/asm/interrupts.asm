@@ -10,6 +10,8 @@ global asm_exception00_handler, asm_exception06_handler
 
 global create_process_stack_frame
 
+global asm_do_timer_tick
+
 extern irq_dispatcher, syscall_dispatcher, exception_dispatcher, save_registers, scheduler
 
 SECTION .text
@@ -240,3 +242,7 @@ create_process_stack_frame:
     mov rbp, r15
     
     ret
+
+asm_do_timer_tick:
+	int 0x20
+	ret

@@ -1,9 +1,9 @@
 #include "../include/scheduler.h"
 #include "../include/memman.h"
-#include "../include/process.h"
 #include "../include/linkedListADT.h"
 #include <io.h>
 #include <stdlib.h>
+#include <process.h>
 
 #define IDLE_PID 0
 #define DEFAULT_QUANTUM 2
@@ -51,7 +51,6 @@ int32_t get_next_ready_pid() {
 
     node_t * next_node = getFirstNode(scheduler->process_list);
     if (next_node != NULL) {
-        ker_write("!!!");
         return ((process_t *) next_node->process)->pid;
     }
     return IDLE_PID;  // Si no hay otro proceso listo, regresar al proceso idle
@@ -110,13 +109,21 @@ void* scheduler(void* stack_pointer) {
                 //ker_write("READY -> RUNNING\n");
                 break;
 
+            case KILLED:
+                scheduler->processes[scheduler->current_pid] = NULL;
+                free_process(current_process);
+                scheduler->current_pid = get_next_ready_pid();
+                current_process = (process_t *) scheduler->processes[scheduler->current_pid]->process;
+                //current_process->state = READY;
+                scheduler->remaining_processes--;
+                break;
             case BLOCKED:
             default:
                // ker_write("Other state");
                 break;
         }
         scheduler->current_quantum = DEFAULT_QUANTUM;
-        return current_process->stack_pointer;    
+        return current_process->stack_pointer;
 }
 
 
@@ -163,31 +170,44 @@ int32_t create_process(Function code, char **args, int argc, char *name, uint8_t
 int kill_process(uint16_t pid) {
     scheduler_adt scheduler = getSchedulerADT();
     if (pid == IDLE_PID) {
-        ker_write("Cannot kill idle process\n");
+       // ker_write("Cannot kill idle process\n");
         return -1;
     }
 
     if (scheduler->processes[pid] == NULL) {
-        ker_write("Process %llu not found\n", pid);
+        //ker_write("Process not found\n");
         return -1;
     }
 
     process_t *process_to_kill = (process_t *) scheduler->processes[pid]->process;
     if (process_to_kill->unkilliable) {
+        //ker_write("Cannot kill unkillable process\n");
         return -1;
     }
 
     if (process_to_kill->state == BLOCKED) {
         removeNode(scheduler->blocked_process_list, process_to_kill);
     } else {
-        for (int i = 0; i < process_to_kill->priority; i++) {
+    //    for (int i = 0; i < process_to_kill->priority; i++) {
+           // ker_write("Removing node\n");
             removeNode(scheduler->process_list, process_to_kill);
-        }
+    //    }
     }
 
-    scheduler->processes[pid] = NULL;
-    scheduler->remaining_processes--;
+    process_to_kill->state = KILLED;
+    yield();
     return 0;
+}
+
+void kill_current_process() {
+    scheduler_adt scheduler = getSchedulerADT();
+    kill_process(scheduler->current_pid);
+}
+
+void yield() {
+    scheduler_adt scheduler = getSchedulerADT();
+    scheduler->current_quantum = 0;
+    asm_do_timer_tick();
 }
 
 // Bloquear un proceso
@@ -201,9 +221,9 @@ int block_process(uint64_t pid) {
     process_t *process_to_block = (process_t *) scheduler->processes[pid]->process;
     process_to_block->state = BLOCKED;
     addNode(scheduler->blocked_process_list, process_to_block);
-    for (int i = 0; i < process_to_block->priority; i++) {
+    //for (int i = 0; i < process_to_block->priority; i++) {
         removeNode(scheduler->process_list, process_to_block);
-    }
+    //}
 
     return 0;
 }
@@ -219,9 +239,9 @@ int unblock_process(uint64_t pid) {
     process_t *process_to_unblock = (process_t *) scheduler->processes[pid]->process;
     process_to_unblock->state = READY;
     removeNode(scheduler->blocked_process_list, process_to_unblock);
-    for (int i = 0; i < process_to_unblock->priority; i++) {
+    //for (int i = 0; i < process_to_unblock->priority; i++) {
         addNode(scheduler->process_list, process_to_unblock);
-    }
+    //}
 
     return 0;
 }

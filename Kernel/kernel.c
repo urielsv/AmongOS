@@ -64,8 +64,7 @@ void *initializeKernelBinary()
 }
 
 // TODOS:
-// 1. Implementar end of process logic (free resouces, remove from list
-// 2. Fixear pasaje de parametros de scheduler
+// 1. Add/remove priority to processes in sched
 
 void test(int argc, char **argv)
 {
@@ -73,10 +72,7 @@ void test(int argc, char **argv)
     // num % 2 ? ker_write("Hola") : ker_write("Chau");
 
     argv[0][0] == 'a' ? ker_write("a") : ker_write("b");
-    while (1)
-    {
-        hlt();
-    }
+    // while (1) hlt();
 }
 
 int main()

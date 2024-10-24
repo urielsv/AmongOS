@@ -9,6 +9,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <io.h>
+#include <scheduler.h>
 
 static char **alloc_args(char **args, uint64_t argc);
 
@@ -50,9 +51,8 @@ static char **alloc_args(char **args, uint64_t argc)
 // NOT WORKING! LOL!! (Me voy a suicidar)
 void process_handler(Function code, char **argv, int argc)
 {
-    ker_write("process\n");
     int64_t ret = code(argc, argv);
-    ker_write("here the process ends\n");
+    kill_current_process();
 }
 
 void free_process(process_t *process)
