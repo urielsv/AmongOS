@@ -5,11 +5,11 @@
 #include <stdlib.h>
 #include <syscalls.h>
 #include <commands.h>
-#include "../tests/include/test_mm.h"
-#include "../tests/include/test_processes.h"
 #include <definitions.h>
+#include <tests.h>
 
 #define MAX_BUFFER_SIZE 1024
+
 
 void test(){
     printf("Testeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeo\n");
@@ -18,14 +18,31 @@ void test(){
     printf("esteeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeo\n");
 }
 
+static uint64_t test_mm_proc(uint64_t argc, char *argv[]) 
+{
+    test_mm(argc, argv);
+}
+
+static uint64_t test_process_proc(uint64_t argc, char *argv[]) 
+{
+    test_processes(argc, argv);
+}
+
 void shell() {
 
     print_header();
 
-    // char *argv_test_mm[] = {"0x1000000", NULL};
-    //exec((Function) test_mm, argv_test_mm, 2, "test_mm", 1, 1);
+    //exec((void *) &test, NULL, 0, "test", 1, 1);
+
+    //0x1000000 = 16777216 int
+    char *argv_test_mm[] = {"16777216", NULL};
+    exec((void *) &test_mm_proc, argv_test_mm, 1, "Testeo_de_memoria_:D", 1, 1);
     
-    //exec((Function) test_processes, NULL, 0, "test_processes", 1, 1);
+    //exec((Function) test, NULL, 0, "test", 1, 1);
+
+
+    char *argv_test_processes[] = {"10", NULL};
+    //exec((void *) &test_processes_proc, NULL, 0, "test_processes", 1, 1);
     
     // exec((Function) print_ps1, NULL, 0, "testo", 10, 1);
     // exec((Function) print_header, NULL, 0, "test", 1, 1);
@@ -58,3 +75,6 @@ void print_ps1(char *user, char *pwd) {
     printf_color("%s@AmongOS", COLOR_GREEN, COLOR_BLACK, user);
     printf_color("%s$ ", COLOR_MAGENTA, COLOR_BLACK, pwd);
 }
+
+
+

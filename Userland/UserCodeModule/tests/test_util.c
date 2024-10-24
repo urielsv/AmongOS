@@ -2,8 +2,7 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <stdint.h>
 #include <stdio.h>
-#include "include/syscall.h"
-#include "include/test_util.h"
+#include <tests.h>
 
 
 
@@ -39,7 +38,7 @@ int64_t satoi(char *str) {
   uint64_t i = 0;
   int64_t res = 0;
   int8_t sign = 1;
-
+  
   if (!str)
     return 0;
 

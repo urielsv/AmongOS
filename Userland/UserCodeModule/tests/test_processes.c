@@ -1,7 +1,5 @@
 #include <stdio.h>
-#include "include/syscall.h"
-#include "include/test_util.h"
-#include "include/test_processes.h"
+#include <tests.h>
 #include <stdint.h>
 #include <syscalls.h>
 #include <definitions.h>

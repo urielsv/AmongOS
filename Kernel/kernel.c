@@ -66,43 +66,14 @@ void *initializeKernelBinary()
 // TODOS:
 // 1. Add/remove priority to processes in sched
 
-void test(int argc, char **argv)
-{
-    // int num = get_random_number(69);
-    // num % 2 ? ker_write("Hola") : ker_write("Chau");
-
-    argv[0][0] == 'a' ? ker_write("a") : ker_write("b");
-    // while (1) hlt();
-}
-
 int main()
 {
 
-    char *args_shell[2] = {"BUTTITA", NULL};
+    create_process((Function)userlandCodeModuleAddress, NULL, 0, "shell", 4, 1);
 
-    create_process((Function)userlandCodeModuleAddress, args_shell, 2, "shell", 4, 1);
-
-    for (int i = 0; i < 10; i++)
-    {
-        if (i % 2 == 0)
-        {
-            char *test_args[1] = {"a"};
-            create_process((Function)test, test_args, 1, "test a", 4, 0);
-        }
-        else
-        {
-            char *test_args[1] = {"b"};
-            create_process((Function)test, test_args, 1, "test b", 4, 0);
-        }
-    }
-
-    ker_write("Kernel initialized\n");
-    // sleep(1000000);
     idt_loader();
-    while (1)
-    {
-        hlt();
-    }
+    
+    while(1) ;
 
     return 0;
 }
