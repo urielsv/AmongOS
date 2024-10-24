@@ -20,12 +20,12 @@ void test(){
 
 static uint64_t test_mm_proc(uint64_t argc, char *argv[]) 
 {
-    test_mm(argc, argv);
+    return test_mm(argc, argv);
 }
 
-static uint64_t test_process_proc(uint64_t argc, char *argv[]) 
+static uint64_t test_processes_proc(uint64_t argc, char *argv[]) 
 {
-    test_processes(argc, argv);
+    return test_processes(argc, argv);
 }
 
 void shell() {
@@ -34,18 +34,15 @@ void shell() {
 
     //exec((void *) &test, NULL, 0, "test", 1, 1);
 
-    //0x1000000 = 16777216 int
-    char *argv_test_mm[] = {"16777216", NULL};
-    exec((void *) &test_mm_proc, argv_test_mm, 1, "Testeo_de_memoria_:D", 1, 1);
-    
-    //exec((Function) test, NULL, 0, "test", 1, 1);
+    // MM TES
+    // 0x1000000 (16) = 16777216 (10)
+    // char *argv_test_mm[] = {"16777216", NULL};
+    // exec((void *) &test_mm_proc, argv_test_mm, 1, "Testeo_de_memoria_:D", 1, 1);
 
-
+    // PROCESSES TEST 
     char *argv_test_processes[] = {"10", NULL};
-    //exec((void *) &test_processes_proc, NULL, 0, "test_processes", 1, 1);
+    exec((void *) &test_processes_proc, argv_test_processes, 1, "test_processes", 1, 0);
     
-    // exec((Function) print_ps1, NULL, 0, "testo", 10, 1);
-    // exec((Function) print_header, NULL, 0, "test", 1, 1);
 
     // SHELL LOOP
     //char buff[MAX_BUFFER_SIZE];

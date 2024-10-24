@@ -49,7 +49,9 @@ static syscall_t syscalls[] = {
     (syscall_t)&sys_mem_alloc, // sys_id 20
     (syscall_t)&sys_mem_free, // sys_id 21
     (syscall_t)&sys_create_process, // sys_id 22
-    (syscall_t)&sys_kill_process //sys_id 23
+    (syscall_t)&sys_kill_process, //sys_id 23
+    (syscall_t)&sys_block_process, // sys_id 24
+    (syscall_t)&sys_unblock_process // sys_id 25
 };
 
 uint64_t syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9) {
@@ -206,6 +208,14 @@ void sys_create_process(Function code, char **argv, int argc, char *name, uint8_
     create_process(code, argv, argc, name, priority, unkillable);   
 }
 
-void sys_kill_process(uint16_t pid) {
+int sys_kill_process(uint64_t pid) {
     kill_process(pid);
+}
+
+int sys_block_process(uint64_t pid) {
+    return block_process(pid);
+}
+
+int sys_unblock_process(uint64_t pid) {
+    return unblock_process(pid);
 }

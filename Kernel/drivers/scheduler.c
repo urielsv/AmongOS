@@ -170,18 +170,17 @@ int32_t create_process(Function code, char **args, int argc, char *name, uint8_t
 int kill_process(uint16_t pid) {
     scheduler_adt scheduler = getSchedulerADT();
     if (pid == IDLE_PID) {
-       // ker_write("Cannot kill idle process\n");
+        ker_write("Cannot kill idle process\n");
         return -1;
     }
 
     if (scheduler->processes[pid] == NULL) {
-        //ker_write("Process not found\n");
+        ker_write("Process not found\n");
         return -1;
     }
 
     process_t *process_to_kill = (process_t *) scheduler->processes[pid]->process;
     if (process_to_kill->unkilliable) {
-        //ker_write("Cannot kill unkillable process\n");
         return -1;
     }
 
@@ -189,7 +188,7 @@ int kill_process(uint16_t pid) {
         removeNode(scheduler->blocked_process_list, process_to_kill);
     } else {
     //    for (int i = 0; i < process_to_kill->priority; i++) {
-           // ker_write("Removing node\n");
+            ker_write("Removing node\n");
             removeNode(scheduler->process_list, process_to_kill);
     //    }
     }

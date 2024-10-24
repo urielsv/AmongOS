@@ -186,6 +186,10 @@ void sys_mem_free(void *address);
 
 void sys_create_process(Function code, char **argv, int argc, char *name, uint8_t priority, uint8_t unkillable);
 
-void sys_kill_process(uint16_t pid);
+int sys_kill_process(uint64_t pid);
+
+int sys_block_process(uint64_t pid);
+
+int sys_unblock_process(uint64_t pid);
 
 #endif

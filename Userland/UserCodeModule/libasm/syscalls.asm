@@ -1,4 +1,4 @@
-GLOBAL read, write, random, read_char, draw, sleep, time, sound, hlt, clear, writing_pos, screen_info,font_size,sys_registers,test_exc_zero,test_exc_invalid_opcode,mem_alloc,mem_free, exec, kill
+GLOBAL read, write, random, read_char, draw, sleep, time, sound, hlt, clear, writing_pos, screen_info,font_size,sys_registers,test_exc_zero,test_exc_invalid_opcode,mem_alloc,mem_free, exec, kill, block, unblock
 
 
 
@@ -100,5 +100,15 @@ exec:
 
 kill:
     mov rax, 23
+    int 0x80
+    ret
+
+block:
+    mov rax, 24
+    int 0x80
+    ret
+
+unblock:
+    mov rax, 25
     int 0x80
     ret

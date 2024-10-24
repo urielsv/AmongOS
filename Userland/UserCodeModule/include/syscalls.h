@@ -134,7 +134,9 @@ extern void test_exc_invalid_opcode();
 
 extern void *mem_alloc(size_t size);
 extern void mem_free(void *ptr);
-extern int16_t exec(void *code, char **argv, int argc, char *name, uint8_t priority, uint8_t unkillable);
-extern int kill(uint16_t pid);
+extern int64_t exec(void *code, char **argv, int argc, char *name, uint8_t priority, uint8_t unkillable);
+extern int kill(uint64_t pid);
+extern int block(uint64_t pid);
+extern int unblock(uint64_t pid);
 
 #endif
