@@ -38,7 +38,6 @@ void shell()
 
     print_header();
 
-    // exec((void *) &test, NULL, 0, "test", 1, 1);
 
     // MM TES
     // 0x1000000 (16) = 16777216 (10)

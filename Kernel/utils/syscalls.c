@@ -51,7 +51,9 @@ static syscall_t syscalls[] = {
     (syscall_t)&sys_create_process, // sys_id 22
     (syscall_t)&sys_kill_process, //sys_id 23
     (syscall_t)&sys_block_process, // sys_id 24
-    (syscall_t)&sys_unblock_process // sys_id 25
+    (syscall_t)&sys_unblock_process, // sys_id 25
+    (syscall_t)&sys_set_priority, // sys_id 26
+    (syscall_t)&sys_get_pid // sys_id 27
 };
 
 uint64_t syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9) {
@@ -219,4 +221,13 @@ int sys_block_process(uint64_t pid) {
 
 int sys_unblock_process(uint64_t pid) {
     return unblock_process(pid);
+}
+
+int sys_set_priority(uint64_t pid, uint8_t priority) {
+    process_priority(pid, priority);
+    return 0;
+}
+
+int sys_get_pid() {
+    return get_current_pid();
 }

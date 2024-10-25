@@ -21,5 +21,6 @@ void kill_current_process();
 void yield();
 void* scheduler(void* stack_pointer);
 void process_priority(uint64_t pid, uint8_t new_prio);
+int get_current_pid();
 
 #endif // SCHEDULER_H

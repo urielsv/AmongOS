@@ -34,6 +34,28 @@ void addNode(linkedListADT list, void * process) {
     list->size++;
 }
 
+void removeAllNodes(linkedListADT list, void * process) {
+    node_t * prev = NULL;
+    node_t * current = list->head;
+    while (current != NULL) {
+        if (current->process == process) {
+            if (prev == NULL) {
+                list->head = current->next;
+            } else {
+                prev->next = current->next;
+            }
+            if (current == list->tail) {
+                list->tail = prev;
+            }
+            list->size--;
+            mem_free(current);
+            current = prev->next;
+        } else {
+            prev = current;
+            current = current->next;
+        }
+    }
+}
 void removeNode(linkedListADT list, void * process) {
     node_t * prev = NULL;
     node_t * current = list->head;

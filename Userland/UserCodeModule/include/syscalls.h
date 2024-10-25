@@ -138,5 +138,7 @@ extern int64_t exec(void *code, char **argv, int argc, char *name, uint8_t prior
 extern int kill(uint64_t pid);
 extern int block(uint64_t pid);
 extern int unblock(uint64_t pid);
+extern int set_priority(uint64_t pid, uint8_t priority);
+extern int get_pid();
 
 #endif

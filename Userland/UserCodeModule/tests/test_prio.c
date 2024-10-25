@@ -3,24 +3,17 @@
 #include <tests.h>
 #include <syscalls.h>
 #include <definitions.h>
-#define MINOR_WAIT 5 // TODO: Change this value to prevent a process from flooding the screen
-#define WAIT 50      // TODO: Change this value to make the wait long enough to see theese processes beeing run at least twice
-
-
+#define MINOR_WAIT 10 // TODO: Change this value to prevent a process from flooding the screen
+#define WAIT 15000000     // TODO: Change this value to make the wait long enough to see theese processes beeing run at least twice
 #define TOTAL_PROCESSES 5
-#define LOWEST 0  
-#define LOW_MEDIUM 1  
-#define MEDIUM 2 
-#define MEDIUM_HIGH 3  
-#define HIGHEST 4 
 
 static void endless_loop_print_wrap() {
-  endless_loop_print(WAIT);
+  endless_loop_print(MINOR_WAIT);
   //endless_loop();
 }
 
 
-int64_t prio[TOTAL_PROCESSES] = {LOWEST, LOW_MEDIUM, MEDIUM, MEDIUM_HIGH, HIGHEST};
+int64_t prio[TOTAL_PROCESSES] = {LOW, LOW_MEDIUM, MEDIUM, HIGH_MEDIUM, HIGH};
 
 void test_prio() {
   int64_t pids[TOTAL_PROCESSES];
@@ -34,7 +27,7 @@ void test_prio() {
   printf("\nCHANGING PRIORITIES...\n");
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
-    my_nice(pids[i], prio[i]);
+    set_priority(pids[i], prio[i]);
 
   bussy_wait(WAIT);
   printf("\nBLOCKING...\n");
@@ -42,12 +35,14 @@ void test_prio() {
   for (i = 0; i < TOTAL_PROCESSES; i++)
     block(pids[i]);
 
-  printf("CHANGING PRIORITIES WHILE BLOCKED...\n");
+  printf("\nCHANGING PRIORITIES WHILE BLOCKED...\n");
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
-    my_nice(pids[i], MEDIUM);
+    set_priority(pids[i], MEDIUM);
 
-  printf("UNBLOCKING...\n");
+
+  bussy_wait(WAIT/3);
+  printf("\nUNBLOCKING...\n");
 
   for (i = 0; i < TOTAL_PROCESSES; i++)
     unblock(pids[i]);

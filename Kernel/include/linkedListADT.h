@@ -20,4 +20,5 @@ node_t * getFirstNode(linkedListADT list);
 void destroyLinkedList(linkedListADT list);
 void * getNextNode(linkedListADT list);
 void * swapToLast(linkedListADT list, void * process);
+void removeAllNodes(linkedListADT list, void * process);
 #endif // LINKEDLISTADT_H

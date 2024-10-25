@@ -7,7 +7,9 @@
 #include <math.h>
 
 #define IDLE_PID 0
-#define DEFAULT_QUANTUM 4
+#define DEFAULT_QUANTUM 2
+
+#define CAPPED_PRIORITY(prio) (prio >= MAX_PRIORITY ? MAX_PRIORITY : prio)
 
 typedef struct scheduler_cdt {
     node_t * processes[MAX_PROCESSES];
@@ -126,6 +128,8 @@ void* scheduler(void* stack_pointer) {
 
 // Crear un nuevo proceso
 int32_t create_process(Function code, char **args, int argc, char *name, uint8_t priority, uint8_t unkilliable) {
+
+    priority = CAPPED_PRIORITY(priority);
     scheduler_adt scheduler = getSchedulerADT();
     //ker_write("Creating process\n");
     if (scheduler->remaining_processes >= MAX_PROCESSES) {
@@ -163,32 +167,34 @@ int32_t create_process(Function code, char **args, int argc, char *name, uint8_t
     return process->pid;
 }
 
-#define CAPPED_PRIORITY(prio) (prio >= MAX_PRIORITY ? MAX_PRIORITY : prio)
 void process_priority(uint64_t pid, uint8_t new_prio) {
     scheduler_adt scheduler = getSchedulerADT();
 
-    new_prio = CAPPED_PRIORITY(new_prio);
+    new_prio = CAPPED_PRIORITY(new_prio);  
 
     process_t *current_process = (process_t *) scheduler->processes[pid]->process;
-     int toBeAdded  = new_prio - current_process->priority;
+    int priority_delta = new_prio - current_process->priority;
 
-    // We want to remove the process from the list 
-    if (new_prio == 0) {
+    // Case when we have to add to unblock 
+    if (priority_delta == 0) {
         for (int i = 0; i < current_process->priority; i++) {
+            addNode(scheduler->process_list, (void *) current_process);
+        }
+    }
+
+    if (priority_delta > 0) {
+        for (int i = 0; i < priority_delta; i++) {
+            addNode(scheduler->process_list, (void *) current_process);
+        }
+    } else {
+        for (int i = 0; i < abs(priority_delta); i++) {
             removeNode(scheduler->process_list, (void *) current_process);
         }
-        return;
     }
 
-    for (int i = 0; i < abs(toBeAdded); i++) {
-        (toBeAdded > 0) ? 
-            addNode(scheduler->process_list, (void *) current_process) : 
-            removeNode(scheduler->process_list, (void *) current_process);
-    }
-
-    current_process->priority = new_prio; 
+    current_process->priority = new_prio;  
 }
-#undef CAPPED_PRIORITY
+
 
 // Terminar un proceso
 int kill_process(uint16_t pid) {
@@ -212,7 +218,7 @@ int kill_process(uint16_t pid) {
     if (process_to_kill->state == BLOCKED) {
         removeNode(scheduler->blocked_process_list, (void *) process_to_kill);
     } else {
-        process_priority(pid, 0);
+        removeAllNodes(scheduler->process_list, (void *) process_to_kill);
     }
 
     process_to_kill->state = KILLED;
@@ -242,8 +248,8 @@ int block_process(uint64_t pid) {
     process_t *process_to_block = (process_t *) scheduler->processes[pid]->process;
     process_to_block->state = BLOCKED;
     addNode(scheduler->blocked_process_list, process_to_block);
-    process_priority(pid, 0);
-
+    removeAllNodes(scheduler->process_list, process_to_block);
+    
     return 0;
 }
 
@@ -251,7 +257,6 @@ int block_process(uint64_t pid) {
 int unblock_process(uint64_t pid) {
     scheduler_adt scheduler = getSchedulerADT();
     if (scheduler->processes[pid] == NULL) {
-        ker_write("Process %llu not found\n", pid);
         return -1;
     }
 
@@ -262,3 +267,9 @@ int unblock_process(uint64_t pid) {
 
     return 0;
 }
+
+int get_current_pid() {
+    scheduler_adt scheduler = getSchedulerADT();
+    return scheduler->current_pid;
+}
+#undef CAPPED_PRIORITY

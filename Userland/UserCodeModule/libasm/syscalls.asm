@@ -1,4 +1,4 @@
-GLOBAL read, write, random, read_char, draw, sleep, time, sound, hlt, clear, writing_pos, screen_info,font_size,sys_registers,test_exc_zero,test_exc_invalid_opcode,mem_alloc,mem_free, exec, kill, block, unblock
+GLOBAL read, write, random, read_char, draw, sleep, time, sound, hlt, clear, writing_pos, screen_info,font_size,sys_registers,test_exc_zero,test_exc_invalid_opcode,mem_alloc,mem_free, exec, kill, block, unblock, set_priority, get_pid
 
 
 
@@ -113,7 +113,12 @@ unblock:
     int 0x80
     ret
 
-set_prio:
+set_priority:
     mov rax, 26
+    int 0x80
+    ret
+
+get_pid:
+    mov rax, 27
     int 0x80
     ret

@@ -192,4 +192,8 @@ int sys_block_process(uint64_t pid);
 
 int sys_unblock_process(uint64_t pid);
 
+int sys_set_priority(uint64_t pid, uint8_t priority);
+
+int sys_get_pid();
+
 #endif
