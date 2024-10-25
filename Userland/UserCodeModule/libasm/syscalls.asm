@@ -112,3 +112,8 @@ unblock:
     mov rax, 25
     int 0x80
     ret
+
+set_prio:
+    mov rax, 26
+    int 0x80
+    ret

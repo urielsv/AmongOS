@@ -7,7 +7,7 @@
 #include <math.h>
 
 #define IDLE_PID 0
-#define DEFAULT_QUANTUM 2
+#define DEFAULT_QUANTUM 4
 
 typedef struct scheduler_cdt {
     node_t * processes[MAX_PROCESSES];

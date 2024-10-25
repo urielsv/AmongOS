@@ -46,11 +46,11 @@ void shell()
     // exec((void *) &test_mm_proc, argv_test_mm, 1, "Testeo_de_memoria_:D", 1, 1);
 
     // PROCESSES TEST
-    char *argv_test_processes[] = {"10", NULL};
-    exec((void *)&test_processes_proc, argv_test_processes, 1, "test_processes", 1);
+    // char *argv_test_processes[] = {"10", NULL};
+    // exec((void *)&test_processes_proc, argv_test_processes, 1, "test_processes", 1);
 
     //PRIO TEST
-    //exec((void *)&test_prio_proc, NULL, 0, "test_prio", 1);
+    exec((void *)&test_prio_proc, NULL, 0, "test_prio", 1);
 
     // SHELL LOOP
     //char buff[MAX_BUFFER_SIZE];
