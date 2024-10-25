@@ -5,7 +5,6 @@
 #include <tests.h>
 
 
-
 // Random
 static uint32_t m_z = 362436069;
 static uint32_t m_w = 521288629;

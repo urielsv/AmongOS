@@ -204,12 +204,13 @@ void sys_mem_free(void *ptr) {
     mem_free(ptr);
 }
 
-void sys_create_process(Function code, char **argv, int argc, char *name, uint8_t priority, uint8_t unkillable) {
-    create_process(code, argv, argc, name, priority, unkillable);   
+void sys_create_process(Function code, char **argv, int argc, char *name, uint8_t priority) {
+    // No other processes should be unkilleable.
+    create_process(code, argv, argc, name, priority, 0);
 }
 
 int sys_kill_process(uint64_t pid) {
-    kill_process(pid);
+    return kill_process(pid);
 }
 
 int sys_block_process(uint64_t pid) {

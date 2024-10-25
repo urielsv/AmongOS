@@ -6,7 +6,7 @@
 #include <process.h>
 
 #define IDLE_PID 0
-#define DEFAULT_QUANTUM 2
+#define DEFAULT_QUANTUM 10
 
 typedef struct scheduler_cdt {
     node_t * processes[MAX_PROCESSES];
@@ -129,7 +129,7 @@ void* scheduler(void* stack_pointer) {
 
 
 // Crear un nuevo proceso
-int32_t create_process(Function code, char **args, int argc, char *name, uint8_t priority, uint8_t unkillable) {
+int32_t create_process(Function code, char **args, int argc, char *name, uint8_t priority, uint8_t unkilliable) {
     scheduler_adt scheduler = getSchedulerADT();
     //ker_write("Creating process\n");
     if (scheduler->remaining_processes >= MAX_PROCESSES) {
@@ -143,7 +143,7 @@ int32_t create_process(Function code, char **args, int argc, char *name, uint8_t
         return -1;
     }
 
-     init_process(process, scheduler->next_unused_pid, code, args, argc, name, priority, unkillable); 
+     init_process(process, scheduler->next_unused_pid, code, args, argc, name, priority, unkilliable); 
    
     node_t *process_node = mem_alloc(sizeof(node_t));
     if (process_node == NULL) {
@@ -181,6 +181,7 @@ int kill_process(uint16_t pid) {
 
     process_t *process_to_kill = (process_t *) scheduler->processes[pid]->process;
     if (process_to_kill->unkilliable) {
+        ker_write("Failed to kill process. Process is unkilliable\n");
         return -1;
     }
 
@@ -188,7 +189,6 @@ int kill_process(uint16_t pid) {
         removeNode(scheduler->blocked_process_list, process_to_kill);
     } else {
     //    for (int i = 0; i < process_to_kill->priority; i++) {
-            ker_write("Removing node\n");
             removeNode(scheduler->process_list, process_to_kill);
     //    }
     }

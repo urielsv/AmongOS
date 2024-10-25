@@ -1,6 +1,8 @@
 #include "../include/linkedListADT.h"
 #include "../include/memman.h"
 #include <stddef.h>
+#include <io.h>
+
 typedef struct linkedListCDT_t {
     node_t * head;
     node_t * tail;
@@ -47,11 +49,13 @@ void removeNode(linkedListADT list, void * process) {
             }
             list->size--;
             mem_free(current);
+
             return;
         }
         prev = current;
         current = current->next;
     }
+
 }
 node_t * getFirstNode(linkedListADT list) {
     return list->head;

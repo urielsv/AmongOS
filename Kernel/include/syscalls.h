@@ -184,7 +184,7 @@ void sys_mem_alloc(size_t size);
 
 void sys_mem_free(void *address);
 
-void sys_create_process(Function code, char **argv, int argc, char *name, uint8_t priority, uint8_t unkillable);
+void sys_create_process(Function code, char **argv, int argc, char *name, uint8_t priority);
 
 int sys_kill_process(uint64_t pid);
 
