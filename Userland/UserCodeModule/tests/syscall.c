@@ -1,6 +1,7 @@
 // This is a personal academic project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <stdint.h>
+#include <stdio.h>
 
 int64_t my_getpid() {
   return 0;
@@ -11,6 +12,7 @@ int64_t my_create_process(char *name, uint64_t argc, char *argv[]) {
 }
 
 int64_t my_nice(uint64_t pid, uint64_t newPrio) {
+  printf("NICE!");
   return 0;
 }
 

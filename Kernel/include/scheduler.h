@@ -20,5 +20,6 @@ int32_t get_next_ready_pid();
 void kill_current_process();
 void yield();
 void* scheduler(void* stack_pointer);
+void process_priority(uint64_t pid, uint8_t new_prio);
 
 #endif // SCHEDULER_H

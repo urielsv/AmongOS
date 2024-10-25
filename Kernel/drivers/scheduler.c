@@ -4,9 +4,10 @@
 #include <io.h>
 #include <stdlib.h>
 #include <process.h>
+#include <math.h>
 
 #define IDLE_PID 0
-#define DEFAULT_QUANTUM 10
+#define DEFAULT_QUANTUM 2
 
 typedef struct scheduler_cdt {
     node_t * processes[MAX_PROCESSES];
@@ -17,6 +18,7 @@ typedef struct scheduler_cdt {
     uint16_t remaining_processes;
     int32_t current_quantum;
 } scheduler_cdt;
+
 
 // Inicializa el scheduler
 scheduler_adt init_scheduler() {
@@ -55,14 +57,6 @@ int32_t get_next_ready_pid() {
     }
     return IDLE_PID;  // Si no hay otro proceso listo, regresar al proceso idle
 
-
-    // for (int i = 0; i < MAX_PROCESSES; i++) {
-    //     scheduler->current_pid = (scheduler->current_pid + 1) % MAX_PROCESSES;
-    //     if (scheduler->processes[scheduler->current_pid] != NULL && 
-    //         ((process_t *)scheduler->processes[scheduler->current_pid]->process)->state == READY) {
-    //         return scheduler->current_pid;
-    //     }
-    // }
 }
 
 
@@ -99,13 +93,14 @@ void* scheduler(void* stack_pointer) {
                 swapToLast(scheduler->process_list, current_process);
                 scheduler->current_pid = get_next_ready_pid();
                 current_process = (process_t *) scheduler->processes[scheduler->current_pid]->process;
+               
                 //ker_write("RUNNING -> READY\n");
                 break;
 
             case READY:
                 current_process->state = RUNNING;
                 current_process->stack_pointer = stack_pointer;
-               
+        
                 //ker_write("READY -> RUNNING\n");
                 break;
 
@@ -117,6 +112,7 @@ void* scheduler(void* stack_pointer) {
                 //current_process->state = READY;
                 scheduler->remaining_processes--;
                 break;
+            //aca nunca deberia entrar
             case BLOCKED:
             default:
                // ker_write("Other state");
@@ -154,9 +150,10 @@ int32_t create_process(Function code, char **args, int argc, char *name, uint8_t
 
     process_node->process = (void *) process;
     if (process->pid != IDLE_PID) {
-        // for (int i = 0; i < process->priority; i++) {
+        for (int i = 0; i < process->priority; i++) {
             addNode(scheduler->process_list, (void *) process);
-        // }
+         }
+
     }
 
     scheduler->processes[process->pid] = process_node;
@@ -165,6 +162,33 @@ int32_t create_process(Function code, char **args, int argc, char *name, uint8_t
 
     return process->pid;
 }
+
+#define CAPPED_PRIORITY(prio) (prio >= MAX_PRIORITY ? MAX_PRIORITY : prio)
+void process_priority(uint64_t pid, uint8_t new_prio) {
+    scheduler_adt scheduler = getSchedulerADT();
+
+    new_prio = CAPPED_PRIORITY(new_prio);
+
+    process_t *current_process = (process_t *) scheduler->processes[pid]->process;
+     int toBeAdded  = new_prio - current_process->priority;
+
+    // We want to remove the process from the list 
+    if (new_prio == 0) {
+        for (int i = 0; i < current_process->priority; i++) {
+            removeNode(scheduler->process_list, (void *) current_process);
+        }
+        return;
+    }
+
+    for (int i = 0; i < abs(toBeAdded); i++) {
+        (toBeAdded > 0) ? 
+            addNode(scheduler->process_list, (void *) current_process) : 
+            removeNode(scheduler->process_list, (void *) current_process);
+    }
+
+    current_process->priority = new_prio; 
+}
+#undef CAPPED_PRIORITY
 
 // Terminar un proceso
 int kill_process(uint16_t pid) {
@@ -186,11 +210,9 @@ int kill_process(uint16_t pid) {
     }
 
     if (process_to_kill->state == BLOCKED) {
-        removeNode(scheduler->blocked_process_list, process_to_kill);
+        removeNode(scheduler->blocked_process_list, (void *) process_to_kill);
     } else {
-    //    for (int i = 0; i < process_to_kill->priority; i++) {
-            removeNode(scheduler->process_list, process_to_kill);
-    //    }
+        process_priority(pid, 0);
     }
 
     process_to_kill->state = KILLED;
@@ -220,9 +242,7 @@ int block_process(uint64_t pid) {
     process_t *process_to_block = (process_t *) scheduler->processes[pid]->process;
     process_to_block->state = BLOCKED;
     addNode(scheduler->blocked_process_list, process_to_block);
-    //for (int i = 0; i < process_to_block->priority; i++) {
-        removeNode(scheduler->process_list, process_to_block);
-    //}
+    process_priority(pid, 0);
 
     return 0;
 }
@@ -238,9 +258,7 @@ int unblock_process(uint64_t pid) {
     process_t *process_to_unblock = (process_t *) scheduler->processes[pid]->process;
     process_to_unblock->state = READY;
     removeNode(scheduler->blocked_process_list, process_to_unblock);
-    //for (int i = 0; i < process_to_unblock->priority; i++) {
-        addNode(scheduler->process_list, process_to_unblock);
-    //}
+    process_priority(pid, process_to_unblock->priority);
 
     return 0;
 }
