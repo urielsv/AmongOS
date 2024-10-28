@@ -14,46 +14,48 @@ static int find_semaphore(uint64_t id) {
     return -1;
 }
 
+
 static void lock_semaphore(sem_t *sem) {
-    while (asm_xchg(&sem->mutex, 1)) {
+    while (asm_xchg(&(sem->mutex), 1)) {
         uint64_t pid = get_current_pid();
-        process_t *process = (process_t *)mem_alloc(sizeof(process_t));
-        process->pid = pid;
-        addNode(sem->mutex_list, process);
+        addNode(sem->mutex_list, (void *) ((uint64_t) pid));
         block_process(pid);
+        yield();
     }
+   
 }
 
 static void unlock_semaphore(sem_t *sem) {
-    if (getSize(sem->mutex_list) > 0) {
-        node_t *first = getFirstNode(sem->mutex_list);
-        if (first != NULL) {
-            process_t *process = (process_t *)first->process;
-            uint64_t pid = process->pid;
-            removeFirstNode(sem->mutex_list);
-            mem_free(process);
-            unblock_process(pid);
-        }
+    node_t * first = getFirstNode(sem->mutex_list);
+    if (first != NULL) {
+        uint64_t pid = (uint64_t) first->process;
+        removeFirstNode(sem->mutex_list);
+        unblock_process(pid);
+    } else {
+        sem->mutex = 0;
     }
-    sem->mutex = 0;
+    
 }
+    
 
 int32_t sem_open(uint64_t id, uint64_t initial_value) {
+   
     if (find_semaphore(id) != -1) {
-        return 0;  // Ya existe (éxito como en tu implementación)
+        return 0;  
     }
 
-    for (int i = 0; i < MAX_SEMAPHORES; i++) {
-        if (semaphores[i] == NULL) {
-            semaphores[i] = (sem_t *)mem_alloc(sizeof(sem_t));
-            semaphores[i]->id = id;
-            semaphores[i]->value = initial_value;
-            semaphores[i]->mutex = 0;
-            semaphores[i]->waiting_list = createLinkedList();
-            semaphores[i]->mutex_list = createLinkedList();
+   
+        if (semaphores[id] == NULL) {
+            semaphores[id] = (sem_t *)mem_alloc(sizeof(sem_t));
+            semaphores[id]->id = id;
+            semaphores[id]->value = initial_value;
+            semaphores[id]->mutex = 0;  // Initialize to 0 (unlocked)
+            semaphores[id]->waiting_list = createLinkedList();
+            semaphores[id]->mutex_list = createLinkedList();
+            ker_write("creado semaforo con exito\n");
             return 0;
         }
-    }
+ 
     return -1;
 }
 
@@ -84,9 +86,7 @@ void sem_wait(uint64_t id) {
 
     while (sem->value == 0) {
         uint64_t pid = get_current_pid();
-        process_t *process = (process_t *)mem_alloc(sizeof(process_t));
-        process->pid = pid;
-        addNode(sem->waiting_list, process);
+        addNode(sem->waiting_list, (void *) ((uint64_t) pid));
         unlock_semaphore(sem);
         block_process(pid);
         lock_semaphore(sem);
@@ -104,20 +104,15 @@ void sem_post(uint64_t id) {
 
     sem_t *sem = semaphores[idx];
     lock_semaphore(sem);
-
-    sem->value++;
-    
-    if (getSize(sem->waiting_list) > 0) {
+    sem->value++; 
+    if (sem->value > 0 ) {
         node_t *first = getFirstNode(sem->waiting_list);
         if (first != NULL) {
-            process_t *process = (process_t *)first->process;
-            uint64_t pid = process->pid;
-            removeFirstNode(sem->waiting_list);
-            mem_free(process);
+            uint64_t pid = (uint64_t)first->process;
+            removeNode(sem->waiting_list, first->process);
             unblock_process(pid);
         }
     }
-
     unlock_semaphore(sem);
 }
 
@@ -125,26 +120,6 @@ void sem_close(uint64_t id) {
     int idx = find_semaphore(id);
     if (idx == -1) {
         return;
-    }
-
-    // Liberar procesos en waiting_list
-    while (getSize(semaphores[idx]->waiting_list) > 0) {
-        node_t *first = getFirstNode(semaphores[idx]->waiting_list);
-        if (first != NULL) {
-            process_t *process = (process_t *)first->process;
-            removeFirstNode(semaphores[idx]->waiting_list);
-            mem_free(process);
-        }
-    }
-
-    // Liberar procesos en mutex_list
-    while (getSize(semaphores[idx]->mutex_list) > 0) {
-        node_t *first = getFirstNode(semaphores[idx]->mutex_list);
-        if (first != NULL) {
-            process_t *process = (process_t *)first->process;
-            removeFirstNode(semaphores[idx]->mutex_list);
-            mem_free(process);
-        }
     }
 
     destroyLinkedList(semaphores[idx]->waiting_list);
@@ -156,29 +131,8 @@ void sem_close(uint64_t id) {
 void sem_cleanup_process(uint64_t pid) {
     for (int i = 0; i < MAX_SEMAPHORES; i++) {
         if (semaphores[i] != NULL) {
-            // Buscar y eliminar de waiting_list
-            node_t *current = getFirstNode(semaphores[i]->waiting_list);
-            while (current != NULL) {
-                process_t *process = (process_t *)current->process;
-                if (process->pid == pid) {
-                    removeNode(semaphores[i]->waiting_list, process);
-                    mem_free(process);
-                    break;
-                }
-                current = current->next;
-            }
-
-            // Buscar y eliminar de mutex_list
-            current = getFirstNode(semaphores[i]->mutex_list);
-            while (current != NULL) {
-                process_t *process = (process_t *)current->process;
-                if (process->pid == pid) {
-                    removeNode(semaphores[i]->mutex_list, process);
-                    mem_free(process);
-                    break;
-                }
-                current = current->next;
-            }
+            removeNode(semaphores[i]->waiting_list, (void *) ((uint64_t) pid));
+            removeNode(semaphores[i]->mutex_list, (void *) ((uint64_t) pid));
         }
     }
 }

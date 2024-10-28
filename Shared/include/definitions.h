@@ -7,7 +7,7 @@
 #define MAX_PRIORITY 5
 #define EOF (-1)
 
-typedef enum { BLOCKED = 0, READY, KILLED, RUNNING, WAITING_FOR_CHILD } state_t;
+typedef enum { BLOCKED = 0, READY, KILLED, RUNNING} state_t;
 typedef enum { LOW = 1, LOW_MEDIUM, MEDIUM, HIGH_MEDIUM, HIGH } priority_t;
 
 typedef int (*Function)(int argc, char **args);

@@ -103,10 +103,10 @@ uint64_t test_sync(uint64_t argc, char *argv[]) {
     for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
         printf("\nCreating pair %d:\n", i+1);
         pids[i] = exec((void *)&my_process_inc, argvDec, 3, "my_process_dec", 1);
-        printf("- DEC PID: %d\n", pids[i]);
+        printf("\n- DEC PID: %d\n", pids[i]);
         
         pids[i + TOTAL_PAIR_PROCESSES] = exec((void *)&my_process_inc, argvInc, 3, "my_process_inc", 1);
-        printf("- INC PID: %d\n", pids[i + TOTAL_PAIR_PROCESSES]);
+        printf("\n- INC PID: %d\n", pids[i + TOTAL_PAIR_PROCESSES]);
     }
 
     printf("\nWaiting for processes\n");

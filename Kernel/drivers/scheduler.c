@@ -7,7 +7,7 @@
 #include <math.h>
 
 #define IDLE_PID 0
-#define DEFAULT_QUANTUM 50
+#define DEFAULT_QUANTUM 3
 
 #define CAPPED_PRIORITY(prio) (prio >= MAX_PRIORITY ? MAX_PRIORITY : prio)
 
@@ -197,7 +197,7 @@ int32_t waitpid(int32_t pid, int *status) {
             return -1;
         }
 
-        current_process->state = WAITING_FOR_CHILD;
+        // current_process->state = WAITING_FOR_CHILD;
         removeAllNodes(scheduler->process_list, current_process);
         block_process(current_pid);
         
@@ -234,7 +234,7 @@ int32_t waitpid(int32_t pid, int *status) {
             return pid;
         }
         
-        current_process->state = WAITING_FOR_CHILD;
+        // current_process->state = WAITING_FOR_CHILD;
         removeAllNodes(scheduler->process_list, current_process);
         block_process(current_pid);
         
@@ -266,6 +266,7 @@ void process_priority(uint64_t pid, uint8_t new_prio) {
     // Case when we have to add to unblock 
     if (priority_delta == 0) {
         for (int i = 0; i < current_process->priority; i++) {
+            if (current_process->state!=READY && current_process->state!=RUNNING)
             addNode(scheduler->process_list, (void *) current_process);
         }
     }
@@ -311,12 +312,12 @@ int kill_process(uint16_t pid) {
 
     process_to_kill->state = KILLED;
 
-    if (process_to_kill->parent_pid != -1) {
-        process_t *parent = (process_t *)scheduler->processes[process_to_kill->parent_pid]->process;
-        if (parent->state == WAITING_FOR_CHILD) {
-            unblock_process(parent->pid);
-        }
-    }
+    // if (process_to_kill->parent_pid != -1) {
+    //     process_t *parent = (process_t *)scheduler->processes[process_to_kill->parent_pid]->process;
+    //     if (parent->state == WAITING_FOR_CHILD) {
+    //         unblock_process(parent->pid);
+    //     }
+    // }
 
     yield();
     return 0;

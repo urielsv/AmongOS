@@ -4,7 +4,7 @@
 #include <syscalls.h>
 #include <definitions.h>
 #define MINOR_WAIT 10 // TODO: Change this value to prevent a process from flooding the screen
-#define WAIT 15000000     // TODO: Change this value to make the wait long enough to see theese processes beeing run at least twice
+#define WAIT 2000000     // TODO: Change this value to make the wait long enough to see theese processes beeing run at least twice
 #define TOTAL_PROCESSES 5
 
 static void endless_loop_print_wrap() {

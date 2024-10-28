@@ -54,18 +54,18 @@ void shell()
     // exec((void *)&test_processes_proc, argv_test_processes, 1, "test_processes", 1);
 
     //PRIO TEST
-    // exec((void *)&test_prio_proc, NULL, 0, "test_prio", 1);
+    //  exec((void *)&test_prio_proc, NULL, 0, "test_prio", 1);
 
     // SYNCHRO TEST
 
     // Some examples to test satoi
 
-    char *argv_test_sync[] = {"2", "0", NULL};
-    exec((void *)&test_synchro_proc, argv_test_sync, 2, "test_synchro", 1);
+    // char *argv_test_sync[] = {"2", "-1", NULL};
+    // exec((void *)&test_synchro_proc, argv_test_sync, 2, "test_synchro", 1);
 
     // printf("----------------------------------------------------\n"); 
-    // char *argv_test_sync1[] = {"2", "1", NULL};
-    // exec((void *)&test_synchro_proc, argv_test_sync1, 2, "test_synchro", 1);
+    char *argv_test_sync1[] = {"10", "1", NULL};
+    exec((void *)&test_synchro_proc, argv_test_sync1, 2, "test_synchro", 1);
     
 
     // clear(0x0);

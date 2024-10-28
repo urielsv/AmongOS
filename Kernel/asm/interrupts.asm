@@ -12,7 +12,7 @@ global create_process_stack_frame
 
 global asm_do_timer_tick
 
-global asm_xchg
+global asm_xchg, acquire, release
 
 extern irq_dispatcher, syscall_dispatcher, exception_dispatcher, save_registers, scheduler
 
@@ -254,3 +254,14 @@ asm_xchg:
   mov rax, rsi
   xchg [rdi], eax
   ret
+
+acquire:
+    mov rax, 0          ; Value we want to set (locked)
+.retry:
+    xchg [rdi], rax     ; Atomically swap with memory
+    test rax, rax       ; Test if it was already locked (1)
+    jz .retry          ; If it was locked, retry
+    ret                 ; If it was unlocked (0), we got the lock
+release:
+    mov DWORD [rdi], 1  ; Set to unlocked
+    ret
