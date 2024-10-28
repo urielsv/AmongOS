@@ -33,12 +33,11 @@ uint8_t memcheck(void *start, uint8_t value, uint32_t size) {
   return 1;
 }
 
-// Parameters
 int64_t satoi(char *str) {
   uint64_t i = 0;
   int64_t res = 0;
   int8_t sign = 1;
-  
+
   if (!str)
     return 0;
 

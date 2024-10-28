@@ -9,14 +9,14 @@
 int64_t global; // shared memory
 
 void slowInc(int64_t *p, int64_t inc) {
-    printf("[DEBUG] Reading global value: %d, will add: %d\n", *p, inc);
-    uint64_t aux = *p;
-    printf("[DEBUG] Before yield, aux = %d\n", aux);
-    yield(); // This makes the race condition highly probable
+    printf("[P] global=%d inc=%d\n", *p, inc);
+    int64_t aux = *p;
+    printf("[P] pre_yield: aux=%d\n", aux);
+    yield();
     aux += inc;
-    printf("[DEBUG] After yield, aux = %d\n", aux);
+    printf("[P] post_yield: aux=%d\n", aux);
     *p = aux;
-    printf("[DEBUG] Updated global to: %d\n", *p);
+    printf("[P] updated_global=%d\n", *p);
 }
 
 uint64_t my_process_inc(uint64_t argc, char *argv[]) {
@@ -24,8 +24,7 @@ uint64_t my_process_inc(uint64_t argc, char *argv[]) {
     int8_t inc;
     int8_t use_sem;
 
-    printf("[DEBUG] Process started with PID: %d\n", get_pid());
-    printf("[DEBUG] Args received: n=%s, inc=%s, use_sem=%s\n", argv[0], argv[1], argv[2]);
+    printf("\nPID %d START (n=%s, inc=%s, sem=%s)\n", get_pid(), argv[0], argv[1], argv[2]);
 
     if (argc != 3) {
         printf("[ERROR] Invalid argument count: %d\n", argc);
@@ -47,85 +46,83 @@ uint64_t my_process_inc(uint64_t argc, char *argv[]) {
         return -1;
     }
 
-    printf("[DEBUG] Process will do %d iterations with inc=%d (sem=%d)\n", n, inc, use_sem);
+    printf("PID %d CONFIG: n=%d inc=%d sem=%d\n", get_pid(), n, inc, use_sem);
 
     if (use_sem) {
-        printf("[DEBUG] Opening semaphore %d\n", SEM_ID);
+        printf("PID %d SEM: Opening %d\n", get_pid(), SEM_ID);
         if (!sem_open(SEM_ID, 1)) {
-            printf("test_sync: ERROR opening semaphore\n");
+            printf("PID %d SEM: Open failed\n", get_pid());
             return -1;
         }
-        printf("[DEBUG] Semaphore opened successfully\n");
     }
 
     uint64_t i;
     for (i = 0; i < n; i++) {
-        printf("[DEBUG] PID %d: Iteration %d/%d\n", get_pid(), i+1, n);
+        printf("PID %d ITER %d/%d\n", get_pid(), i+1, n);
         
         if (use_sem) {
-            printf("[DEBUG] PID %d: Waiting for semaphore\n", get_pid());
+            printf("PID %d SEM: Wait\n", get_pid());
             sem_wait(SEM_ID);
-            printf("[DEBUG] PID %d: Got semaphore\n", get_pid());
+            printf("PID %d SEM: Got\n", get_pid());
         }
 
         slowInc(&global, inc);
 
         if (use_sem) {
-            printf("[DEBUG] PID %d: Releasing semaphore\n", get_pid());
+            printf("PID %d SEM: Post\n", get_pid());
             sem_post(SEM_ID);
-            printf("[DEBUG] PID %d: Released semaphore\n", get_pid());
         }
     }
 
     if (use_sem) {
-        printf("[DEBUG] PID %d: Closing semaphore\n", get_pid());
+        printf("PID %d SEM: Closing\n", get_pid());
         sem_close(SEM_ID);
     }
 
-    printf("[DEBUG] PID %d: Process completed successfully\n", get_pid());
+    printf("PID %d END\n", get_pid());
     return 0;
 }
 
 uint64_t test_sync(uint64_t argc, char *argv[]) {
     uint64_t pids[2 * TOTAL_PAIR_PROCESSES];
 
-    printf("[DEBUG] Starting test_sync with args: n=%s, use_sem=%s\n", argv[0], argv[1]);
+    printf("\n=== TEST START (n=%s, sem=%s) ===\n", argv[0], argv[1]);
 
     if (argc != 2) {
-        printf("[ERROR] test_sync: Invalid argument count: %d\n", argc);
+        printf("[ERROR] Invalid args: %d\n", argc);
         return -1;
     }
 
     char *argvDec[] = {argv[0], "-1", argv[1], NULL};
     char *argvInc[] = {argv[0], "1", argv[1], NULL};
 
-    printf("[DEBUG] Initial global value: %d\n", global);
+    printf("Initial global: %d\n", global);
     global = 0;
 
     uint64_t i;
     for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-        printf("[DEBUG] Creating process pair %d\n", i+1);  
-        
+        printf("\nCreating pair %d:\n", i+1);
         pids[i] = exec((void *)&my_process_inc, argvDec, 3, "my_process_dec", 1);
-        printf("[DEBUG] Created decrementer process with PID: %d\n", pids[i]);
+        printf("- DEC PID: %d\n", pids[i]);
         
         pids[i + TOTAL_PAIR_PROCESSES] = exec((void *)&my_process_inc, argvInc, 3, "my_process_inc", 1);
-        printf("[DEBUG] Created incrementer process with PID: %d\n", pids[i + TOTAL_PAIR_PROCESSES]);
+        printf("- INC PID: %d\n", pids[i + TOTAL_PAIR_PROCESSES]);
     }
 
-    printf("[DEBUG] Waiting for all processes to complete\n");
+    printf("\nWaiting for processes\n");
 
     for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-        printf("[DEBUG] Waiting for process %d\n", pids[i]);
+        printf("Wait DEC %d: ", pids[i]);
         my_wait(pids[i]);
-        printf("[DEBUG] Process %d completed\n", pids[i]);
+        printf("Done\n");
 
-        printf("[DEBUG] Waiting for process %d\n", pids[i + TOTAL_PAIR_PROCESSES]);
+        printf("Wait INC %d: ", pids[i + TOTAL_PAIR_PROCESSES]);
         my_wait(pids[i + TOTAL_PAIR_PROCESSES]);
-        printf("[DEBUG] Process %d completed\n", pids[i + TOTAL_PAIR_PROCESSES]);
+        printf("Done\n");
     }
 
-    printf("[DEBUG] All processes completed\n");
-    printf("Final value: %d\n", global);
+    sleep(30000);
+    printf("\n=== TEST END ===\n");
+    printf("Final global: %d\n", global);
     return 0;
 }
