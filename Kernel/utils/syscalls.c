@@ -15,6 +15,7 @@
 #include <process.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <semaphore.h>
 
 #define REGS_SIZE 19
 
@@ -53,7 +54,13 @@ static syscall_t syscalls[] = {
     (syscall_t)&sys_block_process, // sys_id 24
     (syscall_t)&sys_unblock_process, // sys_id 25
     (syscall_t)&sys_set_priority, // sys_id 26
-    (syscall_t)&sys_get_pid // sys_id 27
+    (syscall_t)&sys_get_pid, // sys_id 27
+    (syscall_t)&sys_yield, // sys_id 28
+    (syscall_t)&sys_sem_open, // sys_id 29
+    (syscall_t)&sys_sem_wait, // sys_id 30
+    (syscall_t)&sys_sem_post, // sys_id 31
+    (syscall_t)&sys_sem_close, // sys_id 32
+
 };
 
 uint64_t syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9) {
@@ -230,4 +237,28 @@ int sys_set_priority(uint64_t pid, uint8_t priority) {
 
 int sys_get_pid() {
     return get_current_pid();
+}
+
+void sys_yield() {
+    yield();
+}
+
+int sys_sem_open(uint64_t id, uint64_t initialValue) {
+    return sem_open(id, initialValue);
+}
+
+void sys_sem_wait(uint64_t id) {
+    sem_wait(id);
+}
+
+void sys_sem_post(uint64_t id) {
+    sem_post(id);
+}
+
+void sys_sem_close(uint64_t id) {
+    sem_close(id);
+}
+
+uint32_t sys_waitpid(uint64_t pid, int *status) {
+    return waitpid(pid, status);
 }

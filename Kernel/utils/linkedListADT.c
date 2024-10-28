@@ -138,3 +138,17 @@ void destroyLinkedList(linkedListADT list) {
     mem_free(list);
 }
 
+void removeFirstNode(linkedListADT list) {
+    if (list->head == NULL) {
+        return;
+    }
+    node_t * next = list->head->next;
+    mem_free(list->head);
+    list->head = next;
+    list->size--;
+}
+
+uint64_t getSize(linkedListADT list) {
+    return list->size;
+}
+

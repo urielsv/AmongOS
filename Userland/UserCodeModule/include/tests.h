@@ -15,6 +15,12 @@ int64_t test_processes(uint64_t argc, char *argv[]);
 //prio
 void test_prio();
 
+//sync
+void slowInc(int64_t *p, int64_t inc); 
+uint64_t my_process_inc(uint64_t argc, char *argv[]);
+uint64_t test_sync(uint64_t argc, char *argv[]);
+
+
 //utils
 uint32_t GetUint();
 uint32_t GetUniform(uint32_t max);

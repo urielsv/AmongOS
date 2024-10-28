@@ -1,6 +1,8 @@
 #ifndef LINKEDLISTADT_H
 #define LINKEDLISTADT_H
 
+#include <stdint.h>
+
 typedef struct linkedListCDT_t * linkedListADT;
 typedef struct node_t node_t; 
 
@@ -21,4 +23,7 @@ void destroyLinkedList(linkedListADT list);
 void * getNextNode(linkedListADT list);
 void * swapToLast(linkedListADT list, void * process);
 void removeAllNodes(linkedListADT list, void * process);
+uint64_t getSize(linkedListADT list);
+void removeFirstNode(linkedListADT list);
+
 #endif // LINKEDLISTADT_H

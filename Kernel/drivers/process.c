@@ -34,6 +34,10 @@ void init_process(process_t *process, int32_t pid, Function code,
         (void *)process_handler // r8
         );
     process->unkilliable = unkilliable;
+
+    process->parent_pid = get_current_pid();
+    process->exit_code = 0;
+    process->has_been_waited = 0;
 }
 
 static char **alloc_args(char **args, uint64_t argc)
@@ -51,6 +55,11 @@ static char **alloc_args(char **args, uint64_t argc)
 void process_handler(Function code, char **argv, int argc)
 {
     int64_t ret = code(argc, argv);
+    
+    // Save exit code before killing process
+    process_t *current = get_current_process();
+    current->exit_code = ret;
+    
     kill_current_process();
 }
 

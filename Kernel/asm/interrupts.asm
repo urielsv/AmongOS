@@ -12,6 +12,8 @@ global create_process_stack_frame
 
 global asm_do_timer_tick
 
+global asm_xchg
+
 extern irq_dispatcher, syscall_dispatcher, exception_dispatcher, save_registers, scheduler
 
 SECTION .text
@@ -246,3 +248,9 @@ create_process_stack_frame:
 asm_do_timer_tick:
 	int 0x20
 	ret
+
+
+asm_xchg:
+  mov rax, rsi
+  xchg [rdi], eax
+  ret

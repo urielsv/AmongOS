@@ -7,7 +7,7 @@
 #include <math.h>
 
 #define IDLE_PID 0
-#define DEFAULT_QUANTUM 2
+#define DEFAULT_QUANTUM 50
 
 #define CAPPED_PRIORITY(prio) (prio >= MAX_PRIORITY ? MAX_PRIORITY : prio)
 
@@ -167,6 +167,94 @@ int32_t create_process(Function code, char **args, int argc, char *name, uint8_t
     return process->pid;
 }
 
+
+int32_t waitpid(int32_t pid, int *status) {
+    scheduler_adt scheduler = getSchedulerADT();
+    int32_t current_pid = get_current_pid();
+    process_t *current_process = (process_t *)scheduler->processes[current_pid]->process;
+    
+    if (pid == -1) {
+        int has_children = 0;
+        
+        for (int i = 0; i < MAX_PROCESSES; i++) {
+            if (scheduler->processes[i] != NULL) {
+                process_t *proc = (process_t *)scheduler->processes[i]->process;
+                if (proc->parent_pid == current_pid) {
+                    has_children = 1;
+                    
+                    if (proc->state == KILLED && !proc->has_been_waited) {
+                        proc->has_been_waited = 1;
+                        if (status != NULL) {
+                            *status = proc->exit_code;
+                        }
+                        return proc->pid;
+                    }
+                }
+            }
+        }
+        
+        if (!has_children) {
+            return -1;
+        }
+
+        current_process->state = WAITING_FOR_CHILD;
+        removeAllNodes(scheduler->process_list, current_process);
+        block_process(current_pid);
+        
+        for (int i = 0; i < MAX_PROCESSES; i++) {
+            if (scheduler->processes[i] != NULL) {
+                process_t *proc = (process_t *)scheduler->processes[i]->process;
+                if (proc->parent_pid == current_pid && 
+                    proc->state == KILLED && 
+                    !proc->has_been_waited) {
+                    proc->has_been_waited = 1;
+                    if (status != NULL) {
+                        *status = proc->exit_code;
+                    }
+                    return proc->pid;
+                }
+            }
+        }
+    } else {
+        if (pid < 0 || pid >= MAX_PROCESSES || scheduler->processes[pid] == NULL) {
+            return -1;
+        }
+        
+        process_t *target = (process_t *)scheduler->processes[pid]->process;
+        
+        if (target->parent_pid != current_pid) {
+            return -1;
+        }
+        
+        if (target->state == KILLED && !target->has_been_waited) {
+            target->has_been_waited = 1;
+            if (status != NULL) {
+                *status = target->exit_code;
+            }
+            return pid;
+        }
+        
+        current_process->state = WAITING_FOR_CHILD;
+        removeAllNodes(scheduler->process_list, current_process);
+        block_process(current_pid);
+        
+        if (target->state == KILLED && !target->has_been_waited) {
+            target->has_been_waited = 1;
+            if (status != NULL) {
+                *status = target->exit_code;
+            }
+            return pid;
+        }
+    }
+    
+    return -1;
+}
+
+process_t * get_current_process() {
+    scheduler_adt scheduler = getSchedulerADT();
+    return (process_t *) scheduler->processes[scheduler->current_pid]->process;
+}
+
 void process_priority(uint64_t pid, uint8_t new_prio) {
     scheduler_adt scheduler = getSchedulerADT();
 
@@ -209,19 +297,27 @@ int kill_process(uint16_t pid) {
         return -1;
     }
 
-    process_t *process_to_kill = (process_t *) scheduler->processes[pid]->process;
+    process_t *process_to_kill = (process_t *)scheduler->processes[pid]->process;
     if (process_to_kill->unkilliable) {
         ker_write("Failed to kill process. Process is unkilliable\n");
         return -1;
     }
 
     if (process_to_kill->state == BLOCKED) {
-        removeNode(scheduler->blocked_process_list, (void *) process_to_kill);
+        removeNode(scheduler->blocked_process_list, (void *)process_to_kill);
     } else {
-        removeAllNodes(scheduler->process_list, (void *) process_to_kill);
+        removeAllNodes(scheduler->process_list, (void *)process_to_kill);
     }
 
     process_to_kill->state = KILLED;
+
+    if (process_to_kill->parent_pid != -1) {
+        process_t *parent = (process_t *)scheduler->processes[process_to_kill->parent_pid]->process;
+        if (parent->state == WAITING_FOR_CHILD) {
+            unblock_process(parent->pid);
+        }
+    }
+
     yield();
     return 0;
 }

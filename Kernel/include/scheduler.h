@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <definitions.h>
-
+#include <process.h>
 
 typedef int (*Function)(int argc, char **args);
 typedef struct scheduler_cdt* scheduler_adt;
@@ -22,5 +22,7 @@ void yield();
 void* scheduler(void* stack_pointer);
 void process_priority(uint64_t pid, uint8_t new_prio);
 int get_current_pid();
+process_t * get_current_process();
+int32_t waitpid(int32_t pid, int *status);
 
 #endif // SCHEDULER_H

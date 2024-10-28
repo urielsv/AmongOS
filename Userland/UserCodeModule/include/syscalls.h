@@ -141,4 +141,11 @@ extern int unblock(uint64_t pid);
 extern int set_priority(uint64_t pid, uint8_t priority);
 extern int get_pid();
 
+extern void yield();
+extern int32_t sem_open(uint64_t id, uint64_t initialValue);
+extern void sem_wait(uint64_t id);
+extern void sem_post(uint64_t id);
+extern void sem_close(uint64_t id);
+extern int waitpid(uint64_t pid, int *status);
+
 #endif

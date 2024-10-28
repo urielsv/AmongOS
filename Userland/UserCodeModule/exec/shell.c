@@ -33,6 +33,11 @@ static void test_prio_proc()
     test_prio();
 }
 
+static void test_synchro_proc(uint64_t argc, char *argv[])
+{
+    test_sync(argc, argv); //{n, use_sem, 0}
+}
+
 void shell()
 {
 
@@ -49,7 +54,18 @@ void shell()
     // exec((void *)&test_processes_proc, argv_test_processes, 1, "test_processes", 1);
 
     //PRIO TEST
-    exec((void *)&test_prio_proc, NULL, 0, "test_prio", 1);
+    // exec((void *)&test_prio_proc, NULL, 0, "test_prio", 1);
+
+    // SYNCHRO TEST
+    
+    char *argv_test_sync[] = {"10", "0", NULL};
+
+    exec((void *)&test_synchro_proc, argv_test_sync, 2, "test_synchro", 1);
+    
+    
+
+    // clear(0x0);
+    // print_ps1("user", "~");
 
     // SHELL LOOP
     //char buff[MAX_BUFFER_SIZE];
