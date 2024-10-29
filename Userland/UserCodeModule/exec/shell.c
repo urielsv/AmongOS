@@ -41,7 +41,7 @@ static void test_synchro_proc(uint64_t argc, char *argv[])
 void shell()
 {
 
-    print_header();
+    //print_header();
 
 
     // MM TES
@@ -50,21 +50,19 @@ void shell()
     // exec((void *) &test_mm_proc, argv_test_mm, 1, "Testeo_de_memoria_:D", 1, 1);
 
     // PROCESSES TEST
-    // char *argv_test_processes[] = {"10", NULL};
-    // exec((void *)&test_processes_proc, argv_test_processes, 1, "test_processes", 1);
+     //char *argv_test_processes[] = {"10", NULL};
+     //exec((void *)&test_processes_proc, argv_test_processes, 1, "test_processes", 1);
 
     //PRIO TEST
-    //  exec((void *)&test_prio_proc, NULL, 0, "test_prio", 1);
+    //exec((void *)&test_prio_proc, NULL, 0, "test_prio", 1);
 
     // SYNCHRO TEST
-
-    // Some examples to test satoi
 
     // char *argv_test_sync[] = {"2", "-1", NULL};
     // exec((void *)&test_synchro_proc, argv_test_sync, 2, "test_synchro", 1);
 
     // printf("----------------------------------------------------\n"); 
-    char *argv_test_sync1[] = {"10", "1", NULL};
+    char *argv_test_sync1[] = {"3", "1", NULL};
     exec((void *)&test_synchro_proc, argv_test_sync1, 2, "test_synchro", 1);
     
 

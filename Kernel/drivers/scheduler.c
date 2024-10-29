@@ -63,6 +63,7 @@ int32_t get_next_ready_pid() {
 
 
 void* scheduler(void* stack_pointer) {
+    //ker_write("cs");
     scheduler_adt scheduler = getSchedulerADT();
     scheduler->current_quantum--;
 
@@ -86,7 +87,7 @@ void* scheduler(void* stack_pointer) {
     current_process = (process_t *) current_process_node->process;
     current_process->stack_pointer = stack_pointer;
 
- //ker_write("enter switch cases\n");
+
  
         switch (current_process->state) {
             
@@ -116,6 +117,8 @@ void* scheduler(void* stack_pointer) {
                 break;
             //aca nunca deberia entrar
             case BLOCKED:
+                //ker_write("BLOCKED\n");
+                break;
             default:
                // ker_write("Other state");
                 break;
@@ -262,10 +265,11 @@ void process_priority(uint64_t pid, uint8_t new_prio) {
 
     process_t *current_process = (process_t *) scheduler->processes[pid]->process;
     int priority_delta = new_prio - current_process->priority;
-
+    
     // Case when we have to add to unblock 
     if (priority_delta == 0) {
         for (int i = 0; i < current_process->priority; i++) {
+            //ker_write("UNBLOCKING\n");
             if (current_process->state!=READY && current_process->state!=RUNNING)
             addNode(scheduler->process_list, (void *) current_process);
         }
@@ -341,7 +345,7 @@ int block_process(uint64_t pid) {
         ker_write("Process %llu not found\n", pid);
         return -1;
     }
-
+    //ker_write("Blocking process\n");
     process_t *process_to_block = (process_t *) scheduler->processes[pid]->process;
     process_to_block->state = BLOCKED;
     addNode(scheduler->blocked_process_list, process_to_block);
@@ -365,8 +369,13 @@ int unblock_process(uint64_t pid) {
     return 0;
 }
 
-int get_current_pid() {
+uint32_t get_current_pid() {
     scheduler_adt scheduler = getSchedulerADT();
     return scheduler->current_pid;
+}
+
+process_t *get_process_by_pid(uint32_t pid) {
+    scheduler_adt scheduler = getSchedulerADT();
+    return (process_t *) scheduler->processes[pid]->process;
 }
 #undef CAPPED_PRIORITY

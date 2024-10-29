@@ -3,20 +3,16 @@
 #include <tests.h>
 #include <syscalls.h>
 
-#define SEM_ID 1
-#define TOTAL_PAIR_PROCESSES 2
+#define SEM_ID 0
+#define TOTAL_PAIR_PROCESSES 1
 
 int64_t global; // shared memory
 
 void slowInc(int64_t *p, int64_t inc) {
-    printf("[P] global=%d inc=%d\n", *p, inc);
     int64_t aux = *p;
-    printf("[P] pre_yield: aux=%d\n", aux);
     yield();
     aux += inc;
-    printf("[P] post_yield: aux=%d\n", aux);
     *p = aux;
-    printf("[P] updated_global=%d\n", *p);
 }
 
 uint64_t my_process_inc(uint64_t argc, char *argv[]) {
@@ -49,8 +45,8 @@ uint64_t my_process_inc(uint64_t argc, char *argv[]) {
     printf("PID %d CONFIG: n=%d inc=%d sem=%d\n", get_pid(), n, inc, use_sem);
 
     if (use_sem) {
-        printf("PID %d SEM: Opening %d\n", get_pid(), SEM_ID);
-        if (!sem_open(SEM_ID, 1)) {
+        int aux; 
+        if ((aux = sem_open(SEM_ID, 1)) == -1) {
             printf("PID %d SEM: Open failed\n", get_pid());
             return -1;
         }
@@ -59,14 +55,14 @@ uint64_t my_process_inc(uint64_t argc, char *argv[]) {
     uint64_t i;
     for (i = 0; i < n; i++) {
         printf("PID %d ITER %d/%d\n", get_pid(), i+1, n);
-        
         if (use_sem) {
             printf("PID %d SEM: Wait\n", get_pid());
             sem_wait(SEM_ID);
             printf("PID %d SEM: Got\n", get_pid());
         }
-
+        printf("PRE INC GLOBAL: %d\n", global);
         slowInc(&global, inc);
+        printf("POST INC GLOBAL: %d\n", global);
 
         if (use_sem) {
             printf("PID %d SEM: Post\n", get_pid());
@@ -103,10 +99,10 @@ uint64_t test_sync(uint64_t argc, char *argv[]) {
     for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
         printf("\nCreating pair %d:\n", i+1);
         pids[i] = exec((void *)&my_process_inc, argvDec, 3, "my_process_dec", 1);
-        printf("\n- DEC PID: %d\n", pids[i]);
+        printf("\n- DEC PID: %d, GLOBAL:%d \n", pids[i], global);
         
         pids[i + TOTAL_PAIR_PROCESSES] = exec((void *)&my_process_inc, argvInc, 3, "my_process_inc", 1);
-        printf("\n- INC PID: %d\n", pids[i + TOTAL_PAIR_PROCESSES]);
+        printf("\n- INC PID: %d\n, GLOBAL: %d", pids[i + TOTAL_PAIR_PROCESSES], global);
     }
 
     printf("\nWaiting for processes\n");
