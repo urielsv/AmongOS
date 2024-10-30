@@ -22,6 +22,7 @@ typedef struct scheduler_cdt {
 } scheduler_cdt;
 
 
+void print_number2(int number);
 // Inicializa el scheduler
 scheduler_adt init_scheduler() {
     scheduler_adt scheduler = (scheduler_adt) SCHEDULER_ADDRESS;
@@ -63,7 +64,7 @@ int32_t get_next_ready_pid() {
 
 
 void* scheduler(void* stack_pointer) {
-    //ker_write("cs");
+    ker_write("cCOOOOONTEXT SWIIIIIITCHINNNNG\n");
     scheduler_adt scheduler = getSchedulerADT();
     scheduler->current_quantum--;
 
@@ -118,11 +119,34 @@ void* scheduler(void* stack_pointer) {
             //aca nunca deberia entrar
             case BLOCKED:
                 //ker_write("BLOCKED\n");
+                scheduler->current_pid = get_next_ready_pid();
+                current_process = (process_t *) scheduler->processes[scheduler->current_pid]->process;
                 break;
             default:
                // ker_write("Other state");
                 break;
         }
+         ker_write("next process to run has id :");
+                print_number(scheduler->current_pid);
+                ker_write("\n");
+
+                 ker_write("blocked processes list pids: ");
+                node_t *current_node = getFirstNode(scheduler->blocked_process_list); // Assuming you have a head pointer in your linked list structure
+                while (current_node != NULL) {
+                    process_t *blocked_process = (process_t *)current_node->process;
+                    print_number2(blocked_process->pid); // Print the PID of the blocked process
+                    current_node = current_node->next; // Move to the next node
+                }
+                ker_write("\n");
+
+                 ker_write("ready processes list pids: ");
+                current_node = getFirstNode(scheduler->process_list); // Assuming you have a head pointer in your linked list structure
+                while (current_node != NULL) {
+                    process_t *blocked_process = (process_t *)current_node->process;
+                    print_number2(blocked_process->pid); // Print the PID of the blocked process
+                    current_node = current_node->next; // Move to the next node
+                }
+                ker_write("\n");
         scheduler->current_quantum = DEFAULT_QUANTUM;
         return current_process->stack_pointer;
 }
@@ -309,7 +333,7 @@ int kill_process(uint16_t pid) {
     }
 
     if (process_to_kill->state == BLOCKED) {
-        removeNode(scheduler->blocked_process_list, (void *)process_to_kill);
+        removeAllNodes(scheduler->blocked_process_list, (void *)process_to_kill);
     } else {
         removeAllNodes(scheduler->process_list, (void *)process_to_kill);
     }
@@ -348,8 +372,13 @@ int block_process(uint64_t pid) {
     //ker_write("Blocking process\n");
     process_t *process_to_block = (process_t *) scheduler->processes[pid]->process;
     process_to_block->state = BLOCKED;
+    ker_write("pid blocked");
+    print_number2(pid);
+    ker_write("\n");
+    removeAllNodes(scheduler->blocked_process_list, process_to_block);
     addNode(scheduler->blocked_process_list, process_to_block);
     removeAllNodes(scheduler->process_list, process_to_block);
+    yield();
     
     return 0;
 }
@@ -363,8 +392,15 @@ int unblock_process(uint64_t pid) {
 
     process_t *process_to_unblock = (process_t *) scheduler->processes[pid]->process;
     process_to_unblock->state = READY;
-    removeNode(scheduler->blocked_process_list, process_to_unblock);
-    process_priority(pid, process_to_unblock->priority);
+    ker_write("pid unblocked: ");
+    print_number2(pid);
+    ker_write("\n");
+    removeAllNodes(scheduler->blocked_process_list, process_to_unblock);
+    for (int i =0 ; i < process_to_unblock->priority;i++){
+        addNode(scheduler->process_list,process_to_unblock);
+    }
+   // process_priority(pid, process_to_unblock->priority);
+    yield();
 
     return 0;
 }
@@ -379,3 +415,50 @@ process_t *get_process_by_pid(uint32_t pid) {
     return (process_t *) scheduler->processes[pid]->process;
 }
 #undef CAPPED_PRIORITY
+
+
+void int_to_string2(int num, char *str) {
+    int i = 0;
+    int is_negative = 0;
+
+    // Handle 0 explicitly, since it is a special case
+    if (num == 0) {
+        str[i++] = '0';
+        str[i] = '\0';
+        return;
+    }
+
+    // Handle negative numbers
+    if (num < 0) {
+        is_negative = 1;
+        num = -num;
+    }
+
+    // Process individual digits
+    while (num != 0) {
+        str[i++] = (num % 10) + '0'; // Convert digit to character
+        num /= 10;
+    }
+
+    // If the number is negative, append '-'
+    if (is_negative) {
+        str[i++] = '-';
+    }
+
+    str[i] = '\0'; // Null-terminate the string
+
+    // Reverse the string
+    for (int j = 0; j < i / 2; j++) {
+        char temp = str[j];
+        str[j] = str[i - j - 1];
+        str[i - j - 1] = temp;
+    }
+}
+
+void print_number2(int number) {
+    char buffer[20]; // Buffer to hold the string representation of the number
+    int_to_string2(number, buffer); // Convert integer to string
+    ker_write(buffer); // Print the number
+}
+
+

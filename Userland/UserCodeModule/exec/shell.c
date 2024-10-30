@@ -62,7 +62,7 @@ void shell()
     // exec((void *)&test_synchro_proc, argv_test_sync, 2, "test_synchro", 1);
 
     // printf("----------------------------------------------------\n"); 
-    char *argv_test_sync1[] = {"3", "1", NULL};
+    char *argv_test_sync1[] = {"3", "0", NULL};
     exec((void *)&test_synchro_proc, argv_test_sync1, 2, "test_synchro", 1);
     
 

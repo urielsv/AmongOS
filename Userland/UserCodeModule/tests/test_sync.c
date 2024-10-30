@@ -44,9 +44,13 @@ uint64_t my_process_inc(uint64_t argc, char *argv[]) {
 
     printf("PID %d CONFIG: n=%d inc=%d sem=%d\n", get_pid(), n, inc, use_sem);
 
-    if (use_sem) {
-        int aux; 
-        if ((aux = sem_open(SEM_ID, 1)) == -1) {
+   // printf("use_sem value = %d\n",use_sem);
+    if (use_sem==0) {
+      //  printf("enter use_sem value = %d\n",use_sem);
+
+        int aux = sem_open(SEM_ID, 1); 
+        
+        if ((aux ) == -1) {
             printf("PID %d SEM: Open failed\n", get_pid());
             return -1;
         }
@@ -55,7 +59,7 @@ uint64_t my_process_inc(uint64_t argc, char *argv[]) {
     uint64_t i;
     for (i = 0; i < n; i++) {
         printf("PID %d ITER %d/%d\n", get_pid(), i+1, n);
-        if (use_sem) {
+        if (use_sem==0) {
             printf("PID %d SEM: Wait\n", get_pid());
             sem_wait(SEM_ID);
             printf("PID %d SEM: Got\n", get_pid());
@@ -64,7 +68,7 @@ uint64_t my_process_inc(uint64_t argc, char *argv[]) {
         slowInc(&global, inc);
         printf("POST INC GLOBAL: %d\n", global);
 
-        if (use_sem) {
+        if (use_sem==0) {
             printf("PID %d SEM: Post\n", get_pid());
             sem_post(SEM_ID);
         }
@@ -92,7 +96,7 @@ uint64_t test_sync(uint64_t argc, char *argv[]) {
     char *argvDec[] = {argv[0], "-1", argv[1], NULL};
     char *argvInc[] = {argv[0], "1", argv[1], NULL};
 
-    printf("Initial global: %d\n", global);
+    //printf("Initial global: %d\n", global);
     global = 0;
 
     uint64_t i;
@@ -117,7 +121,7 @@ uint64_t test_sync(uint64_t argc, char *argv[]) {
         printf("Done\n");
     }
 
-    sleep(30000);
+    sleep(30000000000000000);
     printf("\n=== TEST END ===\n");
     printf("Final global: %d\n", global);
     return 0;
