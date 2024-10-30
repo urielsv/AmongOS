@@ -4,7 +4,7 @@
 #include <syscalls.h>
 
 #define SEM_ID 0
-#define TOTAL_PAIR_PROCESSES 1
+#define TOTAL_PAIR_PROCESSES 2
 
 int64_t global; // shared memory
 
