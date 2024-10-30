@@ -91,9 +91,9 @@ void sem_wait(uint64_t id) {
     
     sem_t *sem = semaphores[idx];
 
-    ker_write("semaphore mutex before lock :");
-    print_number(sem->mutex);
-    ker_write("\n");
+    // ker_write("semaphore mutex before lock :");
+    // print_number(sem->mutex);
+    // ker_write("\n");
 
     lock_semaphore(sem);
 
@@ -101,18 +101,18 @@ void sem_wait(uint64_t id) {
     // print_number(sem->mutex);
     // ker_write("\n");
     
-    ker_write("semaphore value before semWait :");
-    print_number(sem->value);
-    ker_write("\n");
+    // ker_write("semaphore value before semWait :");
+    // print_number(sem->value);
+    // ker_write("\n");
 
     while (sem->value == 0) {
         uint64_t current_pid = get_current_pid();
         enqueue(sem->waiting_list, current_pid);
         
         unlock_semaphore(sem);
-        ker_write("proceso bloqueado en semWait id:");
-        print_number(current_pid);
-        ker_write("\n");
+        // ker_write("proceso bloqueado en semWait id:");
+        // print_number(current_pid);
+        // ker_write("\n");
         block_process(current_pid);
         yield();
         lock_semaphore(sem);
@@ -171,9 +171,9 @@ void sem_post(uint64_t id) {
         if (waiting_pid != -1) {
             dequeue(sem->waiting_list); 
             unblock_process(waiting_pid);
-            ker_write("proceso desbloquead en semPost id:");
-            print_number(waiting_pid);
-            ker_write("\n");
+            // ker_write("proceso desbloquead en semPost id:");
+            // print_number(waiting_pid);
+            // ker_write("\n");
         }
     }
     

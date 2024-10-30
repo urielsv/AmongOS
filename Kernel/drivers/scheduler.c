@@ -64,7 +64,7 @@ int32_t get_next_ready_pid() {
 
 
 void* scheduler(void* stack_pointer) {
-    ker_write("cCOOOOONTEXT SWIIIIIITCHINNNNG\n");
+    // ker_write("cCOOOOONTEXT SWIIIIIITCHINNNNG\n");
     scheduler_adt scheduler = getSchedulerADT();
     scheduler->current_quantum--;
 
@@ -126,27 +126,27 @@ void* scheduler(void* stack_pointer) {
                // ker_write("Other state");
                 break;
         }
-         ker_write("next process to run has id :");
-                print_number(scheduler->current_pid);
-                ker_write("\n");
+        //  ker_write("next process to run has id :");
+        //         print_number(scheduler->current_pid);
+        //         ker_write("\n");
 
-                 ker_write("blocked processes list pids: ");
-                node_t *current_node = getFirstNode(scheduler->blocked_process_list); // Assuming you have a head pointer in your linked list structure
-                while (current_node != NULL) {
-                    process_t *blocked_process = (process_t *)current_node->process;
-                    print_number2(blocked_process->pid); // Print the PID of the blocked process
-                    current_node = current_node->next; // Move to the next node
-                }
-                ker_write("\n");
+        //          ker_write("blocked processes list pids: ");
+        //         node_t *current_node = getFirstNode(scheduler->blocked_process_list); // Assuming you have a head pointer in your linked list structure
+        //         while (current_node != NULL) {
+        //             process_t *blocked_process = (process_t *)current_node->process;
+        //             print_number2(blocked_process->pid); // Print the PID of the blocked process
+        //             current_node = current_node->next; // Move to the next node
+        //         }
+                // ker_write("\n");
 
-                 ker_write("ready processes list pids: ");
-                current_node = getFirstNode(scheduler->process_list); // Assuming you have a head pointer in your linked list structure
-                while (current_node != NULL) {
-                    process_t *blocked_process = (process_t *)current_node->process;
-                    print_number2(blocked_process->pid); // Print the PID of the blocked process
-                    current_node = current_node->next; // Move to the next node
-                }
-                ker_write("\n");
+                //  ker_write("ready processes list pids: ");
+                // current_node = getFirstNode(scheduler->process_list); // Assuming you have a head pointer in your linked list structure
+                // while (current_node != NULL) {
+                //     process_t *blocked_process = (process_t *)current_node->process;
+                //     print_number2(blocked_process->pid); // Print the PID of the blocked process
+                //     current_node = current_node->next; // Move to the next node
+                // }
+                // ker_write("\n");
         scheduler->current_quantum = DEFAULT_QUANTUM;
         return current_process->stack_pointer;
 }
@@ -372,9 +372,9 @@ int block_process(uint64_t pid) {
     //ker_write("Blocking process\n");
     process_t *process_to_block = (process_t *) scheduler->processes[pid]->process;
     process_to_block->state = BLOCKED;
-    ker_write("pid blocked");
-    print_number2(pid);
-    ker_write("\n");
+    // ker_write("pid blocked");
+    // print_number2(pid);
+    // ker_write("\n");
     removeAllNodes(scheduler->blocked_process_list, process_to_block);
     addNode(scheduler->blocked_process_list, process_to_block);
     removeAllNodes(scheduler->process_list, process_to_block);
@@ -392,9 +392,9 @@ int unblock_process(uint64_t pid) {
 
     process_t *process_to_unblock = (process_t *) scheduler->processes[pid]->process;
     process_to_unblock->state = READY;
-    ker_write("pid unblocked: ");
-    print_number2(pid);
-    ker_write("\n");
+    // ker_write("pid unblocked: ");
+    // print_number2(pid);
+    // ker_write("\n");
     removeAllNodes(scheduler->blocked_process_list, process_to_unblock);
     for (int i =0 ; i < process_to_unblock->priority;i++){
         addNode(scheduler->process_list,process_to_unblock);
