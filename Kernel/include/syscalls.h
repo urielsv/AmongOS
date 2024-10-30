@@ -198,13 +198,13 @@ int sys_get_pid();
 
 void sys_yield();
 
-int sys_sem_open(uint64_t id, uint64_t initialValue);
+int sys_sem_open(int64_t id, int64_t initialValue);
 
-void sys_sem_wait(uint64_t id);
+void sys_sem_wait(int64_t id);
 
-void sys_sem_post(uint64_t id);
+void sys_sem_post(int64_t id);
 
-void sys_sem_close(uint64_t id);
+void sys_sem_close(int64_t id);
 
 uint32_t sys_waitpid(uint64_t pid, int *status);
 

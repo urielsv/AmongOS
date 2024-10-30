@@ -8,7 +8,7 @@ static sem_t *semaphores[MAX_SEMAPHORES] = {NULL};
 
 void print_number(int number);
 
-static int find_semaphore(uint64_t id) {
+static int find_semaphore(int64_t id) {
     for (int i = 0; i < MAX_SEMAPHORES; i++) {
         if (semaphores[i] != NULL && semaphores[i]->id == id) {
             return i;
@@ -21,7 +21,7 @@ static void lock_semaphore(sem_t *sem) {
     int aux;
     // while (aux = asm_xchg((sem->mutex), 1)==1) {
     //    // ker_write("waiting mutex to change value");
-    //     uint64_t current_pid = get_current_pid();
+    //     int64_t current_pid = get_current_pid();
     //     enqueue(sem->mutex_list, current_pid);
     //     block_process(current_pid);
     //     ker_write("proceso bloquead en lock id:");
@@ -29,7 +29,7 @@ static void lock_semaphore(sem_t *sem) {
     //     ker_write("\n");
     //     // yield();
     // }
-    acquire(sem->mutex);
+    acquire(&sem->mutex);
     // sem->mutex--;
 }
 
@@ -43,10 +43,10 @@ static void unlock_semaphore(sem_t *sem) {
     //     ker_write("\n");
     // }
     // sem->mutex ++;
-    release(sem->mutex);
+    release(&sem->mutex);
 }
 
-int32_t sem_open(uint64_t id, uint64_t initial_value) {
+int32_t sem_open(int64_t id, int64_t initial_value) {
 
     int find =find_semaphore(id);
     if ( find != -1) {
@@ -64,13 +64,13 @@ int32_t sem_open(uint64_t id, uint64_t initial_value) {
             return 0;
         }
     // }
-    // return -1;
+    return -1;
 }
 
-int32_t sem_create(uint64_t initial_value) {
+int32_t sem_create(int64_t initial_value) {
     for (int i = 0; i < MAX_SEMAPHORES; i++) {
         if (semaphores[i] == NULL) {
-            uint64_t id = 1;
+            int64_t id = 1;
             while (find_semaphore(id) != -1) {
                 id++;
             }
@@ -83,7 +83,7 @@ int32_t sem_create(uint64_t initial_value) {
     return -1;
 }
 
-void sem_wait(uint64_t id) {
+void sem_wait(int64_t id) {
     int idx = find_semaphore(id);
     if (idx == -1) {
         return;
@@ -106,7 +106,7 @@ void sem_wait(uint64_t id) {
     // ker_write("\n");
 
     while (sem->value == 0) {
-        uint64_t current_pid = get_current_pid();
+        int64_t current_pid = get_current_pid();
         enqueue(sem->waiting_list, current_pid);
         
         unlock_semaphore(sem);
@@ -114,7 +114,7 @@ void sem_wait(uint64_t id) {
         // print_number(current_pid);
         // ker_write("\n");
         block_process(current_pid);
-        yield();
+        //yield();
         lock_semaphore(sem);
         //ker_write("b");
     }
@@ -138,7 +138,7 @@ void sem_wait(uint64_t id) {
     // ker_write("\n");
 }
 
-void sem_post(uint64_t id) {
+void sem_post(int64_t id) {
     int idx = find_semaphore(id);
     if (idx == -1) {
         return;
@@ -189,7 +189,7 @@ void sem_post(uint64_t id) {
 
 }
 
-void sem_close(uint64_t id) {
+void sem_close(int64_t id) {
     int idx = find_semaphore(id);
     if (idx == -1) {
         return;
@@ -201,7 +201,7 @@ void sem_close(uint64_t id) {
     semaphores[idx] = NULL;
 }
 
-void sem_cleanup_process(uint64_t pid) {
+void sem_cleanup_process(int64_t pid) {
    
     for (int i = 0; i < MAX_SEMAPHORES; i++) {
         if (semaphores[i] != NULL) {

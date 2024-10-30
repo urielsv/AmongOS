@@ -243,19 +243,19 @@ void sys_yield() {
     yield();
 }
 
-int sys_sem_open(uint64_t id, uint64_t initialValue) {
+int sys_sem_open(int64_t id, int64_t initialValue) {
     return sem_open(id, initialValue);
 }
 
-void sys_sem_wait(uint64_t id) {
+void sys_sem_wait(int64_t id) {
     sem_wait(id);
 }
 
-void sys_sem_post(uint64_t id) {
+void sys_sem_post(int64_t id) {
     sem_post(id);
 }
 
-void sys_sem_close(uint64_t id) {
+void sys_sem_close(int64_t id) {
     sem_close(id);
 }
 
