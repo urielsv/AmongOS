@@ -2,7 +2,7 @@
 #include "../include/memman.h"
 #include <stddef.h>
 #include <io.h>
-
+#include <buddy_memman.h>
 typedef struct linkedListCDT_t {
     node_t * head;
     node_t * tail;
@@ -11,8 +11,9 @@ typedef struct linkedListCDT_t {
 } linkedListCDT_t;
 
 
+// change b_alloc to buddy
 linkedListADT createLinkedList() {
-    linkedListADT list = mem_alloc(sizeof(linkedListCDT_t));
+    linkedListADT list = b_alloc(sizeof(linkedListCDT_t));
     list->head = NULL;
     list->tail = NULL;
     list->current = NULL;
@@ -21,7 +22,7 @@ linkedListADT createLinkedList() {
 }
 
 void addNode(linkedListADT list, void * process) {
-    node_t * node = mem_alloc(sizeof(node_t));
+    node_t * node = b_alloc(sizeof(node_t));
     node->process = process;
     node->next = NULL;
     if (list->head == NULL) {
@@ -48,7 +49,7 @@ void removeAllNodes(linkedListADT list, void * process) {
                 list->tail = prev;
             }
             list->size--;
-            mem_free(current);
+            b_free(current);
             current = prev->next;
         } else {
             prev = current;
@@ -70,7 +71,7 @@ void removeNode(linkedListADT list, void * process) {
                 list->tail = prev;
             }
             list->size--;
-            mem_free(current);
+            b_free(current);
 
             return;
         }
@@ -132,10 +133,10 @@ void destroyLinkedList(linkedListADT list) {
     node_t * next;
     while (current != NULL) {
         next = current->next;
-        mem_free(current);
+        b_free(current);
         current = next;
     }
-    mem_free(list);
+    b_free(list);
 }
 
 void removeFirstNode(linkedListADT list) {
@@ -143,7 +144,7 @@ void removeFirstNode(linkedListADT list) {
         return;
     }
     node_t * next = list->head->next;
-    mem_free(list->head);
+    b_free(list->head);
     list->head = next;
     list->size--;
 }

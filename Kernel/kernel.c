@@ -18,6 +18,7 @@
 #include <memman.h>
 #include <scheduler.h>
 #include <stdlib.h>
+#include <buddy_memman.h>
 // #include "./include/scheduler.h"
 
 #define STRING_SIZE "1000000"
@@ -58,7 +59,8 @@ void *initializeKernelBinary()
     clearBSS(&bss, &endOfKernel - &bss);
 
     uint64_t size = (uint64_t)heapEndAddress - (uint64_t)heapStartAddress;
-    mem_init(heapStartAddress, size);
+    //mem_init(heapStartAddress, size);
+    b_init(heapStartAddress, size);
     init_scheduler();
     return getStackBase();
 }

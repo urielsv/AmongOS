@@ -2,6 +2,7 @@
 #include <memman.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <buddy_memman.h>
 
 typedef struct node_pid {
     int64_t pid;
@@ -15,7 +16,7 @@ typedef struct queuePIDCDT {
 } queuePIDCDT_t;
 
 queuePIDADT createQueue() {
-    queuePIDADT queue = mem_alloc(sizeof(queuePIDCDT_t));
+    queuePIDADT queue = b_alloc(sizeof(queuePIDCDT_t));
     queue->front = NULL;
     queue->rear = NULL;
     queue->size = 0;
@@ -23,7 +24,7 @@ queuePIDADT createQueue() {
 }
 
 void enqueue(queuePIDADT queue, int64_t pid) {
-    node_pid_t* newNode = mem_alloc(sizeof(node_pid_t));
+    node_pid_t* newNode = b_alloc(sizeof(node_pid_t));
     newNode->pid = pid;
     newNode->next = NULL;
     
@@ -50,7 +51,7 @@ int64_t dequeue(queuePIDADT queue) {
         queue->rear = NULL;
     }
     
-    mem_free(temp);
+    b_free(temp);
     queue->size--;
     return pid;
 }
@@ -74,7 +75,7 @@ void clearQueue(queuePIDADT queue) {
     while (queue->front != NULL) {
         node_pid_t* temp = queue->front;
         queue->front = queue->front->next;
-        mem_free(temp);
+        b_free(temp);
     }
     queue->rear = NULL;
     queue->size = 0;
@@ -93,5 +94,5 @@ bool containsPID(queuePIDADT queue, int64_t pid) {
 
 void destroyQueue(queuePIDADT queue) {
     clearQueue(queue);
-    mem_free(queue);
+    b_free(queue);
 }

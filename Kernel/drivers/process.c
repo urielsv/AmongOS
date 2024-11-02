@@ -3,13 +3,13 @@
 // #include "../include/syscalls.h"
 // #include "../include/stdio.h"
 
-#include "../include/process.h"
 #include "../include/linkedListADT.h"
 #include "../include/lib.h"
 #include <string.h>
 #include <stdlib.h>
 #include <io.h>
 #include <scheduler.h>
+#include <buddy_memman.h>
 
 static char **alloc_args(char **args, uint64_t argc);
 
@@ -19,10 +19,10 @@ void init_process(process_t *process, int32_t pid, Function code,
     process->pid = pid;
     process->priority = priority;
     process->state = READY;
-    process->stack_base = mem_alloc(STACK_SIZE);
+    process->stack_base = b_alloc(STACK_SIZE);
     process->argv = alloc_args(args, argc);
     process->argc = argc;
-    process->name = mem_alloc(strlen(name) + 1);
+    process->name = b_alloc(strlen(name) + 1);
     memcpy(process->name, name, strlen(name) + 1);
     void *stack_end = (void *)((uint64_t)process->stack_base + STACK_SIZE);
 
@@ -42,10 +42,10 @@ void init_process(process_t *process, int32_t pid, Function code,
 
 static char **alloc_args(char **args, uint64_t argc)
 {
-    char **argv = mem_alloc(sizeof(char *) * argc);
+    char **argv = b_alloc(sizeof(char *) * argc);
     for (int i = 0; i < argc; i++)
     {
-        argv[i] = mem_alloc(strlen(args[i]) + 1);
+        argv[i] = b_alloc(strlen(args[i]) + 1);
         memcpy(argv[i], args[i], strlen(args[i]) + 1);
     }
     return argv;
@@ -67,17 +67,17 @@ void free_process(process_t *process)
 {
     for (int i = 0; i < process->argc; i++)
     {
-        mem_free(process->argv[i]);
+        b_free(process->argv[i]);
     }
-    mem_free(process->argv);
-    mem_free(process->name);
-    mem_free(process->stack_base);
-    mem_free(process);
+    b_free(process->argv);
+    b_free(process->name);
+    b_free(process->stack_base);
+    b_free(process);
 }
 
 process_amongus_t *get_process_amongus(process_t *process)
 {
-    process_amongus_t *process_amongus = (process_amongus_t *)mem_alloc(sizeof(process_amongus_t));
+    process_amongus_t *process_amongus = (process_amongus_t *) b_alloc(sizeof(process_amongus_t));
     process_amongus->pid = process->pid;
     process_amongus->priority = process->priority;
     process_amongus->state = process->state;
@@ -85,7 +85,7 @@ process_amongus_t *get_process_amongus(process_t *process)
     process_amongus->stack_pointer = process->stack_pointer;
     process_amongus->argv = process->argv;
     process_amongus->argc = process->argc;
-    process_amongus->name = mem_alloc(strlen(process->name) + 1);
+    process_amongus->name = b_alloc(strlen(process->name) + 1);
     memcpy(process_amongus->name, process->name, strlen(process->name) + 1);
     return process_amongus;
 }

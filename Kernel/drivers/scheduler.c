@@ -1,11 +1,11 @@
 #include "../include/scheduler.h"
-#include "../include/memman.h"
 #include "../include/linkedListADT.h"
 #include <io.h>
 #include <stdlib.h>
 #include <process.h>
 #include <math.h>
 #include <IdtLoader.h>
+#include <buddy_memman.h>
 
 #define IDLE_PID 0
 #define DEFAULT_QUANTUM 5
@@ -138,7 +138,7 @@ int32_t create_process(Function code, char **args, int argc, char *name, uint8_t
         return -1;
     }
 
-    process_t *process = (process_t *) mem_alloc(sizeof(process_t));
+    process_t *process = (process_t *) b_alloc(sizeof(process_t));
     if (process == NULL) {
         ker_write("Error creating process\n");
         return -1;
@@ -146,10 +146,10 @@ int32_t create_process(Function code, char **args, int argc, char *name, uint8_t
 
      init_process(process, scheduler->next_unused_pid, code, args, argc, name, priority, unkilliable); 
    
-    node_t *process_node = mem_alloc(sizeof(node_t));
+    node_t *process_node = b_alloc(sizeof(node_t));
     if (process_node == NULL) {
         ker_write("Error creating process node\n");
-        mem_free(process);  // Liberar proceso creado en caso de error
+        b_free(process);  // Liberar proceso creado en caso de error
         return -1;
     } 
 

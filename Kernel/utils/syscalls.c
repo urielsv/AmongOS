@@ -16,6 +16,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <semaphore.h>
+#include <buddy_memman.h>
 
 #define REGS_SIZE 19
 
@@ -206,11 +207,13 @@ void test_exc_invalid_opcode() {
 }
 
 void sys_mem_alloc(size_t size) {
-    mem_alloc(size);
+   // mem_alloc(size);
+     b_alloc(size);
 }
 
 void sys_mem_free(void *ptr) {
-    mem_free(ptr);
+   // mem_free(ptr);
+    b_free(ptr);
 }
 
 void sys_create_process(Function code, char **argv, int argc, char *name, uint8_t priority) {

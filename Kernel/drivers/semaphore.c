@@ -3,6 +3,7 @@
 #include "scheduler.h"
 #include <queuePidADT.h>
 #include <io.h>
+#include <buddy_memman.h>
 
 static sem_t *semaphores[MAX_SEMAPHORES] = {NULL};
 
@@ -54,7 +55,7 @@ int32_t sem_open(int64_t id, int64_t initial_value) {
     }
    // for(int i = 0; i < MAX_SEMAPHORES; i++) {
         if (semaphores[id] == NULL) {
-            semaphores[id] = (sem_t *)mem_alloc(sizeof(sem_t));
+            semaphores[id] = (sem_t *)b_alloc(sizeof(sem_t));
             semaphores[id]->id = id;
             semaphores[id]->value = initial_value;
             semaphores[id]->mutex = 1;  
@@ -197,7 +198,7 @@ void sem_close(int64_t id) {
     
     destroyQueue(semaphores[idx]->waiting_list);
     destroyQueue(semaphores[idx]->mutex_list);
-    mem_free(semaphores[idx]);
+    b_free(semaphores[idx]);
     semaphores[idx] = NULL;
 }
 
