@@ -28,7 +28,7 @@ else
         fi
     fi
     # Add audio options for Linux/Windows
-    QEMU_CMD="$QEMU_CMD -audiodev pa,id=audio0 -machine pcspk-audiodev=audio0"
+    QEMU_CMD="$QEMU_CMD -audiodev pa,id=audio0"
     echo "Running QEMU on Linux/Windows..."
 fi
 

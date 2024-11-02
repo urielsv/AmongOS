@@ -177,7 +177,7 @@ else
             fi
         fi
     fi
-    QEMU_CMD="$QEMU_CMD -audiodev pa,id=audio0 -machine pcspk-audiodev=audio0"
+    QEMU_CMD="$QEMU_CMD -audiodev pa,id=audio0"
     echo -e "${BLUE}Running QEMU on Linux/Windows...${NC}"
 fi
 
