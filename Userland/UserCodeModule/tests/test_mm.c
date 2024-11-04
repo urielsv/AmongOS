@@ -31,14 +31,17 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
     total = 0;
 
     // Request as many blocks as we can
-    while (rq < 5 && total < max_memory) {
-      // mm_rqs[rq].size = GetUniform(max_memory - total - 1) + 1;
-      mm_rqs[rq].size = 200000;
+    while (rq < MAX_PROCESSES && total < max_memory) {
+      mm_rqs[rq].size = GetUniform(max_memory - total - 1) + 1;
       mm_rqs[rq].address = mem_alloc(mm_rqs[rq].size);
       if (mm_rqs[rq].address) {
         printf("a!    ");
         total += mm_rqs[rq].size;
         rq++;
+      }
+      // Agregamos este set ya que intentamos pedir memoria y no nos la dieron, entonces seteamos el size en 0 para que no hayan problemas con el memcheck
+      else {
+        mm_rqs[rq].size = 0;
       }
     }
 
@@ -59,6 +62,7 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
           printf("test_mm ERROR\n");
           return -1;
         } 
+        printf("c!    ");
       }
 
     // mem_free

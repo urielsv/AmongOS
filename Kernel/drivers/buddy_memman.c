@@ -3,26 +3,25 @@
 #include <definitions.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <io.h>
 
-// Constants for the buddy system
-#define MIN_BLOCK_ORDER 12                    // 4KB (page size)
-#define MAX_BLOCK_ORDER 21                    // 2MB
+#define MIN_BLOCK_ORDER 8 // 2^8 = 256 bytes
+#define MAX_BLOCK_ORDER 19 // 2^19 = 512KB = 524288 bytes
 #define MAX_ORDER (MAX_BLOCK_ORDER - MIN_BLOCK_ORDER)
-#define MIN_ALLOC_SIZE (1ULL << MIN_BLOCK_ORDER)  // 4KB
+#define MIN_ALLOC_SIZE (1ULL << MIN_BLOCK_ORDER)  
 
-// Block node structure for managing memory blocks
+
 typedef struct block_node {
     struct block_node* next;
-    uint8_t order;                           // Current order of the block
+    uint8_t order;                          
     bool is_free;
 } block_node_t;
 
-// The complete buddy allocator structure
 struct buddy_allocator_cdt {
     block_node_t* free_lists[MAX_ORDER + 1];
-    void* start_addr;                        // Start of managed memory region
-    uint64_t total_size;                     // Total size of managed memory
-    uint64_t free_memory;                    // Current free memory amount
+    void* start_addr;                        
+    uint64_t total_size;                    
+    uint64_t free_memory;                    
 };
 
 static uintptr_t ALLOCATOR_ADDRESS = -1;
@@ -200,8 +199,9 @@ void* b_alloc(size_t size) {
 
     uint8_t order = size_to_order(size);
 
-    // Check if requested size is too large
+   
     if (order > MAX_ORDER) {
+        ker_write("Requested size is too large\n");
         return NULL;
     }
 
