@@ -2,7 +2,7 @@
 #include <memman.h>
 #include <io.h>
 #include <scheduler.h>
-#include <syscalls.h>
+//#include <syscalls.h>
 
 typedef struct pipe_t
 {
@@ -19,14 +19,20 @@ typedef struct pipe_manager_cdt
     uint16_t pipe_count;
     uint16_t next_pipe_id;
 
+
 };
 
 typedef enum pipe_state {
 
     CLOSED=0,
     OPENED=1
-    
+
 } pipe_state;
+
+static pipe_t * get_pipe(uint16_t pipe_id);
+static pipe_manager_adt get_pipe_manager();
+static uint16_t get_next_pipe_id();
+static uint16_t switch_pipe_state(pipe_state state, uint16_t pipe_id);
 
 pipe_manager_adt init_pipe_manager(){
 
@@ -66,14 +72,21 @@ uint16_t create_pipe(){
 
 static uint16_t switch_pipe_state(pipe_state state, uint16_t pipe_id){
 
+    pipe_t * pipe = get_pipe(pipe_id);
+    pipe->opened = state;
+    return 0;
+
+}
+
+static pipe_t * get_pipe(uint16_t pipe_id){
+
     pipe_manager_adt pipe_manager = get_pipe_manager();
     pipe_t * pipe = pipe_manager->pipes[pipe_id];
     if (pipe == NULL){
         ker_write("Pipe not found\n");
-        return -1;
+        return NULL;
     }
-    pipe->opened = state;
-    return 0;
+    return pipe;
 
 }
 
@@ -91,15 +104,21 @@ uint16_t close_pipe(uint16_t pipe_id){
 
 uint16_t write_pipe(uint16_t pipe_id, char * data, uint16_t size){
 
-    pipe_manager_adt pipe_manager = get_pipe_manager();
-    pipe_t * pipe = pipe_manager->pipes[pipe_id];
+    pipe_t * pipe = get_pipe(pipe_id);
+    if (size > PIPE_BUFFER_SIZE){
+        ker_write("Pipe buffer overflow\n");
+        return -1;
+    }
 
 }
 
 uint16_t read_pipe(uint16_t pipe_id, char * data, uint16_t size){
 
-    pipe_manager_adt pipe_manager = get_pipe_manager();
-    pipe_t * pipe = pipe_manager->pipes[pipe_id];
+    pipe_t * pipe = get_pipe(pipe_id);
+    if (size > PIPE_BUFFER_SIZE){
+        ker_write("Pipe buffer overflow\n");
+        return -1;
+    }
 
 }
 

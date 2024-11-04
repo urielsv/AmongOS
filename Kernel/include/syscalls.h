@@ -209,6 +209,15 @@ void sys_sem_close(int64_t id);
 
 uint32_t sys_waitpid(uint64_t pid, int *status);
 
+uint16_t sys_create_pipe();
+
+uint16_t sys_open_pipe(uint16_t pipe_id);
+
+uint16_t sys_close_pipe(uint16_t pipe_id);
+
+uint16_t sys_write_pipe(uint16_t pipe_id, char * data, uint16_t size);
+
+uint16_t sys_read_pipe(uint16_t pipe_id, char * data, uint16_t size);
 
 
 #endif
