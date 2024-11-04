@@ -7,6 +7,8 @@
 #define MAX_PRIORITY 5
 #define EOF (-1)
 
+#define DEFAULT_PRIORITY MEDIUM
+
 typedef enum { BLOCKED = 0, READY, KILLED, RUNNING} state_t;
 typedef enum { LOW = 1, LOW_MEDIUM, MEDIUM, HIGH_MEDIUM, HIGH } priority_t;
 

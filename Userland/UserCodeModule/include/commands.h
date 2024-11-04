@@ -12,24 +12,12 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
+#include <definitions.h>
+
 typedef struct command {
 	char* name;
 	char* description;
-	int (*cmd)();
+	Function cmd;
 } command_t;
-
-int execute_command(char* cmdname);
-
-// Commands
-int print_help();
-int screen();
-int font();
-int print_amongus();
-int print_random();
-int print_time();
-int print_clear();
-int print_regs();
-int testzero();
-int opcode();
 
 #endif
