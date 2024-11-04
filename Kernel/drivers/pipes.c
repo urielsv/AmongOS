@@ -1,0 +1,112 @@
+#include <pipes.h>
+#include <memman.h>
+#include <io.h>
+#include <scheduler.h>
+#include <syscalls.h>
+
+typedef struct pipe_t
+{
+    uint16_t pipe_id;
+    char * buffer[PIPE_BUFFER_SIZE];
+    uint16_t buffer_count;
+    uint16_t opened; // 0 if closed, 1 if open
+    //Semaphores?
+}pipe_t;
+
+typedef struct pipe_manager_cdt
+{
+    pipe_t * pipes[MAX_PIPES];
+    uint16_t pipe_count;
+    uint16_t next_pipe_id;
+
+};
+
+typedef enum pipe_state {
+
+    CLOSED=0,
+    OPENED=1
+    
+} pipe_state;
+
+pipe_manager_adt init_pipe_manager(){
+
+    pipe_manager_adt pipe_manager = (pipe_manager_adt) PIPE_MANAGER_ADDRESS;
+    pipe_manager->pipe_count = 0;
+    return pipe_manager;
+
+}
+
+static pipe_manager_adt get_pipe_manager(){
+    
+    return (pipe_manager_adt) PIPE_MANAGER_ADDRESS;
+
+}
+
+static uint16_t get_next_pipe_id(){
+
+    pipe_manager_adt pipe_manager = get_pipe_manager();
+    if (pipe_manager->next_pipe_id >= MAX_PIPES){
+        ker_write("Pipe manager is full\n");
+        return -1;
+    }
+    return pipe_manager->next_pipe_id++;
+
+}
+
+uint16_t create_pipe(){
+
+    pipe_manager_adt pipe_manager = get_pipe_manager();
+    pipe_t * pipe = mem_alloc(sizeof(struct pipe_t));
+    pipe->pipe_id = get_next_pipe_id();
+    pipe->buffer_count = 0;
+    pipe_manager->pipes[pipe->pipe_id] = pipe;
+    return pipe->pipe_id;
+
+}
+
+static uint16_t switch_pipe_state(pipe_state state, uint16_t pipe_id){
+
+    pipe_manager_adt pipe_manager = get_pipe_manager();
+    pipe_t * pipe = pipe_manager->pipes[pipe_id];
+    if (pipe == NULL){
+        ker_write("Pipe not found\n");
+        return -1;
+    }
+    pipe->opened = state;
+    return 0;
+
+}
+
+uint16_t open_pipe(uint16_t pipe_id){
+
+    return switch_pipe_state(OPENED, pipe_id);
+
+}
+
+uint16_t close_pipe(uint16_t pipe_id){
+
+   return switch_pipe_state(CLOSED, pipe_id);
+
+}
+
+uint16_t write_pipe(uint16_t pipe_id, char * data, uint16_t size){
+
+    pipe_manager_adt pipe_manager = get_pipe_manager();
+    pipe_t * pipe = pipe_manager->pipes[pipe_id];
+
+}
+
+uint16_t read_pipe(uint16_t pipe_id, char * data, uint16_t size){
+
+    pipe_manager_adt pipe_manager = get_pipe_manager();
+    pipe_t * pipe = pipe_manager->pipes[pipe_id];
+
+}
+
+
+
+
+
+
+
+

@@ -18,6 +18,7 @@
 #include <memman.h>
 #include <scheduler.h>
 #include <stdlib.h>
+#include <pipes.h>
 // #include "./include/scheduler.h"
 
 #define STRING_SIZE "1000000"
@@ -60,11 +61,9 @@ void *initializeKernelBinary()
     uint64_t size = (uint64_t)heapEndAddress - (uint64_t)heapStartAddress;
     mem_init(heapStartAddress, size);
     init_scheduler();
+    init_pipe_manager();
     return getStackBase();
 }
-
-// TODOS:
-// 1. Add/remove priority to processes in sched
 
 int main()
 {

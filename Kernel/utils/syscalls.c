@@ -16,7 +16,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <semaphore.h>
-
+#include <pipes.h>
 #define REGS_SIZE 19
 
 static uint8_t regs_flag = 0;
@@ -60,6 +60,11 @@ static syscall_t syscalls[] = {
     (syscall_t)&sys_sem_wait, // sys_id 30
     (syscall_t)&sys_sem_post, // sys_id 31
     (syscall_t)&sys_sem_close, // sys_id 32
+    (syscall_t)&sys_create_pipe, // sys_id 33
+    (syscall_t)&sys_open_pipe, // sys_id 34
+    (syscall_t)&sys_close_pipe, // sys_id 35
+    // (syscall_t)&sys_write_pipe, // sys_id 36
+    // (syscall_t)&sys_read_pipe, // sys_id 37
 
 };
 
@@ -261,4 +266,17 @@ void sys_sem_close(int64_t id) {
 
 uint32_t sys_waitpid(uint64_t pid, int *status) {
     return waitpid(pid, status);
+}
+
+uint16_t sys_create_pipe() {
+    return create_pipe();
+}
+
+uint16_t sys_open_pipe(uint16_t pipe_id) {
+    return open_pipe(pipe_id);
+}
+
+//Deberia esto ser una syscall?
+uint16_t sys_close_pipe(uint16_t pipe_id) {
+    return close_pipe(pipe_id);
 }

@@ -16,6 +16,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <process.h>
+#include <stdlib.h>
 
 /*
  * @name sys_write
@@ -207,5 +208,7 @@ void sys_sem_post(int64_t id);
 void sys_sem_close(int64_t id);
 
 uint32_t sys_waitpid(uint64_t pid, int *status);
+
+
 
 #endif
