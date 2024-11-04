@@ -3,7 +3,7 @@
 #define MAX_PIPES 10
 #define PIPE_MANAGER_ADDRESS 0x80000000
 #define PIPE_BUFFER_SIZE 1024
-#define PIPE_fD 2
+#define PIPE_FD 2
 
 typedef struct pipe_manager_cdt * pipe_manager_adt;
 
