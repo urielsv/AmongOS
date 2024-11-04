@@ -25,5 +25,6 @@ void * swapToLast(linkedListADT list, void * process);
 void removeAllNodes(linkedListADT list, void * process);
 uint64_t getSize(linkedListADT list);
 void removeFirstNode(linkedListADT list);
+int8_t isEmptyList(linkedListADT list);
 
 #endif // LINKEDLISTADT_H

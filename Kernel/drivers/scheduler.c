@@ -168,87 +168,67 @@ int32_t create_process(Function code, char **args, int argc, char *name, uint8_t
     return process->pid;
 }
 
-
 int32_t waitpid(int32_t pid, int *status) {
     scheduler_adt scheduler = getSchedulerADT();
     int32_t current_pid = get_current_pid();
     process_t *current_process = (process_t *)scheduler->processes[current_pid]->process;
     
+    // Helper function to check if a process is a finished child
+    int check_finished_child(process_t *proc, int32_t parent_pid) {
+        return (proc->parent_pid == parent_pid && 
+                proc->state == KILLED && 
+                !proc->has_been_waited);
+    }
+    
+    int32_t handle_finished_process(process_t *proc, int *status) {
+        proc->has_been_waited = 1;
+        if (status != NULL) {
+            *status = proc->exit_code;
+        }
+        return proc->pid;
+    }
+    
     if (pid == -1) {
+        // Check for any children first
         int has_children = 0;
         
+        // First pass: look for finished children
         for (int i = 0; i < MAX_PROCESSES; i++) {
             if (scheduler->processes[i] != NULL) {
                 process_t *proc = (process_t *)scheduler->processes[i]->process;
                 if (proc->parent_pid == current_pid) {
                     has_children = 1;
-                    
-                    if (proc->state == KILLED && !proc->has_been_waited) {
-                        proc->has_been_waited = 1;
-                        if (status != NULL) {
-                            *status = proc->exit_code;
-                        }
-                        return proc->pid;
+                    if (check_finished_child(proc, current_pid)) {
+                        return handle_finished_process(proc, status);
                     }
                 }
             }
         }
         
         if (!has_children) {
-            return -1;
-        }
-
-        // current_process->state = WAITING_FOR_CHILD;
-        removeAllNodes(scheduler->process_list, current_process);
-        block_process(current_pid);
-        
-        for (int i = 0; i < MAX_PROCESSES; i++) {
-            if (scheduler->processes[i] != NULL) {
-                process_t *proc = (process_t *)scheduler->processes[i]->process;
-                if (proc->parent_pid == current_pid && 
-                    proc->state == KILLED && 
-                    !proc->has_been_waited) {
-                    proc->has_been_waited = 1;
-                    if (status != NULL) {
-                        *status = proc->exit_code;
-                    }
-                    return proc->pid;
-                }
-            }
+            return -1;  
         }
     } else {
+        // Wait for specific process
         if (pid < 0 || pid >= MAX_PROCESSES || scheduler->processes[pid] == NULL) {
             return -1;
         }
         
         process_t *target = (process_t *)scheduler->processes[pid]->process;
-        
         if (target->parent_pid != current_pid) {
-            return -1;
+            return -1;  // Not a child of current process
         }
         
-        if (target->state == KILLED && !target->has_been_waited) {
-            target->has_been_waited = 1;
-            if (status != NULL) {
-                *status = target->exit_code;
-            }
-            return pid;
-        }
-        
-        // current_process->state = WAITING_FOR_CHILD;
-        removeAllNodes(scheduler->process_list, current_process);
-        block_process(current_pid);
-        
-        if (target->state == KILLED && !target->has_been_waited) {
-            target->has_been_waited = 1;
-            if (status != NULL) {
-                *status = target->exit_code;
-            }
-            return pid;
+        if (check_finished_child(target, current_pid)) {
+            return handle_finished_process(target, status);
         }
     }
     
-    return -1;
+    // If we get here, we need to block and wait
+    removeAllNodes(scheduler->process_list, current_process);
+    block_process(current_pid);
+    
+    return -1;  // Will never actually return this as process is blocked
 }
 
 process_t * get_current_process() {

@@ -152,3 +152,6 @@ uint64_t getSize(linkedListADT list) {
     return list->size;
 }
 
+int8_t isEmptyList(linkedListADT list) {
+    return list->size == 0;
+}
