@@ -25,7 +25,8 @@ typedef struct {
     int32_t parent_pid; 
     int32_t exit_code;
     uint8_t has_been_waited;
-
+    
+    basic_fd_t fds[3]; // stdin, stdout, stderr
     
 
 } process_t;

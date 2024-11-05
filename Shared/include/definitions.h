@@ -9,6 +9,7 @@
 
 typedef enum { BLOCKED = 0, READY, KILLED, RUNNING} state_t;
 typedef enum { LOW = 1, LOW_MEDIUM, MEDIUM, HIGH_MEDIUM, HIGH } priority_t;
+typedef enum { STDIN=0, STDOUT, STDERR} basic_fd_t;
 
 typedef int (*Function)(int argc, char **args);
 
