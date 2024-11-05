@@ -206,6 +206,8 @@ void sys_sem_post(int64_t id);
 
 void sys_sem_close(int64_t id);
 
-uint32_t sys_waitpid(uint64_t pid, int *status);
+//uint32_t sys_waitpid(uint64_t pid, int *status);
+
+void sys_waitpid(uint32_t child_pid);
 
 #endif

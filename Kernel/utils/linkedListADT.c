@@ -7,6 +7,7 @@ typedef struct linkedListCDT_t {
     node_t * head;
     node_t * tail;
     node_t * current;
+    node_t * iterator;
     int size;
 } linkedListCDT_t;
 
@@ -16,6 +17,7 @@ linkedListADT createLinkedList() {
     list->head = NULL;
     list->tail = NULL;
     list->current = NULL;
+    list->iterator = NULL;
     list->size = 0;
     return list;
 }
@@ -154,4 +156,21 @@ uint64_t getSize(linkedListADT list) {
 
 int8_t isEmptyList(linkedListADT list) {
     return list->size == 0;
+}
+
+void start_iterator(linkedListADT list) {
+    list->iterator = list->head;
+}
+
+uint8_t has_next(linkedListADT list) {
+    return list->iterator != NULL;
+}
+
+void * get_next(linkedListADT list) {
+    if (list->iterator == NULL) {
+        return NULL;
+    }
+    void * process = list->iterator->process;
+    list->iterator = list->iterator->next;
+    return process;
 }

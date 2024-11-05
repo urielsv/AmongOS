@@ -23,7 +23,8 @@ void* scheduler(void* stack_pointer);
 void process_priority(uint64_t pid, uint8_t new_prio);
 uint32_t get_current_pid();
 process_t * get_current_process();
-int32_t waitpid(int32_t pid, int *status);
+//int32_t waitpid(int32_t pid, int *status);
+void waitpid(uint32_t child_pid);
 process_t *get_process_by_pid(uint32_t pid);
 
 #endif // SCHEDULER_H

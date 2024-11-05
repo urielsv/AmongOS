@@ -20,11 +20,11 @@ typedef struct process_t {
     uint8_t unkilliable;
     int32_t parent_pid;
     int32_t exit_code;
-    uint8_t has_been_waited;
+    //uint8_t has_been_waited;
     
     // Children management
     linkedListADT children;      
-    int32_t waiting_for_pid;    
+    //int32_t waiting_for_pid;    
 } process_t;
 
 typedef int (*Function)(int argc, char **args);

@@ -36,19 +36,20 @@ void init_process(process_t* process, int32_t pid, Function code,
     );
     
     process->unkilliable = unkilliable;
+
     process->parent_pid = get_current_pid();
     process->exit_code = 0;
-    process->has_been_waited = 0;
+    //process->has_been_waited = 0;
     
     process->children = createLinkedList();
-    process->waiting_for_pid = -1;
+    //process->waiting_for_pid = -1;
     
-    if (process->parent_pid != -1) {
-        process_t* parent = get_process_by_pid(process->parent_pid);
-        if (parent != NULL) {
-            add_child_process(parent, pid);
-        }
-    }
+   // if (process->parent_pid != -1) {
+   //     process_t* parent = get_process_by_pid(process->parent_pid);
+   //     if (parent != NULL) {
+   //         add_child_process(parent, pid);
+   //     }
+    //}
 }
 
 void process_handler(Function code, char** argv, int argc) {
@@ -58,16 +59,17 @@ void process_handler(Function code, char** argv, int argc) {
     current->exit_code = ret;
     
     // Handle parent if it's waiting
-    if (current->parent_pid != -1) {
-        process_t* parent = get_process_by_pid(current->parent_pid);
-        if (parent != NULL && 
-            parent->state == BLOCKED && 
-            (parent->waiting_for_pid == -1 || parent->waiting_for_pid == current->pid)) {
-            unblock_process(parent->pid);
-        }
-    }
-    
+   // if (current->parent_pid != -1) {
+   //     process_t* parent = get_process_by_pid(current->parent_pid);
+   //     if (parent != NULL && 
+   //         parent->state == BLOCKED && 
+   //         (parent->waiting_for_pid == -1 || parent->waiting_for_pid == current->pid)) {
+   //         unblock_process(parent->pid);
+   //     }
+   // }
+   // 
     kill_current_process();
+    
 }
 
 void free_process(process_t* process) {

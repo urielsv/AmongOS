@@ -62,7 +62,10 @@ void shell()
 
     // clear(0x0);
     // print_ps1("user", "~");
-
+    exec((void *)&print_amongus, 0, 0, "amonus", DEFAULT_PRIORITY);
+    exec((void *)&print_help, 0, 0, "help", DEFAULT_PRIORITY);
+    exec((void *)&print_help, 0, 0, "help", DEFAULT_PRIORITY);
+    //execute_command(commands[0].name, NULL, 0);
     // SHELL LOOP
     char buff[MAX_BUFFER_SIZE];
     char *cmd = NULL;

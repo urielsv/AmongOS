@@ -26,5 +26,8 @@ void removeAllNodes(linkedListADT list, void * process);
 uint64_t getSize(linkedListADT list);
 void removeFirstNode(linkedListADT list);
 int8_t isEmptyList(linkedListADT list);
+void start_iterator(linkedListADT list);
+uint8_t has_next(linkedListADT list);
+void * get_next(linkedListADT list);
 
 #endif // LINKEDLISTADT_H

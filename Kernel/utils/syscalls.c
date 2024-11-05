@@ -259,6 +259,12 @@ void sys_sem_close(int64_t id) {
     sem_close(id);
 }
 
-uint32_t sys_waitpid(uint64_t pid, int *status) {
-    return waitpid(pid, status);
+
+//uint32_t sys_waitpid(uint64_t pid, int *status) {
+    //return waitpid(pid, status); 
+//}
+
+
+void sys_waitpid(uint32_t child_pid){
+    waitpid(child_pid);
 }
