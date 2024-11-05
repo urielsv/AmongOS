@@ -18,7 +18,6 @@
 #include <memman.h>
 #include <scheduler.h>
 #include <stdlib.h>
-// #include "./include/scheduler.h"
 
 #define STRING_SIZE "1000000"
 
@@ -29,8 +28,6 @@ extern uint8_t bss;
 extern uint8_t endOfKernelBinary;
 extern uint8_t endOfKernel;
 
-// extern void asm_getsp();
-// extern void asm_getbp();
 
 static const uint64_t PageSize = 0x1000;
 
@@ -62,9 +59,6 @@ void *initializeKernelBinary()
     init_scheduler();
     return getStackBase();
 }
-
-// TODOS:
-// 1. Add/remove priority to processes in sched
 
 int main()
 {

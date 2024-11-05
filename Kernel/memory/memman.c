@@ -29,7 +29,6 @@ void mem_init(void *start_addr, size_t size) {
     memory_manager = (mem_manager *)start_addr;
     memory_manager->heap_start_addr = start_addr + sizeof(mem_manager);
     memory_manager->heap_end_addr = start_addr + size;
-    //memory_manager->mem_list = (mem_node *)(start_addr + sizeof(mem_manager));
     memory_manager->mem_list = NULL;
 }
 
@@ -49,7 +48,6 @@ void *mem_alloc(size_t size) {
     mem_node *current_node = memory_manager->mem_list;
     mem_node *prev_node = NULL;
 
-    // Buscar un bloque libre adecuado
     while (current_node != NULL) {
         if (current_node->is_free && current_node->size >= size) {
             current_node->is_free = 0;
@@ -59,7 +57,6 @@ void *mem_alloc(size_t size) {
         current_node = current_node->next;
     }
 
-    // Crear un nuevo bloque si no se encontró uno adecuado
     void *new_block_addr = (prev_node == NULL) ? memory_manager->heap_start_addr : prev_node->start_addr + prev_node->size;
     if (new_block_addr + size + sizeof(mem_node) > memory_manager->heap_end_addr) {
         return NULL; // No hay suficiente memoria

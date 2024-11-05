@@ -53,11 +53,3 @@ void putchar_k(char c) {
     putchar_color_k(c, 0xFFFFFF, 0x000000);
 }
 
-// uint64_t scanf(const char *fmt, ...) {
-
-//     printf("InvalArgumentException");
-//     while (*fmt) {
-//         if (*fmt == '%') {
-//         }
-//     }
-// }

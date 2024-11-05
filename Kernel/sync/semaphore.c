@@ -19,30 +19,10 @@ static int find_semaphore(int64_t id) {
 
 static void lock_semaphore(sem_t *sem) {
     int aux;
-    // while (aux = asm_xchg((sem->mutex), 1)==1) {
-    //    // ker_write("waiting mutex to change value");
-    //     int64_t current_pid = get_current_pid();
-    //     enqueue(sem->mutex_list, current_pid);
-    //     block_process(current_pid);
-    //     ker_write("proceso bloquead en lock id:");
-    //     print_number(current_pid);
-    //     ker_write("\n");
-    //     // yield();
-    // }
     acquire(&sem->mutex);
-    // sem->mutex--;
 }
 
 static void unlock_semaphore(sem_t *sem) {
-    // int64_t first_pid = peek(sem->mutex_list);
-    // if (first_pid != -1) {
-    //     dequeue(sem->mutex_list);  
-    //     unblock_process(first_pid);
-    //     ker_write("proceso desbloquead en lock id:");
-    //     print_number(first_pid);
-    //     ker_write("\n");
-    // }
-    // sem->mutex ++;
     release(&sem->mutex);
 }
 
@@ -52,7 +32,6 @@ int32_t sem_open(int64_t id, int64_t initial_value) {
     if ( find != -1) {
         return find;
     }
-   // for(int i = 0; i < MAX_SEMAPHORES; i++) {
         if (semaphores[id] == NULL) {
             semaphores[id] = (sem_t *)mem_alloc(sizeof(sem_t));
             semaphores[id]->id = id;
@@ -63,7 +42,6 @@ int32_t sem_open(int64_t id, int64_t initial_value) {
             ker_write("creado semaforo con exito\n");
             return 0;
         }
-    // }
     return -1;
 }
 
@@ -91,51 +69,24 @@ void sem_wait(int64_t id) {
     
     sem_t *sem = semaphores[idx];
 
-    // ker_write("semaphore mutex before lock :");
-    // print_number(sem->mutex);
-    // ker_write("\n");
-
     lock_semaphore(sem);
 
-    // ker_write("semaphore mutex after lock :");
-    // print_number(sem->mutex);
-    // ker_write("\n");
-    
-    // ker_write("semaphore value before semWait :");
-    // print_number(sem->value);
-    // ker_write("\n");
 
     while (sem->value == 0) {
         int64_t current_pid = get_current_pid();
         enqueue(sem->waiting_list, current_pid);
         
         unlock_semaphore(sem);
-        // ker_write("proceso bloqueado en semWait id:");
-        // print_number(current_pid);
-        // ker_write("\n");
         block_process(current_pid);
-        //yield();
         lock_semaphore(sem);
-        //ker_write("b");
     }
 
 
     
     sem->value--;
 
-    // ker_write("sem value after semWait:");
-    // print_number(sem->value);
-    // ker_write("\n");
-
-    // ker_write("semaphore mutex before unlock :");
-    // print_number(sem->mutex);
-    // ker_write("\n");
-
     unlock_semaphore(sem);
 
-    // ker_write("semaphore mutex after unlock :");
-    // print_number(sem->mutex);
-    // ker_write("\n");
 }
 
 void sem_post(int64_t id) {
@@ -146,46 +97,20 @@ void sem_post(int64_t id) {
     
     sem_t *sem = semaphores[idx];
 
-    // ker_write("semaphore mutex before lock :");
-    // print_number(sem->mutex);
-    // ker_write("\n");
-
     lock_semaphore(sem);
-
-    // ker_write("semaphore mutex after lock :");
-    // print_number(sem->mutex);
-    // ker_write("\n");
-
-    // ker_write("semaphore value before semPost :");
-    // print_number(sem->value);
-    // ker_write("\n");
     
     sem->value++;
-
-    // ker_write("semaphore value after semPost :");
-    // print_number(sem->value);
-    // ker_write("\n");
 
     if (sem->value != 0) {
         int64_t waiting_pid = peek(sem->waiting_list);
         if (waiting_pid != -1) {
             dequeue(sem->waiting_list); 
             unblock_process(waiting_pid);
-            // ker_write("proceso desbloquead en semPost id:");
-            // print_number(waiting_pid);
-            // ker_write("\n");
         }
     }
     
-    // ker_write("semaphore mutex before unlock :");
-    // print_number(sem->mutex);
-    // ker_write("\n");
 
     unlock_semaphore(sem);
-
-    // ker_write("semaphore mutex after unlock :");
-    // print_number(sem->mutex);
-    // ker_write("\n");
 
 }
 
