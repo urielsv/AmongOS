@@ -16,7 +16,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <semaphore.h>
-
+#include <pipes.h>
 #define REGS_SIZE 19
 
 static uint8_t regs_flag = 0;
@@ -60,6 +60,43 @@ static syscall_t syscalls[] = {
     [30] = (syscall_t)&sys_sem_wait,
     [31] = (syscall_t)&sys_sem_post,
     [32] = (syscall_t)&sys_sem_close
+    (syscall_t)&sys_read, // sys_id 0
+    (syscall_t)&sys_write, // sys_id 1
+    (syscall_t)&pid, // sys_id 2
+    (syscall_t)&sys_exec, // sys_id 3
+    (syscall_t)&sys_ticks, // sys_id 4
+    (syscall_t)&sys_seconds, // sys_id 5
+    (syscall_t)&sys_random_number, // sys_id 6
+    (syscall_t)&sys_read_char, // sys_id 7
+    (syscall_t)&draw, // sys_id 8
+    (syscall_t)&sys_sleep, // sys_id 9
+    (syscall_t)&sys_time, // sys_id 10
+    (syscall_t)&sys_sound, // sys_id 11
+    (syscall_t)&sys_hlt, // sys_id 12
+    (syscall_t)&sys_clear, // sys_id 13
+    (syscall_t)&sys_writing_position, // sys_id 14
+    (syscall_t)&screen_info, // sys_id 15
+    (syscall_t)&font_size, // sys_id 16
+    (syscall_t)&sys_registers, // sys_id 17
+    (syscall_t)&test_exc_zero, // sys_id 18
+    (syscall_t)&test_exc_invalid_opcode, // sys_id 19
+    (syscall_t)&sys_mem_alloc, // sys_id 20
+    (syscall_t)&sys_mem_free, // sys_id 21
+    (syscall_t)&sys_create_process, // sys_id 22
+    (syscall_t)&sys_kill_process, //sys_id 23
+    (syscall_t)&sys_block_process, // sys_id 24
+    (syscall_t)&sys_unblock_process, // sys_id 25
+    (syscall_t)&sys_set_priority, // sys_id 26
+    (syscall_t)&sys_get_pid, // sys_id 27
+    (syscall_t)&sys_yield, // sys_id 28
+    (syscall_t)&sys_sem_open, // sys_id 29
+    (syscall_t)&sys_sem_wait, // sys_id 30
+    (syscall_t)&sys_sem_post, // sys_id 31
+    (syscall_t)&sys_sem_close, // sys_id 32
+    (syscall_t)&sys_create_pipe, // sys_id 33
+    (syscall_t)&sys_open_pipe, // sys_id 34
+    (syscall_t)&sys_close_pipe, // sys_id 35
+
 };
 
 uint64_t syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9) {
@@ -72,7 +109,7 @@ uint64_t syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r
 }
 
 uint64_t sys_write(uint8_t fd, const char *buffer, uint64_t count, uint64_t fgcolor, uint64_t bgcolor) {
-    if (buffer == 0) {
+    if (buffer == NULL || fd < 0) {
         return 0;
     }
 
@@ -84,6 +121,11 @@ uint64_t sys_write(uint8_t fd, const char *buffer, uint64_t count, uint64_t fgco
     // stderr
     else if (fd == 2) {
         return ker_write_color(buffer, 0xFF, 0x40);
+    }
+
+    //a priori no hay q hacer nada para pipes, pues fds siempre van a ser 0, 1, 2
+    else {
+
     }
 
     return 0;
@@ -251,4 +293,16 @@ void sys_sem_close(int64_t id) {
 
 uint32_t sys_waitpid(uint64_t pid, int *status) {
     return waitpid(pid, status);
+}
+
+uint16_t sys_create_pipe() {
+    return create_pipe();
+}
+
+uint16_t sys_open_pipe(uint16_t pipe_id, uint8_t mode) {
+    return open_pipe(pipe_id, mode);
+}
+
+uint16_t sys_close_pipe(uint16_t pipe_id) {
+    return close_pipe(pipe_id);
 }
