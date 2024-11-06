@@ -3,13 +3,13 @@
 #include <stddef.h>
 #include <io.h>
 
-typedef struct linkedListCDT_t {
-    node_t * head;
-    node_t * tail;
-    node_t * current;
-    node_t * iterator;
-    int size;
-} linkedListCDT_t;
+    typedef struct linkedListCDT_t {
+        node_t * head;
+        node_t * tail;
+        node_t * current;
+        node_t * iterator;
+        int size;
+    } linkedListCDT_t;
 
 
 linkedListADT createLinkedList() {
@@ -39,23 +39,35 @@ void addNode(linkedListADT list, void * process) {
 void removeAllNodes(linkedListADT list, void * process) {
     node_t * prev = NULL;
     node_t * current = list->head;
+    
     while (current != NULL) {
         if (current->process == process) {
+            node_t * next = current->next;
+            
             if (prev == NULL) {
-                list->head = current->next;
+                // Deleting from head
+                list->head = next;
             } else {
-                prev->next = current->next;
+                prev->next = next;
             }
+            
             if (current == list->tail) {
                 list->tail = prev;
             }
-            list->size--;
+            
             mem_free(current);
-            current = prev->next;
+            list->size--;
+            
+            current = next;  
         } else {
             prev = current;
             current = current->next;
         }
+    }
+    
+    if (list->size == 0) {
+        list->head = NULL;
+        list->tail = NULL;
     }
 }
 void removeNode(linkedListADT list, void * process) {

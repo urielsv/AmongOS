@@ -66,7 +66,7 @@ int32_t get_next_ready_pid() {
 
 void* scheduler(void* stack_pointer) {
     scheduler_adt scheduler = getSchedulerADT();
-   ker_write("cs");
+   //ker_write("cs");
 
     process_t *current_process = NULL;
     process_t *next_process = NULL;
@@ -89,6 +89,7 @@ void* scheduler(void* stack_pointer) {
     // Get next process to run
     int32_t next_pid = get_next_ready_pid();
     
+
     // Handle state transition atomically
         switch (current_process->state) {
             case RUNNING:
@@ -96,6 +97,7 @@ void* scheduler(void* stack_pointer) {
                 swapToLast(scheduler->process_list, current_process);
                 break;
             case KILLED:
+                
                 break;
             case BLOCKED: 
                 break;
@@ -116,7 +118,9 @@ void* scheduler(void* stack_pointer) {
         }
 
     // Set up next process
+    //print_number2(scheduler->current_pid);
     scheduler->current_pid = next_pid;
+    //print_number2(next_pid);
     next_process = (process_t *)scheduler->processes[next_pid]->process;
     next_process->state = RUNNING;
     
@@ -286,7 +290,7 @@ void process_priority(uint64_t pid, uint8_t new_prio) {
 
 
 // Terminar un proceso
-int kill_process(uint16_t pid) {
+int kill_process(uint32_t pid) {
     scheduler_adt scheduler = getSchedulerADT();
     if (pid == IDLE_PID) {
         ker_write("Cannot kill idle process\n");

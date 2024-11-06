@@ -60,7 +60,7 @@ static syscall_t syscalls[] = {
     (syscall_t)&sys_sem_wait, // sys_id 30
     (syscall_t)&sys_sem_post, // sys_id 31
     (syscall_t)&sys_sem_close, // sys_id 32
-
+    (syscall_t)&sys_waitpid // sys_id 33
 };
 
 uint64_t syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9) {

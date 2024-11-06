@@ -36,7 +36,7 @@ void shell()
 {
 
     print_header();
-
+    print_ps1("user", "~");
 
     // MM TES
     // 0x1000000 (16) = 16777216 (10)
@@ -62,9 +62,11 @@ void shell()
 
     // clear(0x0);
     // print_ps1("user", "~");
-    exec((void *)&print_amongus, 0, 0, "amonus", DEFAULT_PRIORITY);
-    exec((void *)&print_help, 0, 0, "help", DEFAULT_PRIORITY);
-    exec((void *)&print_help, 0, 0, "help", DEFAULT_PRIORITY);
+    // int pid = exec((void *)&print_amongus, 0, 0, "amonus", DEFAULT_PRIORITY);
+    // printf("%d \n", pid);
+    // waitpid(pid);
+    //exec((void *)&print_help, 0, 0, "help", DEFAULT_PRIORITY);
+    //exec((void *)&print_help, 0, 0, "help", DEFAULT_PRIORITY);
     //execute_command(commands[0].name, NULL, 0);
     // SHELL LOOP
     char buff[MAX_BUFFER_SIZE];
@@ -72,10 +74,10 @@ void shell()
     char **argv = {0};
     int argc = 0;
    while (1) {
-        print_ps1("user", "~");
         gets(buff, MAX_BUFFER_SIZE);
         parse_buffer(buff, &cmd, argv, &argc);
         execute_command(cmd, argv, argc);
+        print_ps1("user", "~");
    }
    printf("Bye shell\n");
 }
@@ -114,7 +116,8 @@ static void parse_buffer(char *buff, char **cmd, char **argv, int *argc) {
 int execute_command(char *cmd, char **argv, int argc) {
     for (int i = 0; i < sizeof(commands) / sizeof(command_t); i++) {
         if (strcmp(commands[i].name, cmd) == 0) {
-            exec((void *)commands[i].cmd, 0, 0, commands[i].name, DEFAULT_PRIORITY);
+            int pid = exec((void *)commands[i].cmd, 0, 0, commands[i].name, DEFAULT_PRIORITY);
+            waitpid(pid);
             return 0;
         }
     }
