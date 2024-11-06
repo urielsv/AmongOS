@@ -20,7 +20,7 @@ typedef struct pipe_manager_cdt
     uint16_t pipe_count;
     uint16_t next_pipe_id;
 
-};
+} pipe_manager_cdt;
 
 typedef enum pipe_state {
 

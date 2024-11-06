@@ -63,8 +63,6 @@ static syscall_t syscalls[] = {
     (syscall_t)&sys_create_pipe, // sys_id 33
     (syscall_t)&sys_open_pipe, // sys_id 34
     (syscall_t)&sys_close_pipe, // sys_id 35
-    (syscall_t)&sys_write_pipe, // sys_id 36
-    (syscall_t)&sys_read_pipe, // sys_id 37
 
 };
 
@@ -78,7 +76,7 @@ uint64_t syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r
 }
 
 uint64_t sys_write(uint8_t fd, const char *buffer, uint64_t count, uint64_t fgcolor, uint64_t bgcolor) {
-    if (buffer == 0 || fd== 0) {
+    if (buffer == NULL || fd < 0) {
         return 0;
     }
 
@@ -92,7 +90,7 @@ uint64_t sys_write(uint8_t fd, const char *buffer, uint64_t count, uint64_t fgco
         return ker_write_color(buffer, 0xFF, 0x40);
     }
 
-    //impar read a pipe, par write a pipe
+    //a priori no hay q hacer nada para pipes, pues fds siempre van a ser 0, 1, 2
     else {
 
     }
@@ -277,19 +275,10 @@ uint16_t sys_create_pipe() {
     return create_pipe();
 }
 
-uint16_t sys_open_pipe(uint16_t pipe_id) {
-    return open_pipe(pipe_id);
+uint16_t sys_open_pipe(uint16_t pipe_id, uint8_t mode) {
+    return open_pipe(pipe_id, mode);
 }
 
 uint16_t sys_close_pipe(uint16_t pipe_id) {
     return close_pipe(pipe_id);
-}
-
-//chequear esta parte. 
-uint16_t sys_write_pipe(uint16_t pipe_id, char * data, uint16_t size) {
-    return write_pipe(pipe_id, data, size);
-}
-
-uint16_t sys_read_pipe(uint16_t pipe_id, char * data, uint16_t size) {
-    return read_pipe(pipe_id, data, size);
 }
