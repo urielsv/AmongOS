@@ -38,6 +38,10 @@ void init_process(process_t *process, int32_t pid, Function code,
     process->parent_pid = get_current_pid();
     process->exit_code = 0;
     process->has_been_waited = 0;
+
+    process->fds[0] = STDIN;
+    process->fds[1] = STDOUT;
+    process->fds[2] = STDERR;
 }
 
 static char **alloc_args(char **args, uint64_t argc)
