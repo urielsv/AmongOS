@@ -18,7 +18,6 @@ static int find_semaphore(int64_t id) {
 }
 
 static void lock_semaphore(sem_t *sem) {
-    int aux;
     acquire(&sem->mutex);
 }
 
@@ -38,7 +37,6 @@ int32_t sem_open(int64_t id, int64_t initial_value) {
             semaphores[id]->value = initial_value;
             semaphores[id]->mutex = 1;  
             semaphores[id]->waiting_list = createQueue();
-            semaphores[id]->mutex_list = createQueue();
             ker_write("creado semaforo con exito\n");
             return 0;
         }
@@ -81,8 +79,6 @@ void sem_wait(int64_t id) {
         lock_semaphore(sem);
     }
 
-
-    
     sem->value--;
 
     unlock_semaphore(sem);
@@ -111,6 +107,7 @@ void sem_post(int64_t id) {
     
 
     unlock_semaphore(sem);
+    yield();
 
 }
 
@@ -121,7 +118,6 @@ void sem_close(int64_t id) {
     }
     
     destroyQueue(semaphores[idx]->waiting_list);
-    destroyQueue(semaphores[idx]->mutex_list);
     mem_free(semaphores[idx]);
     semaphores[idx] = NULL;
 }
@@ -131,9 +127,7 @@ void sem_cleanup_process(int64_t pid) {
     for (int i = 0; i < MAX_SEMAPHORES; i++) {
         if (semaphores[i] != NULL) {
            
-            queuePIDADT new_waiting_list = createQueue();
-            queuePIDADT new_mutex_list = createQueue();
-            
+            queuePIDADT new_waiting_list = createQueue();            
          
             while (!isEmpty(semaphores[i]->waiting_list)) {
                 int64_t current_pid = dequeue(semaphores[i]->waiting_list);
@@ -141,66 +135,8 @@ void sem_cleanup_process(int64_t pid) {
                     enqueue(new_waiting_list, current_pid);
                 }
             }
-            
-            
-            while (!isEmpty(semaphores[i]->mutex_list)) {
-                int64_t current_pid = dequeue(semaphores[i]->mutex_list);
-                if (current_pid != pid) {
-                    enqueue(new_mutex_list, current_pid);
-                }
-            }
-            
-        
             destroyQueue(semaphores[i]->waiting_list);
-            destroyQueue(semaphores[i]->mutex_list);
             semaphores[i]->waiting_list = new_waiting_list;
-            semaphores[i]->mutex_list = new_mutex_list;
         }
     }
 }
-
-void int_to_string(int num, char *str) {
-    int i = 0;
-    int is_negative = 0;
-
-    // Handle 0 explicitly, since it is a special case
-    if (num == 0) {
-        str[i++] = '0';
-        str[i] = '\0';
-        return;
-    }
-
-    // Handle negative numbers
-    if (num < 0) {
-        is_negative = 1;
-        num = -num;
-    }
-
-    // Process individual digits
-    while (num != 0) {
-        str[i++] = (num % 10) + '0'; // Convert digit to character
-        num /= 10;
-    }
-
-    // If the number is negative, append '-'
-    if (is_negative) {
-        str[i++] = '-';
-    }
-
-    str[i] = '\0'; // Null-terminate the string
-
-    // Reverse the string
-    for (int j = 0; j < i / 2; j++) {
-        char temp = str[j];
-        str[j] = str[i - j - 1];
-        str[i - j - 1] = temp;
-    }
-}
-
-void print_number(int number) {
-    char buffer[20]; // Buffer to hold the string representation of the number
-    int_to_string(number, buffer); // Convert integer to string
-    ker_write(buffer); // Print the number
-}
-
-

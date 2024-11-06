@@ -3,6 +3,7 @@
 #include <naiveConsole.h>
 #include <stdint.h>
 #include "../include/lib.h"
+#include <io.h>
 
 #define TIMEZONE -3 // argentina
 
@@ -38,4 +39,43 @@ uint64_t get_random_number(int seed) {
 
     randSeed = randSeed * 1103515245 + 12345;
     return (unsigned int)(randSeed / 65536) % 32768;
+}
+
+void int_to_string(int num, char *str) {
+    int i = 0;
+    int is_negative = 0;
+
+    if (num == 0) {
+        str[i++] = '0';
+        str[i] = '\0';
+        return;
+    }
+
+    if (num < 0) {
+        is_negative = 1;
+        num = -num;
+    }
+
+    while (num != 0) {
+        str[i++] = (num % 10) + '0'; 
+        num /= 10;
+    }
+
+    if (is_negative) {
+        str[i++] = '-';
+    }
+
+    str[i] = '\0'; 
+
+    for (int j = 0; j < i / 2; j++) {
+        char temp = str[j];
+        str[j] = str[i - j - 1];
+        str[i - j - 1] = temp;
+    }
+}
+
+void print_number(int number) {
+    char buffer[20];
+    int_to_string(number, buffer); 
+    ker_write(buffer); 
 }

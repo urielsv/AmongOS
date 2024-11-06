@@ -33,6 +33,10 @@ void getTime();
 //Random
 uint64_t get_random_number(int seed);
 
+void int_to_string(int num, char *str);
+
+void print_number(int number);
+
 // Equal to assinging "out val, port" in assembly
 extern void outb(unsigned short port, unsigned char val);
 // Equal to assinging "in val, port" in assembly
