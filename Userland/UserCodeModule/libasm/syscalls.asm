@@ -149,6 +149,8 @@ sem_close:
     ret
 
 waitpid:
-    mov rax, 33
+    mov rax, 2
     int 0x80
     ret
+    
+;proxima 33

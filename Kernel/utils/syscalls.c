@@ -29,7 +29,7 @@ typedef uint64_t (*syscall_t)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 static syscall_t syscalls[] = {
     [0] = (syscall_t)&sys_read,
     [1] = (syscall_t)&sys_write,
-    [2] = (syscall_t)NULL, // open
+    [2] = (syscall_t)&sys_waitpid, // open
     [3] = (syscall_t)NULL, // open
     [4] = (syscall_t)&sys_ticks,
     [5] = (syscall_t)&sys_seconds,
@@ -258,8 +258,8 @@ void sys_sem_close(int64_t id) {
     sem_close(id);
 }
 
-uint32_t sys_waitpid(uint64_t pid, int *status) {
-    return waitpid(pid, status);
+void sys_waitpid(uint32_t pid) {
+     waitpid(pid);
 }
 
 uint16_t sys_create_pipe() {

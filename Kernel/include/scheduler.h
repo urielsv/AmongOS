@@ -12,7 +12,7 @@ typedef struct scheduler_cdt* scheduler_adt;
 extern void asm_do_timer_tick();
 
 int32_t create_process(Function code, char **args, int argc, char *name, uint8_t priority, uint8_t unkillable);
-int kill_process(uint16_t pid);
+int kill_process(uint32_t pid);
 int block_process(uint64_t pid);
 int unblock_process(uint64_t pid);
 scheduler_adt init_scheduler();
@@ -23,7 +23,7 @@ void* scheduler(void* stack_pointer);
 void process_priority(uint64_t pid, uint8_t new_prio);
 uint32_t get_current_pid();
 process_t * get_current_process();
-int32_t waitpid(int32_t pid, int *status);
+void waitpid(uint32_t child_pid);
 process_t *get_process_by_pid(uint32_t pid);
 
 #endif // SCHEDULER_H

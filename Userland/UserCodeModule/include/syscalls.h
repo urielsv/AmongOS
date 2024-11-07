@@ -146,6 +146,6 @@ extern int32_t sem_open(int64_t id, int64_t initialValue);
 extern void sem_wait(int64_t id);
 extern void sem_post(int64_t id);
 extern void sem_close(int64_t id);
-extern int waitpid(uint64_t pid, int *status);
+extern void waitpid(uint32_t pid);
 
 #endif

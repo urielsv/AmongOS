@@ -66,9 +66,7 @@ int32_t get_next_ready_pid() {
 
 void* scheduler(void* stack_pointer) {
     scheduler_adt scheduler = getSchedulerADT();
-    
-    // Disable interrupts during scheduling
-    asm_cli();
+   //ker_write("cs");
 
     process_t *current_process = NULL;
     process_t *next_process = NULL;
@@ -85,35 +83,44 @@ void* scheduler(void* stack_pointer) {
     if (scheduler->current_quantum > 0 && 
         current_process != NULL && 
         (current_process->state == RUNNING || current_process->state == READY)) {
-        asm_sti();
         return stack_pointer;
     }
 
     // Get next process to run
     int32_t next_pid = get_next_ready_pid();
     
+
     // Handle state transition atomically
-    if (current_process != NULL) {
         switch (current_process->state) {
             case RUNNING:
                 current_process->state = READY;
                 swapToLast(scheduler->process_list, current_process);
                 break;
             case KILLED:
-                scheduler->processes[scheduler->current_pid] = NULL;
-                free_process(current_process);
-                scheduler->remaining_processes--;
+                
                 break;
-            case BLOCKED:
-                // Already handled by block_process()
+            case BLOCKED: 
                 break;
+            case WAITING_FOR_CHILD:
+                start_iterator(current_process->children);
+                while(has_next(current_process->children)){
+                    process_t *child = (process_t *) get_next(current_process->children);
+                    if(child == NULL || child->parent_pid != current_process->pid){
+                        removeNode(current_process->children, child);
+                        start_iterator(current_process->children);
+                    }
+                }
+                if(isEmptyList(current_process->children)){
+                    current_process->state = READY;
+                }
             default:
                 break;
         }
-    }
 
     // Set up next process
+    //print_number2(scheduler->current_pid);
     scheduler->current_pid = next_pid;
+    //print_number2(next_pid);
     next_process = (process_t *)scheduler->processes[next_pid]->process;
     next_process->state = RUNNING;
     
@@ -169,87 +176,19 @@ int32_t create_process(Function code, char **args, int argc, char *name, uint8_t
 }
 
 
-int32_t waitpid(int32_t pid, int *status) {
-    scheduler_adt scheduler = getSchedulerADT();
-    int32_t current_pid = get_current_pid();
-    process_t *current_process = (process_t *)scheduler->processes[current_pid]->process;
-    
-    if (pid == -1) {
-        int has_children = 0;
-        
-        for (int i = 0; i < MAX_PROCESSES; i++) {
-            if (scheduler->processes[i] != NULL) {
-                process_t *proc = (process_t *)scheduler->processes[i]->process;
-                if (proc->parent_pid == current_pid) {
-                    has_children = 1;
-                    
-                    if (proc->state == KILLED && !proc->has_been_waited) {
-                        proc->has_been_waited = 1;
-                        if (status != NULL) {
-                            *status = proc->exit_code;
-                        }
-                        return proc->pid;
-                    }
-                }
-            }
-        }
-        
-        if (!has_children) {
-            return -1;
-        }
+void waitpid(uint32_t child_pid){
 
-        // current_process->state = WAITING_FOR_CHILD;
-        removeAllNodes(scheduler->process_list, current_process);
-        block_process(current_pid);
-        
-        for (int i = 0; i < MAX_PROCESSES; i++) {
-            if (scheduler->processes[i] != NULL) {
-                process_t *proc = (process_t *)scheduler->processes[i]->process;
-                if (proc->parent_pid == current_pid && 
-                    proc->state == KILLED && 
-                    !proc->has_been_waited) {
-                    proc->has_been_waited = 1;
-                    if (status != NULL) {
-                        *status = proc->exit_code;
-                    }
-                    return proc->pid;
-                }
-            }
-        }
-    } else {
-        if (pid < 0 || pid >= MAX_PROCESSES || scheduler->processes[pid] == NULL) {
-            return -1;
-        }
-        
-        process_t *target = (process_t *)scheduler->processes[pid]->process;
-        
-        if (target->parent_pid != current_pid) {
-            return -1;
-        }
-        
-        if (target->state == KILLED && !target->has_been_waited) {
-            target->has_been_waited = 1;
-            if (status != NULL) {
-                *status = target->exit_code;
-            }
-            return pid;
-        }
-        
-        // current_process->state = WAITING_FOR_CHILD;
-        removeAllNodes(scheduler->process_list, current_process);
-        block_process(current_pid);
-        
-        if (target->state == KILLED && !target->has_been_waited) {
-            target->has_been_waited = 1;
-            if (status != NULL) {
-                *status = target->exit_code;
-            }
-            return pid;
-        }
+    process_t * parent = get_current_process();
+    process_t * child = get_process_by_pid(child_pid);
+    if(child == NULL || child->parent_pid != parent->pid){
+        return;
     }
-    
-    return -1;
+
+    addNode(parent->children ,(void *) child);
+    parent->state = WAITING_FOR_CHILD;
+    yield();
 }
+
 
 process_t * get_current_process() {
     scheduler_adt scheduler = getSchedulerADT();
@@ -288,7 +227,7 @@ void process_priority(uint64_t pid, uint8_t new_prio) {
 
 
 // Terminar un proceso
-int kill_process(uint16_t pid) {
+int kill_process(uint32_t pid) {
     scheduler_adt scheduler = getSchedulerADT();
     if (pid == IDLE_PID) {
         ker_write("Cannot kill idle process\n");
@@ -312,7 +251,14 @@ int kill_process(uint16_t pid) {
         removeAllNodes(scheduler->process_list, (void *)process_to_kill);
     }
 
+    scheduler->processes[pid]->process = NULL;
+    scheduler->next_unused_pid = pid;
+    free_process(process_to_kill);
+    scheduler->remaining_processes--;
+
+    // al dope
     process_to_kill->state = KILLED;
+
 
     // if (process_to_kill->parent_pid != -1) {
     //     process_t *parent = (process_t *)scheduler->processes[process_to_kill->parent_pid]->process;
