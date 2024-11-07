@@ -221,5 +221,8 @@ uint16_t sys_write_pipe(uint16_t pid, uint16_t pipe_id, char * data, uint16_t si
 
 uint16_t sys_read_pipe(uint16_t pid, uint16_t pipe_id, char * data, uint16_t size);
 
+uint8_t sys_process_exists(uint32_t pid);
+
+process_snapshot_t *sys_process_snapshot(uint32_t pid);
 
 #endif

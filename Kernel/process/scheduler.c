@@ -230,7 +230,7 @@ void process_priority(uint64_t pid, uint8_t new_prio) {
 int kill_process(uint32_t pid) {
     scheduler_adt scheduler = getSchedulerADT();
     if (pid == IDLE_PID) {
-        ker_write("Cannot kill idle process\n");
+        ker_write("\nCannot kill idle process\n");
         return -1;
     }
 

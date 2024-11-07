@@ -10,6 +10,5 @@
 
 void amongus(uint64_t startx, uint64_t starty);
 
-static const char silence_art[][COLS];
 
 #endif

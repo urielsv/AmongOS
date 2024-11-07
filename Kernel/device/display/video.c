@@ -60,7 +60,7 @@ static char posx_out_screen(uint64_t x) {
 
 // Check if the posx of the pixel is out of the screens height
 static char posy_out_screen(uint64_t y) {
-    return y + FONT_HEIGHT * size - 1 >= vbe_mode_info->height;
+    return y + FONT_HEIGHT * size - 4 >= vbe_mode_info->height;
 }
 
 void video_fontsize(int newsize) {

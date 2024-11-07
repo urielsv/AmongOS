@@ -30,7 +30,7 @@ static syscall_t syscalls[] = {
     [0] = (syscall_t)&sys_read,
     [1] = (syscall_t)&sys_write,
     [2] = (syscall_t)&sys_waitpid, // open
-    [3] = (syscall_t)NULL, // open
+    [3] = (syscall_t)&sys_process_exists, // open
     [4] = (syscall_t)&sys_ticks,
     [5] = (syscall_t)&sys_seconds,
     [6] = (syscall_t)&sys_random_number,
@@ -38,7 +38,7 @@ static syscall_t syscalls[] = {
     [8] = (syscall_t)&draw,
     [9] = (syscall_t)&sys_sleep,
     [10] = (syscall_t)&sys_time,
-    [11] = (syscall_t)NULL, // open
+    [11] = (syscall_t)&sys_process_snapshot, // open
     [12] = (syscall_t)&sys_hlt,
     [13] = (syscall_t)&sys_clear,
     [14] = (syscall_t)&sys_writing_position,
@@ -242,6 +242,10 @@ void sys_yield() {
     yield();
 }
 
+uint8_t sys_process_exists(uint32_t pid) {
+    return get_process_by_pid(pid) != NULL;
+}
+
 int sys_sem_open(int64_t id, int64_t initialValue) {
     return sem_open(id, initialValue);
 }
@@ -272,4 +276,8 @@ uint16_t sys_open_pipe(uint16_t pipe_id, uint8_t mode) {
 
 uint16_t sys_close_pipe(uint16_t pipe_id) {
     return close_pipe(pipe_id);
+}
+
+process_snapshot_t *sys_process_snapshot(uint32_t pid) {
+    return get_process_snapshot(pid);
 }

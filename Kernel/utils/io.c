@@ -6,12 +6,12 @@
 
 // starting position
 static uint64_t x = 0;
-static uint64_t y = 16;
+static uint64_t y = 0;
 
 void clear(uint32_t hex) {
     clear_screen(hex);
     x = 0;
-    y = 16;
+    y = 0;
 }
 
 void set_position(uint64_t new_x, uint64_t new_y) {
@@ -42,6 +42,10 @@ void putchar_color_k(char c, uint64_t fgcolor, uint64_t bgcolor) {
         break;
     case '\b':
         delete_char(&x, &y, fgcolor, bgcolor);
+        break;
+    case '\t':
+        for (int i = 0; i < 4; i++)
+           put_char_at(' ', &x, &y, fgcolor, bgcolor);
         break;
     default:
         put_char_at(c, &x, &y, fgcolor, bgcolor);

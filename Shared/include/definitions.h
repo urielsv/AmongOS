@@ -15,4 +15,13 @@ typedef enum { STDIN=0, STDOUT, STDERR} basic_fd_t;
 
 typedef int (*Function)(int argc, char **args);
 
+typedef struct {
+    int32_t pid;
+    priority_t priority;
+    state_t state;
+    char* name;
+    int argc;
+    char** argv;
+} process_snapshot_t;
+
 #endif

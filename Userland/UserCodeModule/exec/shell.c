@@ -26,10 +26,19 @@ command_t commands[] = {
     {"test_mm", "testeo de memoria", (Function) test_mm_proc},
     {"test_processes", "testeo de procesos", (Function) test_processes_proc},
     {"test_prio", "testeo de prioridad", (Function) test_prio_proc},
-    {"test_synchro", "testeo de sincronizacion", (Function) test_synchro_proc}
+    {"test_synchro", "testeo de sincronizacion", (Function) test_synchro_proc},
+    {"kill", "Kill a process <pid>.", (Function) kill_proc},
+    {"nice", "Change the scheduling priority of a process <pid> to <priority>.", (Function) nice},
+    {"ps", "List all processes", (Function) ps},
+
+
 };
 
 static void parse_buffer(char *buff, char **cmd, char **argv, int *argc);
+static int validate_pid(char *pid_str);
+static void print_header();
+static void print_ps1(char *user, char *pwd);
+
 
 
 void shell()
@@ -38,36 +47,6 @@ void shell()
     print_header();
     print_ps1("user", "~");
 
-    // MM TES
-    // 0x1000000 (16) = 16777216 (10)
-    // char *argv_test_mm[] = {"16777216", NULL};
-    // exec((void *) &test_mm_proc, argv_test_mm, 1, "Testeo_de_memoria_:D", 1, 1);
-
-    // PROCESSES TEST
-     //char *argv_test_processes[] = {"10", NULL};
-     //exec((void *)&test_processes_proc, argv_test_processes, 1, "test_processes", 1);
-
-    //PRIO TEST
-    //exec((void *)&test_prio_proc, NULL, 0, "test_prio", 1);
-
-    // SYNCHRO TEST
-
-    // char *argv_test_sync[] = {"2", "-1", NULL};
-    // exec((void *)&test_synchro_proc, argv_test_sync, 2, "test_synchro", 1);
-
-    // printf("----------------------------------------------------\n"); 
-    //char *argv_test_sync1[] = {"4", "0", NULL};
-    //exec((void *)&test_synchro_proc, argv_test_sync1, 2, "test_synchro", 1);
-    
-
-    // clear(0x0);
-    // print_ps1("user", "~");
-    // int pid = exec((void *)&print_amongus, 0, 0, "amonus", DEFAULT_PRIORITY);
-    // printf("%d \n", pid);
-    // waitpid(pid);
-    //exec((void *)&print_help, 0, 0, "help", DEFAULT_PRIORITY);
-    //exec((void *)&print_help, 0, 0, "help", DEFAULT_PRIORITY);
-    //execute_command(commands[0].name, NULL, 0);
     // SHELL LOOP
     char buff[MAX_BUFFER_SIZE];
     char *cmd = NULL;
@@ -79,7 +58,6 @@ void shell()
         execute_command(cmd, argv, argc);
         print_ps1("user", "~");
    }
-   printf("Bye shell\n");
 }
 
 static void parse_buffer(char *buff, char **cmd, char **argv, int *argc) {
@@ -116,38 +94,138 @@ static void parse_buffer(char *buff, char **cmd, char **argv, int *argc) {
 int execute_command(char *cmd, char **argv, int argc) {
     for (int i = 0; i < sizeof(commands) / sizeof(command_t); i++) {
         if (strcmp(commands[i].name, cmd) == 0) {
-            int pid = exec((void *)commands[i].cmd, 0, 0, commands[i].name, DEFAULT_PRIORITY);
+            int pid = exec((void *)commands[i].cmd, argv, argc, commands[i].name, DEFAULT_PRIORITY);
             waitpid(pid);
             return 0;
         }
     }
-    printf("\nSUShell: '%s' command not found\n", cmd);
+    printf("SUShell: '%s' command not found", cmd);
     return 0;
 }
 
 
-void print_header()
+void ps(char *argv, int argc) {
+    if (argc != 0) {
+        printf("Usage: ps");
+        return;
+    }
+    printf("PID\t\tPRIO\t\t\t\tSTATE\t\t\t\t\tNAME\n");
+    // TODO: MAke this more efficient sicne we are iterating over all the processes
+    for (int i = 0; i < MAX_PROCESSES; i++) {
+        process_snapshot_t *process = process_snapshot(i);
+        if (process != NULL) {
+            char *state = "";
+            switch (process->state) {
+                case BLOCKED:
+                    state = "BLOCKED          ";
+                    break;
+                case READY:
+                    state = "READY            ";
+                    break;
+                case KILLED:
+                    state = "KILLED           ";
+                    break;
+                case RUNNING:
+                    state = "RUNNING          ";
+                    break;
+                case WAITING_FOR_CHILD:
+                    state = "WAITING_FOR_CHILD";
+                    break;
+            }
+            char *priority = "";
+            switch (process->priority) {
+                case LOW:
+                    priority = "LOW        ";
+                    break;
+                case LOW_MEDIUM:
+                    priority = "LOW_MEDIUM ";
+                    break;
+                case MEDIUM:
+                    priority = "MEDIUM     ";
+                    break;
+                case HIGH_MEDIUM:
+                    priority = "HIGH_MEDIUM";
+                    break;
+                case HIGH:
+                    priority = "HIGH       ";
+                    break;
+            }
+            printf("%d\t\t%s\t\t%s\t\t%s %s", process->pid, priority, state, process->name, process->argv);
+            if (i < MAX_PROCESSES - 1) {
+                printf("\n");
+            }
+        }
+
+    }
+}
+
+static int validate_pid(char *pid_str) {
+    uint32_t pid = atoi(pid_str);
+    return process_exists(pid) ? pid : -1;
+}
+
+void nice(int argc, char *argv[]) {
+    if (argc != 2) {
+        printf("Usage: nice <pid> <priority>\n");
+        return;
+    }
+   
+    int32_t pid = -1;
+    if ((pid = validate_pid(argv[0])) < 0) {
+        printf("Error: invalid pid %d\n", argv[0]);
+        return;
+    }
+
+    int prio = atoi(argv[1]);
+    if (prio < LOW || prio > HIGH) {
+        printf("Error: invalid priority %d\n", prio);
+        return;
+    }
+
+    set_priority(pid, prio);
+}
+
+void kill_proc(int argc, char *argv[]) {
+    if (argc != 1) {
+        printf("Usage: kill <pid>");
+        return;
+    }
+   
+    int32_t pid = -1;
+    if ((pid = validate_pid(argv[0])) < 0) {
+        printf("Error: invalid pid %d", argv[0]);
+        return;
+    }
+
+    kill(pid);
+}
+
+
+inline void print_header()
 {
 
     printf_color("Welcome to AmongOS Shell (SUShell) \n", COLOR_MAGENTA, COLOR_BLACK);
     putchar('\n');
     printf("To see the list of available commands, type 'help'\n");
     putchar('\n');
-    putchar('\n');
 }
 
-void print_ps1(char *user, char *pwd)
+inline void print_ps1(char *user, char *pwd)
 {
 
-    printf_color("%s@AmongOS", COLOR_GREEN, COLOR_BLACK, user);
+    printf_color("\n%s@AmongOS", COLOR_GREEN, COLOR_BLACK, user);
     printf_color("%s$ ", COLOR_MAGENTA, COLOR_BLACK, pwd);
 }
 
 int print_help() {
 
-    printf("\nCommand: Description\n");
-    for (int i = 1; i < sizeof(commands) / sizeof(command_t); i++) {
-        printf("%s: %s\n", commands[i].name, commands[i].description);
+    printf("Command: Description\n");
+    int size = sizeof(commands) / sizeof(command_t);
+    for (int i = 1; i < size; i++) {
+        printf("%s: %s", commands[i].name, commands[i].description);
+        if (i < size - 1) {
+            putchar('\n');
+        }
     }
     return 0;
 }
@@ -157,13 +235,13 @@ int print_help() {
 int screen() {
     uint64_t width, height;
     screen_info(&width, &height);
-    printf("\nW:%d, H:%d\n", width, height);
+    printf("W:%d, H:%d\n", width, height);
     return 0;
 }
 
 int font() {
     int num;
-    scanf("\nNew size: %d", &num);
+    scanf("New size: %d", &num);
     if (num <= 0 || num >= 6) {
         printf("\nInvalid size\n");
     } else {
@@ -174,24 +252,24 @@ int font() {
 }
 
 int print_amongus() {
-    printf_color("\n........ooooooooo.......\n", COLOR_RED, COLOR_BLACK);
+    printf_color("........ooooooooo.......\n", COLOR_RED, COLOR_BLACK);
     printf_color("......oo.....oooooo.....\n", COLOR_RED, COLOR_BLACK);
     printf_color("......oo...oo......oo...\n", COLOR_RED, COLOR_BLACK);
     printf_color("......oo.....oooooo.....\n", COLOR_RED, COLOR_BLACK);
     printf_color("......oo.......oo.......\n", COLOR_RED, COLOR_BLACK);
     printf_color("......oo...oo..oo.......\n", COLOR_RED, COLOR_BLACK);
     printf_color("......oo...oo..oo.......\n", COLOR_RED, COLOR_BLACK);
-    printf_color("......ooo..oo.ooo.......\n", COLOR_RED, COLOR_BLACK);
+    printf_color("......ooo..oo.ooo.......", COLOR_RED, COLOR_BLACK);
     return 0;
 }
 
 int print_random() {
-    printf("\n%d\n", random(1203929));
+    printf("%d", random(1203929));
     return 0;
 }
 
 int print_time() {
-    printf("\n%s\n", time());
+    printf("%s", time());
     return 0;
 }
 

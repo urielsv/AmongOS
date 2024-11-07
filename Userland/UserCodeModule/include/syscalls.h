@@ -147,5 +147,6 @@ extern void sem_wait(int64_t id);
 extern void sem_post(int64_t id);
 extern void sem_close(int64_t id);
 extern void waitpid(uint32_t pid);
-
+extern uint8_t process_exists(uint32_t pid);
+extern process_snapshot_t *process_snapshot(uint32_t pid);
 #endif

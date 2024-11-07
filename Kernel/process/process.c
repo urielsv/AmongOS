@@ -105,19 +105,21 @@ void remove_child_process(process_t* parent, int32_t child_pid) {
     }
 }
 
-
-
-process_amongus_t *get_process_amongus(process_t *process)
+process_snapshot_t *get_process_snapshot(uint32_t pid)
 {
-    process_amongus_t *process_amongus = (process_amongus_t *)mem_alloc(sizeof(process_amongus_t));
-    process_amongus->pid = process->pid;
-    process_amongus->priority = process->priority;
-    process_amongus->state = process->state;
-    process_amongus->stack_base = process->stack_base;
-    process_amongus->stack_pointer = process->stack_pointer;
-    process_amongus->argv = process->argv;
-    process_amongus->argc = process->argc;
-    process_amongus->name = mem_alloc(strlen(process->name) + 1);
-    memcpy(process_amongus->name, process->name, strlen(process->name) + 1);
-    return process_amongus;
+    process_t *process = get_process_by_pid(pid);
+    if (process == NULL) {
+        return NULL;
+    }
+
+    process_snapshot_t *process_snapshot = (process_snapshot_t *)mem_alloc(sizeof(process_snapshot_t));
+    process_snapshot->pid = process->pid;
+    process_snapshot->priority = process->priority;
+    process_snapshot->state = process->state;
+    process_snapshot->argv = process->argv;
+    process_snapshot->argc = process->argc;
+    process_snapshot->name = mem_alloc(strlen(process->name) + 1);
+    memcpy(process_snapshot->name, process->name, strlen(process->name) + 1);
+    return process_snapshot;
 }
+

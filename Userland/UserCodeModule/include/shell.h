@@ -24,18 +24,7 @@
  */
 void shell();
 
-/*
- * @name print_ps1
- * @brief Prints the shell prompt.
- *
- */
-void print_ps1(char *user, char *pwd);
 
-/*
- * @name print_header
- * @brief Prints the shell header.
- */
-void print_header();
 int execute_command(char *cmd, char **argv, int argc);
 
 int print_help();
@@ -55,4 +44,7 @@ uint64_t test_processes_proc(uint64_t argc, char *argv[]);
 int test_prio_proc();
 int test_synchro_proc(uint64_t argc, char *argv[]);
 
+void kill_proc(int argc, char *argv[]);
+void nice(int argc, char *argv[]);
+void ps();
 #endif
