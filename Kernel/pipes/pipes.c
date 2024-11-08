@@ -149,7 +149,7 @@ static void free_pipe(uint16_t pipe_id){
 
 }
 
-uint16_t write_pipe(uint16_t pid, uint16_t pipe_id, char * data, uint16_t size){
+uint16_t write_pipe(uint16_t pid, uint16_t pipe_id, const char * data, uint16_t size){
 
     pipe_t * pipe = get_pipe(pipe_id);
 
