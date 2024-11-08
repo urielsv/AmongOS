@@ -10,7 +10,7 @@
 #include <string.h>
 
 void putchar_color(char c, uint64_t fgcolor, uint64_t bgcolor) {
-    write(1, &c, 1, fgcolor, bgcolor);
+    write(STDOUT, &c, 1, fgcolor, bgcolor);
 }
 
 void putchar(char c) {

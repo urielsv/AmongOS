@@ -149,4 +149,8 @@ extern void sem_close(int64_t id);
 extern void waitpid(uint32_t pid);
 extern uint8_t process_exists(uint32_t pid);
 extern process_snapshot_t *process_snapshot(uint32_t pid);
+extern uint16_t create_pipe();
+extern uint16_t  open_pipe(uint16_t pipe_id, uint8_t mode);
+extern uint16_t  close_pipe(uint16_t pipe_id);
+
 #endif

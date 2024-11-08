@@ -2,6 +2,7 @@
 #include <memman.h>
 #include <io.h>
 #include <scheduler.h>
+#include <definitions.h>
 
 typedef struct pipe_t
 {
@@ -22,20 +23,6 @@ typedef struct pipe_manager_cdt
 
 } pipe_manager_cdt;
 
-typedef enum pipe_state {
-
-    CLOSED=0,
-    OPENED=1
-
-} pipe_state;
-
-typedef enum pipe_mode {
-
-    READ_MODE=0,
-    WRITE_MODE=1
-
-} pipe_mode;
-
 #define buffer_position(pipe) (((pipe)->buffer_count + (pipe)->start_position) % PIPE_BUFFER_SIZE)
 
 static pipe_t * get_pipe(uint16_t pipe_id);
@@ -44,7 +31,7 @@ static uint16_t get_next_pipe_id();
 static void free_pipe(uint16_t pipe_id);
 
 
-pipe_manager_adt init_pipe_manager(){
+pipe_manager_adt init_pipe_manager() {
 
     pipe_manager_adt pipe_manager = (pipe_manager_adt) PIPE_MANAGER_ADDRESS;
     for (uint16_t i = 0; i < MAX_PIPES; i++){
@@ -57,8 +44,8 @@ pipe_manager_adt init_pipe_manager(){
 }
 
 static pipe_manager_adt get_pipe_manager(){
-    
-    return (pipe_manager_adt) PIPE_MANAGER_ADDRESS;
+   
+   return (pipe_manager_adt) PIPE_MANAGER_ADDRESS;
 
 }
 
@@ -134,7 +121,7 @@ uint16_t close_pipe(uint16_t pipe_id){
 
     if (pipe->input_pid == current_pid){
         char eofString[1] = {EOF};
-		write_pipe(current_pid, pipe_id, eofString, 1);
+	write_pipe(current_pid, pipe_id, eofString, 1);
     }
     else if (pipe->output_pid == current_pid){
        free_pipe(pipe_id);
