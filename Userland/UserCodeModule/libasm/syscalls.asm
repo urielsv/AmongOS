@@ -178,4 +178,9 @@ close_pipe:
     int 0x80
     ret
 
+change_process_fd:
+    mov rax, 36
+    int 0x80
+    ret
+
 

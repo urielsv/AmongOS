@@ -196,7 +196,7 @@ uint16_t read_pipe(uint16_t pid, uint16_t pipe_id, char * data, uint16_t size){
 		if (pipe->buffer_count == 0 && (int) pipe->buffer[pipe->start_position] != EOF) {
 			pipe->opened = CLOSED;
 			block_process(pipe->output_pid);
-			// yield();
+			// yield(); //ya se hace yield en block process
 		}
 		while ((pipe->buffer_count > 0 || (int) pipe->buffer[pipe->start_position] == EOF) && read_bytes < size) {
 			data[read_bytes] = pipe->buffer[pipe->start_position];
@@ -208,7 +208,7 @@ uint16_t read_pipe(uint16_t pid, uint16_t pipe_id, char * data, uint16_t size){
 			pipe->start_position = (pipe->start_position + 1) % PIPE_BUFFER_SIZE;
 		}
 		if (pipe->opened == CLOSED) {
-			unblock_process((uint16_t) pipe->input_pid);
+			unblock_process(pipe->input_pid);
 			pipe->opened = OPENED;
 		}
 	}

@@ -37,5 +37,6 @@ extern void* create_process_stack_frame(void* rip, void* rsp, void* argv, uint64
 void free_process(process_t* process);
 void remove_child_process(process_t* parent, int32_t child_pid);
 process_snapshot_t *get_process_snapshot(uint32_t pid);
+uint16_t change_process_fd(uint32_t pid, uint16_t fd_index, uint16_t new_fd);
 
 #endif
