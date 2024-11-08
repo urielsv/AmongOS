@@ -34,11 +34,17 @@ static void free_pipe(uint16_t pipe_id);
 pipe_manager_adt init_pipe_manager() {
 
     pipe_manager_adt pipe_manager = (pipe_manager_adt) PIPE_MANAGER_ADDRESS;
-    for (uint16_t i = 0; i < MAX_PIPES; i++){
+    for (uint16_t i = BUILTIN_FDS; i < MAX_PIPES; i++){
         pipe_manager->pipes[i] = NULL;
     }
-    pipe_manager->next_pipe_id = 0;
-    pipe_manager->pipe_count = 0;
+
+    //salteo los primero 3 casos, no lo inicilizo en null para que no lo tome como next_pipe_id
+    pipe_manager->pipes[STDIN] = (pipe_t *) mem_alloc(sizeof(pipe_t));
+    pipe_manager->pipes[STDOUT] = (pipe_t *) mem_alloc(sizeof(pipe_t));
+    pipe_manager->pipes[STDERR] = (pipe_t *) mem_alloc(sizeof(pipe_t));
+
+    pipe_manager->next_pipe_id = BUILTIN_FDS;
+    pipe_manager->pipe_count = BUILTIN_FDS;
     return pipe_manager;
 
 }
@@ -82,7 +88,7 @@ static pipe_t * get_pipe(uint16_t pipe_id){
 
     pipe_manager_adt pipe_manager = get_pipe_manager();
     pipe_t * pipe = pipe_manager->pipes[pipe_id];
-    if (pipe == NULL){
+    if (pipe == NULL || pipe_id < BUILTIN_FDS){
         ker_write("Pipe not found\n");
         return NULL;
     }
@@ -155,8 +161,8 @@ uint16_t write_pipe(uint16_t pid, uint16_t pipe_id, char * data, uint16_t size){
 	while (written_bytes < size && (int) pipe->buffer[buffer_position(pipe)] != EOF) {
 		if (pipe->buffer_count >= PIPE_BUFFER_SIZE) {
 			pipe->opened = CLOSED;
-			block_process((uint16_t) pipe->input_pid);
-			yield();
+			block_process(pipe->input_pid);
+			// yield();
 		}
 
 		while (pipe->buffer_count < PIPE_BUFFER_SIZE && written_bytes < size) {
@@ -189,8 +195,8 @@ uint16_t read_pipe(uint16_t pid, uint16_t pipe_id, char * data, uint16_t size){
 	while (read_bytes < size && !eof_read) {
 		if (pipe->buffer_count == 0 && (int) pipe->buffer[pipe->start_position] != EOF) {
 			pipe->opened = CLOSED;
-			block_process((uint16_t) pipe->output_pid);
-			yield();
+			block_process(pipe->output_pid);
+			// yield();
 		}
 		while ((pipe->buffer_count > 0 || (int) pipe->buffer[pipe->start_position] == EOF) && read_bytes < size) {
 			data[read_bytes] = pipe->buffer[pipe->start_position];
