@@ -334,6 +334,10 @@ uint32_t get_current_pid() {
 
 process_t *get_process_by_pid(uint32_t pid) {
     scheduler_adt scheduler = getSchedulerADT();
+    if (scheduler->processes[pid] == NULL) {
+        return NULL;
+    }
+
     return (process_t *) scheduler->processes[pid]->process;
 }
 #undef CAPPED_PRIORITY

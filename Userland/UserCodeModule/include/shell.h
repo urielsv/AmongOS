@@ -16,7 +16,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <colors.h>
+#include <definitions.h>
 
+#define MAX_CMDS 2
+#define MAX_ARGS 10
+typedef struct command {
+	char* name; 
+	char* description;
+	Function cmd;
+} command_t;
+
+typedef struct {
+    char *cmd;
+    char *argv[MAX_ARGS];
+    int argc;
+} command_input_t;
+
+typedef struct {
+    command_input_t cmds[MAX_CMDS];
+    uint8_t cmd_count;
+    uint8_t is_bg;
+} parsed_input_t;
 
 /*
  * @name shell
@@ -25,7 +45,6 @@
 void shell();
 
 
-int execute_command(char *cmd, char **argv, int argc);
 
 int print_help();
 int screen();

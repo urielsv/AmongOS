@@ -36,4 +36,5 @@ uint64_t strlen(char* buff);
  */
 void strcpy(char* dest, char* src);
 
+char *strchr(char* str, char c);
 #endif

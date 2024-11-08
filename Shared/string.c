@@ -30,3 +30,14 @@ void strcpy(char* dest, char* src)
     }
     *dest = 0;
 }
+
+char *strchr(char* str, char c)
+{
+    while(*str != 0)
+    {
+        if(*str == c)
+            return str;
+        str++;
+    }
+    return 0;
+}
