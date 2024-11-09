@@ -66,4 +66,6 @@ int test_synchro_proc(uint64_t argc, char *argv[]);
 void kill_proc(int argc, char *argv[]);
 void nice(int argc, char *argv[]);
 void ps();
+int cat(int argc, char **argv);
+int wc(int argc, char **argv);
 #endif

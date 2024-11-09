@@ -23,6 +23,7 @@ typedef struct scheduler_cdt {
     int32_t current_quantum;
 } scheduler_cdt;
 
+void print_process_lists();
 
 // Inicializa el scheduler
 scheduler_adt init_scheduler() {
@@ -89,6 +90,20 @@ void* scheduler(void* stack_pointer) {
     // Get next process to run
     int32_t next_pid = get_next_ready_pid();
     
+    // ker_write("current_process pid: ");
+    // print_number(current_process->pid);
+
+    // ker_write(" current_process state: ");
+    // print_number(current_process->state);
+    // ker_write("\n");
+
+    // ker_write("next_pid: ");
+    // print_number(next_pid);
+    // ker_write("\n");
+
+    // ker_write("idle process state: ");
+    // print_number(get_process_by_pid(IDLE_PID)->state);
+    // ker_write("\n");
 
     // Handle state transition atomically
         switch (current_process->state) {
@@ -117,10 +132,12 @@ void* scheduler(void* stack_pointer) {
                 break;
         }
 
+        
+   // print_process_lists();
     // Set up next process
-    //print_number2(scheduler->current_pid);
+    //print_number(scheduler->current_pid);
     scheduler->current_pid = next_pid;
-    //print_number2(next_pid);
+    //print_number(next_pid);
     next_process = (process_t *)scheduler->processes[next_pid]->process;
     next_process->state = RUNNING;
     
@@ -351,13 +368,39 @@ int16_t get_current_process_file_descriptor(uint8_t fd_index) {
 uint16_t change_process_fd(uint32_t pid, uint16_t fd_index, int16_t new_fd){
     scheduler_adt scheduler = getSchedulerADT();
     process_t* process = (process_t *) scheduler->processes[pid]->process;
-    ker_write("changing fd\n");
     if (process == NULL){
         return -1;
     }
     process->fds[fd_index] = new_fd;
-    print_number(process->fds[fd_index]);
     return 0;
+}
+
+void print_process_lists() {
+    scheduler_adt scheduler = getSchedulerADT();
+    
+    // Print processes in the process list
+    node_t *process_node = getFirstNode(scheduler->process_list);
+    ker_write("Processes in the process list:\n");
+    while (process_node != NULL) {
+        process_t *process = (process_t *)process_node->process;
+        ker_write("pid: ");
+        print_number(process->pid);
+        ker_write(" parent_pid: ");
+        print_number(process->parent_pid);
+        ker_write(" state: ");
+        print_number(process->state);
+        ker_write("\n");
+        process_node = (node_t *) (process_node->next);
+    }
+
+    // Print blocked processes
+    node_t *blocked_node = getFirstNode(scheduler->blocked_process_list);
+    ker_write("Blocked processes:\n");
+    while (blocked_node != NULL) {
+        process_t *blocked_process = (process_t *)blocked_node->process;
+        print_number(blocked_process->pid);
+        blocked_node = (node_t *) (process_node->next);
+    }
 }
 
 #undef CAPPED_PRIORITY

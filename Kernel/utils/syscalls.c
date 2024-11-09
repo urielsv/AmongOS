@@ -116,7 +116,7 @@ char *sys_read(uint8_t fd, char *buffer, uint64_t count) {
     // }
 
     int16_t current_fd = get_current_process_file_descriptor(fd);
-    print_number(current_fd);
+    //print_number(current_fd);
 
     if (current_fd == DEV_NULL){
        buffer[0] = EOF;

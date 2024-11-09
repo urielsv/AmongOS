@@ -3,6 +3,7 @@
 #include <io.h>
 #include <scheduler.h>
 #include <definitions.h>
+#include <lib.h>
 
 typedef struct pipe_t
 {
@@ -155,6 +156,10 @@ uint16_t write_pipe(uint16_t pid, uint16_t pipe_id, const char * data, uint16_t 
     if (size == 0 || data == NULL || pipe==NULL|| pipe->input_pid != pid){
         return -1;
     }
+
+    ker_write("writingggg pipesssss output pid ");
+    print_number(pipe->output_pid);
+    ker_write("\n");
     
    uint64_t written_bytes = 0;
 	while (written_bytes < size && (int) pipe->buffer[buffer_position(pipe)] != EOF) {
@@ -188,6 +193,10 @@ uint16_t read_pipe(uint16_t pid, uint16_t pipe_id, char * data, uint16_t size){
     if ( size == 0 || data == NULL || pipe==NULL|| pipe->output_pid != pid){
         return -1;
     }
+    ker_write("readingggg pipesssss input pid ");
+    print_number(pipe->input_pid);
+    ker_write("\n");
+
 
     uint8_t eof_read = 0;
 	uint64_t read_bytes = 0;
