@@ -7,6 +7,7 @@
 #define MAX_PRIORITY 5
 #define EOF (-1)
 #define BUILTIN_FDS 3
+#define DEV_NULL -1
 
 #define DEFAULT_PRIORITY MEDIUM
 

@@ -213,7 +213,7 @@ void sys_waitpid(uint32_t child_pid);
 
 uint16_t sys_create_pipe();
 
-uint16_t sys_open_pipe(uint16_t pipe_id, uint8_t mode);
+uint16_t sys_open_pipe(uint16_t pid, uint16_t pipe_id, uint8_t mode);
 
 uint16_t sys_close_pipe(uint16_t pipe_id);
 

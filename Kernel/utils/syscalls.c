@@ -77,24 +77,33 @@ uint64_t syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r
 }
 
 uint64_t sys_write(uint8_t fd, const char *buffer, uint64_t count, uint64_t fgcolor, uint64_t bgcolor) {
-    if (buffer == NULL || fd < 0) {
+    // if (buffer == NULL ) {
+    //     return 0;
+    // }
+    //Si esto anda, refactor con un case. 
+    //print_number(fd);
+
+    int16_t current_fd = get_current_process_file_descriptor(fd);
+    print_number(current_fd);
+
+    if (current_fd == DEV_NULL){
         return 0;
     }
 
     // stdout
-    if (fd == 1) {
+    if (current_fd == 1) {
         return ker_write_color(buffer, fgcolor, bgcolor);
     }
 
     // stderr
-    else if (fd == 2) {
+    else if (current_fd == 2) {
         return ker_write_color(buffer, 0xFF, 0x40);
     }
 
     else {
         //notar que fd es el mismo que pipe_id
-        if (fd >= BUILTIN_FDS){
-            write_pipe(get_current_pid(), fd, buffer, count);
+        if (current_fd >= BUILTIN_FDS){
+            write_pipe(get_current_pid(), current_fd, buffer, count);
         }
     }
 
@@ -102,11 +111,23 @@ uint64_t sys_write(uint8_t fd, const char *buffer, uint64_t count, uint64_t fgco
 }
 
 char *sys_read(uint8_t fd, char *buffer, uint64_t count) {
-    if (buffer == NULL || fd < 0) {
+    // if (buffer == NULL) {
+    //     return NULL;
+    // }
+
+    int16_t current_fd = get_current_process_file_descriptor(fd);
+    print_number(current_fd);
+
+    if (current_fd == DEV_NULL){
+       buffer[0] = EOF;
+		return 0;
+    }
+    else if (current_fd <DEV_NULL){
         return NULL;
     }
-    if (fd >= BUILTIN_FDS){
-        read_pipe(get_current_pid(), fd, buffer, count);
+
+    if (current_fd >= BUILTIN_FDS){
+        read_pipe(get_current_pid(), current_fd, buffer, count);
     }
     else{
         get_buffer(buffer, count);
@@ -281,8 +302,8 @@ uint16_t sys_create_pipe() {
     return create_pipe();
 }
 
-uint16_t sys_open_pipe(uint16_t pipe_id, uint8_t mode) {
-    return open_pipe(pipe_id, mode);
+uint16_t sys_open_pipe(uint16_t pid, uint16_t pipe_id, uint8_t mode) {
+    return open_pipe(pid, pipe_id, mode);
 }
 
 uint16_t sys_close_pipe(uint16_t pipe_id) {

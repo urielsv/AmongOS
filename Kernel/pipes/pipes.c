@@ -96,7 +96,7 @@ static pipe_t * get_pipe(uint16_t pipe_id){
 
 }
 
-uint16_t open_pipe(uint16_t pipe_id, uint8_t mode){
+uint16_t open_pipe(uint16_t pid, uint16_t pipe_id, uint8_t mode){
 
     pipe_t * pipe = get_pipe(pipe_id);
     if (pipe == NULL){
@@ -105,17 +105,16 @@ uint16_t open_pipe(uint16_t pipe_id, uint8_t mode){
     }
     pipe->opened = OPENED;
     if (mode == READ_MODE && pipe->input_pid == -1){
-        pipe->input_pid = get_current_pid();
+        pipe->input_pid = pid;
     }
     else if (mode == WRITE_MODE && pipe->output_pid == -1){
-        pipe->output_pid = get_current_pid();
+        pipe->output_pid = pid;
     }
     return 0;
 
 }
 
 uint16_t close_pipe(uint16_t pipe_id){
-
 
     pipe_t * pipe = get_pipe(pipe_id);
     if (pipe == NULL){

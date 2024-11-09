@@ -12,6 +12,7 @@
 static void infinite_loop_proc(char *argv[], int argc) {
     while (1)
         printf("Infinite loop\n");
+       //write(DEV_NULL, "Infinite loop\n", 14, COLOR_RED, COLOR_BLACK);
 }
 
 command_t commands[] = {
@@ -167,17 +168,37 @@ static int execute_command(parsed_input_t *parsed) {
                 
                 if (parsed->is_bg) {
                     // Create a pipe for redirecting background process stdin
-                    uint16_t dev_null = create_pipe();
-                    close_pipe(dev_null);
+                    uint16_t pipe_id = create_pipe();
+                   // printf("pipe_id: %d\n", pipe_id);
+
+                    //close_pipe(dev_null);
 
                     // Execute the process
                     pid = exec((void *)commands[i].cmd, current->argv, current->argc, 
                              commands[i].name, DEFAULT_PRIORITY);
 
-                    if (dev_null != -1) {
+                    block(pid);
+
+                  if (pipe_id != -1) {
                         // The background process reads from the closed pipe
-                        open_pipe(dev_null, READ_MODE);
+                       open_pipe(pid, pipe_id, WRITE_MODE);
+                        open_pipe(pid, pipe_id, READ_MODE);
+                        // Redirect stdin to /dev/null
+                    
+                       change_process_fd(pid, STDIN, pipe_id);
+                       change_process_fd(pid, STDOUT, pipe_id);
+                       change_process_fd(pid, STDERR, pipe_id);
+
+                        printf("pid: %d\n", pid);
                     }
+                    
+                     unblock(pid);
+                    // sleep(1000);
+
+                    // if (dev_null != -1) {
+                    //     // The background process reads from the closed pipe
+                    //     open_pipe(dev_null, READ_MODE);
+                    // }
                     
                     printf("[%d] Running in background\n", pid);
                 } else {
@@ -192,6 +213,8 @@ static int execute_command(parsed_input_t *parsed) {
         printf("SUShell: '%s' command not found", current->cmd);
         return 0;
     }
+
+    return 0;
     
     // Handle piped commands
     uint16_t pipes[MAX_CMDS - 1];
@@ -223,12 +246,12 @@ static int execute_command(parsed_input_t *parsed) {
                 // Configure pipes after executing
                 if (i < parsed->cmd_count - 1) {
                     // Set up write end for current process
-                    open_pipe(pipes[i], WRITE_MODE);
+                    open_pipe(pids[i], pipes[i], WRITE_MODE);
                 }
                 
                 if (i > 0) {
                     // Set up read end for current process
-                    open_pipe(pipes[i-1], READ_MODE);
+                    open_pipe(pids[i], pipes[i-1], READ_MODE);
                 }
 
                 break;
@@ -243,7 +266,7 @@ static int execute_command(parsed_input_t *parsed) {
         // For background pipe chains, ensure first process has null stdin
         uint16_t null_pipe = create_pipe();
         if (null_pipe != -1) {
-            open_pipe(null_pipe, READ_MODE);
+            open_pipe(pids[0], null_pipe, READ_MODE);
             printf("[%d] Pipe chain running in background\n", pids[0]);
         }
     }

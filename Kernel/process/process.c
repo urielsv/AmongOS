@@ -132,14 +132,6 @@ process_snapshot_t *get_process_snapshot(uint32_t pid)
     return process_snapshot;
 }
 
-//Simulating dup2().
-uint16_t change_process_fd(uint32_t pid, uint16_t fd_index, uint16_t new_fd){
-    process_t* process = get_process_by_pid(pid);
-    if (process == NULL){
-        return -1;
-    }
-    process->fds[fd_index] = new_fd;
-    return 0;
-}
+
 
 

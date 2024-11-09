@@ -150,7 +150,7 @@ extern void waitpid(uint32_t pid);
 extern uint8_t process_exists(uint32_t pid);
 extern process_snapshot_t *process_snapshot(uint32_t pid);
 extern uint16_t create_pipe();
-extern uint16_t  open_pipe(uint16_t pipe_id, uint8_t mode);
+extern uint16_t  open_pipe(uint16_t pid, uint16_t pipe_id, uint8_t mode);
 extern uint16_t  close_pipe(uint16_t pipe_id);
 extern uint16_t change_process_fd(uint32_t pid, uint16_t fd_index, uint16_t new_fd);
 
