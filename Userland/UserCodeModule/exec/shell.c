@@ -6,6 +6,7 @@
 #include <syscalls.h>
 #include <definitions.h>
 #include <tests.h>
+#include <philosophers.h>
 
 #define MAX_BUFFER_SIZE 1024
 
@@ -35,6 +36,7 @@ command_t commands[] = {
     {"nice", "Change the scheduling priority of a process <pid> to <priority>.", (Function) nice},
     {"ps", "List all processes", (Function) ps},
     {"infinite_loop", "Starts an infinite loop", (Function) infinite_loop_proc},
+    {"philos", "start the classic philosophers dilema", (Function) philos_proc},
 };
 
 
@@ -461,4 +463,9 @@ int test_synchro_proc(uint64_t argc, char *argv[])
 {
     test_sync(argc, argv); //{n, use_sem, 0}
     return 0;
+}
+
+int philos_proc(int argc, char *argv[])
+{
+    return run_philosophers(argc, argv);
 }
