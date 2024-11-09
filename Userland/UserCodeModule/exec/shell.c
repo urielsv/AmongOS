@@ -40,7 +40,7 @@ command_t commands[] = {
     {"nice", "Change the scheduling priority of a process <pid> to <priority>.", (Function) nice},
     {"ps", "List all processes", (Function) ps},
     {"infinite_loop", "Starts an infinite loop", (Function) infinite_loop_proc},
-    {"philos", "start the classic philosophers dilema", (Function) philos_proc},
+    {"philos", "start the classic philosophers dilemma", (Function) philos_proc},
     {"cat", "Imprime el stdin tal como lo recibe", (Function) cat},
     {"wc", "Cuenta la cantidad de lineas del stdin", (Function) wc}
 };

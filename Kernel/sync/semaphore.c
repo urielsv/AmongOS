@@ -37,7 +37,6 @@ int32_t sem_open(int64_t id, int64_t initial_value) {
             semaphores[id]->value = initial_value;
             semaphores[id]->mutex = 1;  
             semaphores[id]->waiting_list = createQueue();
-            ker_write("creado semaforo con exito\n");
             return 0;
         }
     return -1;
