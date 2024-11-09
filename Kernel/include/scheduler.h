@@ -25,5 +25,7 @@ uint32_t get_current_pid();
 process_t * get_current_process();
 void waitpid(uint32_t child_pid);
 process_t *get_process_by_pid(uint32_t pid);
+int16_t get_current_process_file_descriptor(uint8_t fd_index);
+uint16_t change_process_fd(uint32_t pid, uint16_t fd_index, int16_t new_fd);
 
 #endif // SCHEDULER_H

@@ -12,7 +12,11 @@
 
 static void infinite_loop_proc(char *argv[], int argc) {
     while (1)
-        printf("Infinite loop\n");
+    {
+        //para cumplir con la consigna
+        sleep(3000);
+        printf("Infinite loop from pid: %d\n", get_pid());
+    }
 }
 
 command_t commands[] = {
@@ -37,6 +41,8 @@ command_t commands[] = {
     {"ps", "List all processes", (Function) ps},
     {"infinite_loop", "Starts an infinite loop", (Function) infinite_loop_proc},
     {"philos", "start the classic philosophers dilema", (Function) philos_proc},
+    {"cat", "Imprime el stdin tal como lo recibe", (Function) cat},
+    {"wc", "Cuenta la cantidad de lineas del stdin", (Function) wc}
 };
 
 
@@ -168,19 +174,18 @@ static int execute_command(parsed_input_t *parsed) {
                 int pid;
                 
                 if (parsed->is_bg) {
-                    // Create a pipe for redirecting background process stdin
-                    uint16_t dev_null = create_pipe();
-                    close_pipe(dev_null);
-
                     // Execute the process
                     pid = exec((void *)commands[i].cmd, current->argv, current->argc, 
                              commands[i].name, DEFAULT_PRIORITY);
 
-                    if (dev_null != -1) {
-                        // The background process reads from the closed pipe
-                        open_pipe(dev_null, READ_MODE);
-                    }
+                    block(pid);
+
+                      // change_process_fd(pid, STDIN, DEV_NULL);
+                       change_process_fd(pid, STDOUT, DEV_NULL);
+                     //  change_process_fd(pid, STDERR, DEV_NULL);
                     
+                    unblock(pid);
+   
                     printf("[%d] Running in background\n", pid);
                 } else {
                     // Normal foreground execution
@@ -194,48 +199,64 @@ static int execute_command(parsed_input_t *parsed) {
         printf("SUShell: '%s' command not found", current->cmd);
         return 0;
     }
-    
+
     // Handle piped commands
-    uint16_t pipes[MAX_CMDS - 1];
+    ///uint16_t pipes[MAX_CMDS - 1];
     
     // Create all needed pipes first
-    for (int i = 0; i < parsed->cmd_count - 1; i++) {
-        pipes[i] = create_pipe();
-        if (pipes[i] == -1) {
-            for (int j = 0; j < i; j++) {
-                close_pipe(pipes[j]);
-            }
-            printf("Error creating pipes\n");
-            return -1;
-        }
-    }
+    // for (int i = 0; i < parsed->cmd_count - 1; i++) {
+    //     pipes[i] = create_pipe();
+    //     if (pipes[i] == -1) {
+    //         for (int j = 0; j < i; j++) {
+    //             close_pipe(pipes[j]);
+    //         }
+    //         printf("Error creating pipes\n");
+    //         return -1;
+    //    }
+    
+    uint16_t pipe_id = create_pipe();
+    printf("pipe_id: %d\n", pipe_id);
 
     int pids[MAX_CMDS] = {0};
     
     // Execute all commands in the pipe chain
     for (int i = 0; i < parsed->cmd_count; i++) {
         command_input_t *current = &parsed->cmds[i];
-        
+        int found = 0;
         for (int j = 0; j < sizeof(commands) / sizeof(command_t); j++) {
             if (strcmp(commands[j].name, current->cmd) == 0) {
                 // Execute the command first
                 pids[i] = exec((void *)commands[j].cmd, current->argv, current->argc, 
                              commands[j].name, DEFAULT_PRIORITY);
-                
+                block(pids[i]);
                 // Configure pipes after executing
-                if (i < parsed->cmd_count - 1) {
+                //if (i < parsed->cmd_count - 1) {
+                if (i == 0 ){
                     // Set up write end for current process
-                    open_pipe(pipes[i], WRITE_MODE);
+                    open_pipe(pids[i], pipe_id, READ_MODE);
+                    change_process_fd(pids[i], STDOUT, pipe_id);
                 }
                 
-                if (i > 0) {
+               // if (i > 0) {
+               if (i ==1){
                     // Set up read end for current process
-                    open_pipe(pipes[i-1], READ_MODE);
+                    open_pipe(pids[i], pipe_id, WRITE_MODE);
+                    change_process_fd(pids[i], STDIN, pipe_id);
                 }
 
+               // unblock(pids[i]);
+                found = 1;
                 break;
             }
         }
+        if (!found) {
+            printf("SUShell: '%s' command not found", current->cmd);
+            return 0;
+        }
+    }
+
+    for (int i = 0; i < parsed->cmd_count; i++) {
+        unblock(pids[i]);
     }
     
     // For pipe chains, only wait for the last process if not in background
@@ -245,15 +266,17 @@ static int execute_command(parsed_input_t *parsed) {
         // For background pipe chains, ensure first process has null stdin
         uint16_t null_pipe = create_pipe();
         if (null_pipe != -1) {
-            open_pipe(null_pipe, READ_MODE);
+            open_pipe(pids[0], null_pipe, READ_MODE);
             printf("[%d] Pipe chain running in background\n", pids[0]);
         }
     }
 
     // Clean up pipes
-    for (int i = 0; i < parsed->cmd_count - 1; i++) {
-        close_pipe(pipes[i]);
-    }
+    // for (int i = 0; i < parsed->cmd_count - 1; i++) {
+    //     close_pipe(pipes[i]);
+    // }
+
+    close_pipe(pipe_id);
     
     return 0;
 }
@@ -468,4 +491,23 @@ int test_synchro_proc(uint64_t argc, char *argv[])
 int philos_proc(int argc, char *argv[])
 {
     return run_philosophers(argc, argv);
+}
+
+// no funciona
+int cat(int argc, char *argv[]) {
+	char c;
+	while ((c = getchar()) != EOF){ //solo cuando !='\n' o !=NULL parece leer el EOF
+		putchar(c);
+	} 
+
+	return 0;
+}
+
+int wc(int argc, char *argv[]) {
+	char c;
+	int line_counter = 0;
+	while ((int) (c = getchar()) != EOF)
+		line_counter += (c == '\n');
+	printf("La cantidad de lineas es: %d\n", line_counter);
+	return 0;
 }

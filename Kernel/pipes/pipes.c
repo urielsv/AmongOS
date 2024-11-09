@@ -3,6 +3,7 @@
 #include <io.h>
 #include <scheduler.h>
 #include <definitions.h>
+#include <lib.h>
 
 typedef struct pipe_t
 {
@@ -34,11 +35,17 @@ static void free_pipe(uint16_t pipe_id);
 pipe_manager_adt init_pipe_manager() {
 
     pipe_manager_adt pipe_manager = (pipe_manager_adt) PIPE_MANAGER_ADDRESS;
-    for (uint16_t i = 0; i < MAX_PIPES; i++){
+    for (uint16_t i = BUILTIN_FDS; i < MAX_PIPES; i++){
         pipe_manager->pipes[i] = NULL;
     }
-    pipe_manager->next_pipe_id = 0;
-    pipe_manager->pipe_count = 0;
+
+    //salteo los primero 3 casos, no lo inicilizo en null para que no lo tome como next_pipe_id
+    pipe_manager->pipes[STDIN] = (pipe_t *) mem_alloc(sizeof(pipe_t));
+    pipe_manager->pipes[STDOUT] = (pipe_t *) mem_alloc(sizeof(pipe_t));
+    pipe_manager->pipes[STDERR] = (pipe_t *) mem_alloc(sizeof(pipe_t));
+
+    pipe_manager->next_pipe_id = BUILTIN_FDS;
+    pipe_manager->pipe_count = BUILTIN_FDS;
     return pipe_manager;
 
 }
@@ -82,7 +89,7 @@ static pipe_t * get_pipe(uint16_t pipe_id){
 
     pipe_manager_adt pipe_manager = get_pipe_manager();
     pipe_t * pipe = pipe_manager->pipes[pipe_id];
-    if (pipe == NULL){
+    if (pipe == NULL || pipe_id < BUILTIN_FDS){
         ker_write("Pipe not found\n");
         return NULL;
     }
@@ -90,7 +97,7 @@ static pipe_t * get_pipe(uint16_t pipe_id){
 
 }
 
-uint16_t open_pipe(uint16_t pipe_id, uint8_t mode){
+uint16_t open_pipe(uint16_t pid, uint16_t pipe_id, uint8_t mode){
 
     pipe_t * pipe = get_pipe(pipe_id);
     if (pipe == NULL){
@@ -99,17 +106,16 @@ uint16_t open_pipe(uint16_t pipe_id, uint8_t mode){
     }
     pipe->opened = OPENED;
     if (mode == READ_MODE && pipe->input_pid == -1){
-        pipe->input_pid = get_current_pid();
+        pipe->input_pid = pid;
     }
     else if (mode == WRITE_MODE && pipe->output_pid == -1){
-        pipe->output_pid = get_current_pid();
+        pipe->output_pid = pid;
     }
     return 0;
 
 }
 
 uint16_t close_pipe(uint16_t pipe_id){
-
 
     pipe_t * pipe = get_pipe(pipe_id);
     if (pipe == NULL){
@@ -143,20 +149,24 @@ static void free_pipe(uint16_t pipe_id){
 
 }
 
-uint16_t write_pipe(uint16_t pid, uint16_t pipe_id, char * data, uint16_t size){
+uint16_t write_pipe(uint16_t pid, uint16_t pipe_id, const char * data, uint16_t size){
 
     pipe_t * pipe = get_pipe(pipe_id);
 
     if (size == 0 || data == NULL || pipe==NULL|| pipe->input_pid != pid){
         return -1;
     }
+
+    ker_write("writingggg pipesssss output pid ");
+    print_number(pipe->output_pid);
+    ker_write("\n");
     
    uint64_t written_bytes = 0;
 	while (written_bytes < size && (int) pipe->buffer[buffer_position(pipe)] != EOF) {
 		if (pipe->buffer_count >= PIPE_BUFFER_SIZE) {
 			pipe->opened = CLOSED;
-			block_process((uint16_t) pipe->input_pid);
-			yield();
+			block_process(pipe->input_pid);
+			// yield();
 		}
 
 		while (pipe->buffer_count < PIPE_BUFFER_SIZE && written_bytes < size) {
@@ -183,14 +193,18 @@ uint16_t read_pipe(uint16_t pid, uint16_t pipe_id, char * data, uint16_t size){
     if ( size == 0 || data == NULL || pipe==NULL|| pipe->output_pid != pid){
         return -1;
     }
+    ker_write("readingggg pipesssss input pid ");
+    print_number(pipe->input_pid);
+    ker_write("\n");
+
 
     uint8_t eof_read = 0;
 	uint64_t read_bytes = 0;
 	while (read_bytes < size && !eof_read) {
 		if (pipe->buffer_count == 0 && (int) pipe->buffer[pipe->start_position] != EOF) {
 			pipe->opened = CLOSED;
-			block_process((uint16_t) pipe->output_pid);
-			yield();
+			block_process(pipe->output_pid);
+			// yield(); //ya se hace yield en block process
 		}
 		while ((pipe->buffer_count > 0 || (int) pipe->buffer[pipe->start_position] == EOF) && read_bytes < size) {
 			data[read_bytes] = pipe->buffer[pipe->start_position];
@@ -202,7 +216,7 @@ uint16_t read_pipe(uint16_t pid, uint16_t pipe_id, char * data, uint16_t size){
 			pipe->start_position = (pipe->start_position + 1) % PIPE_BUFFER_SIZE;
 		}
 		if (pipe->opened == CLOSED) {
-			unblock_process((uint16_t) pipe->input_pid);
+			unblock_process(pipe->input_pid);
 			pipe->opened = OPENED;
 		}
 	}

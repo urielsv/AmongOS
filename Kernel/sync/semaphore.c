@@ -107,7 +107,6 @@ void sem_post(int64_t id) {
     
 
     unlock_semaphore(sem);
-    yield();
 
 }
 

@@ -45,14 +45,14 @@ void init_process(process_t* process, int32_t pid, Function code,
     process->fds[1] = STDOUT;
     process->fds[2] = STDERR;
 
-    if (process->parent_pid > 0) {
-        process_t* parent = get_process_by_pid(process->parent_pid);
-        if (parent != NULL) {
-            if (parent->fds[0] != STDIN) process->fds[0] = parent->fds[0];
-            if (parent->fds[1] != STDOUT) process->fds[1] = parent->fds[1];
-            if (parent->fds[2] != STDERR) process->fds[2] = parent->fds[2];
-        }
-    }
+    // if (process->parent_pid > 0) {
+    //     process_t* parent = get_process_by_pid(process->parent_pid);
+    //     if (parent != NULL) {
+    //         if (parent->fds[0] != STDIN) process->fds[0] = parent->fds[0];
+    //         if (parent->fds[1] != STDOUT) process->fds[1] = parent->fds[1];
+    //         if (parent->fds[2] != STDERR) process->fds[2] = parent->fds[2];
+    //     }
+    // }
 }
 
 static char **alloc_args(char **args, uint64_t argc)
@@ -131,3 +131,7 @@ process_snapshot_t *get_process_snapshot(uint32_t pid)
     memcpy(process_snapshot->name, process->name, strlen(process->name) + 1);
     return process_snapshot;
 }
+
+
+
+
