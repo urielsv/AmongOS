@@ -167,7 +167,7 @@ static int execute_command(parsed_input_t *parsed) {
                 
                 if (parsed->is_bg) {
                     // Create a pipe for redirecting background process stdin
-                    uint16_t pipe_id = create_pipe();
+                 //   uint16_t pipe_id = create_pipe();
                    // printf("pipe_id: %d\n", pipe_id);
 
                     //close_pipe(dev_null);
@@ -178,10 +178,10 @@ static int execute_command(parsed_input_t *parsed) {
 
                     block(pid);
 
-                  if (pipe_id != -1) {
+                //  if (pipe_id != -1) {
                         // The background process reads from the closed pipe
-                       open_pipe(pid, pipe_id, WRITE_MODE);
-                        open_pipe(pid, pipe_id, READ_MODE);
+                   //    open_pipe(pid, pipe_id, WRITE_MODE);
+                   //     open_pipe(pid, pipe_id, READ_MODE);
                         // Redirect stdin to /dev/null
                     
                     //    change_process_fd(pid, STDIN, pipe_id);
@@ -193,7 +193,7 @@ static int execute_command(parsed_input_t *parsed) {
                        change_process_fd(pid, STDERR, DEV_NULL);
 
                         printf("pid: %d\n", pid);
-                    }
+                  //  }
                     
                      unblock(pid);
                     // sleep(1000);
