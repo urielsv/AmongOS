@@ -12,7 +12,6 @@
 static void infinite_loop_proc(char *argv[], int argc) {
     while (1)
         printf("Infinite loop\n");
-       //write(DEV_NULL, "Infinite loop\n", 14, COLOR_RED, COLOR_BLACK);
 }
 
 command_t commands[] = {
@@ -185,9 +184,13 @@ static int execute_command(parsed_input_t *parsed) {
                         open_pipe(pid, pipe_id, READ_MODE);
                         // Redirect stdin to /dev/null
                     
-                       change_process_fd(pid, STDIN, pipe_id);
-                       change_process_fd(pid, STDOUT, pipe_id);
-                       change_process_fd(pid, STDERR, pipe_id);
+                    //    change_process_fd(pid, STDIN, pipe_id);
+                    //    change_process_fd(pid, STDOUT, pipe_id);
+                    //    change_process_fd(pid, STDERR, pipe_id);
+
+                       change_process_fd(pid, STDIN, DEV_NULL);
+                       change_process_fd(pid, STDOUT, DEV_NULL);
+                       change_process_fd(pid, STDERR, DEV_NULL);
 
                         printf("pid: %d\n", pid);
                     }

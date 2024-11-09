@@ -348,7 +348,7 @@ int16_t get_current_process_file_descriptor(uint8_t fd_index) {
 }
 
 //Simulating dup2().
-uint16_t change_process_fd(uint32_t pid, uint16_t fd_index, uint16_t new_fd){
+uint16_t change_process_fd(uint32_t pid, uint16_t fd_index, int16_t new_fd){
     scheduler_adt scheduler = getSchedulerADT();
     process_t* process = (process_t *) scheduler->processes[pid]->process;
     ker_write("changing fd\n");

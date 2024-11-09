@@ -84,7 +84,7 @@ uint64_t sys_write(uint8_t fd, const char *buffer, uint64_t count, uint64_t fgco
     //print_number(fd);
 
     int16_t current_fd = get_current_process_file_descriptor(fd);
-    print_number(current_fd);
+    //print_number(current_fd);
 
     if (current_fd == DEV_NULL){
         return 0;
@@ -103,7 +103,7 @@ uint64_t sys_write(uint8_t fd, const char *buffer, uint64_t count, uint64_t fgco
     else {
         //notar que fd es el mismo que pipe_id
         if (current_fd >= BUILTIN_FDS){
-            write_pipe(get_current_pid(), current_fd, buffer, count);
+            return write_pipe(get_current_pid(), current_fd, buffer, count);
         }
     }
 
@@ -123,7 +123,7 @@ char *sys_read(uint8_t fd, char *buffer, uint64_t count) {
 		return 0;
     }
     else if (current_fd <DEV_NULL){
-        return NULL;
+        return 0;
     }
 
     if (current_fd >= BUILTIN_FDS){
@@ -314,6 +314,6 @@ process_snapshot_t *sys_process_snapshot(uint32_t pid) {
     return get_process_snapshot(pid);
 }
 
-uint16_t sys_change_process_fd(uint32_t pid, uint16_t fd_index, uint16_t new_fd) {
+uint16_t sys_change_process_fd(uint32_t pid, uint16_t fd_index, int16_t new_fd) {
     return change_process_fd(pid, fd_index, new_fd);
 }
