@@ -276,7 +276,7 @@ int kill_process(uint32_t pid) {
         if (scheduler->processes[i] != NULL) {
             process_t *process = (process_t *)scheduler->processes[i]->process;
             if (process->parent_pid == pid) {
-                kill_process(process->pid);
+                block_process(process->pid);
             }
         }
     }
@@ -318,7 +318,7 @@ int block_process(uint64_t pid) {
     addNode(scheduler->blocked_process_list, process_to_block);
     removeAllNodes(scheduler->process_list, process_to_block);
      
-    yield();
+    //yield();
     return 0;
 }
 
