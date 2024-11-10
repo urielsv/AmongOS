@@ -30,7 +30,8 @@ uint64_t ker_write_color(const char *str, uint64_t fgcolor, uint64_t bgcolor) {
     int i = 0;
   //  uint64_t tempx, tempy;
     while (str[i]) {
-        putchar_color_k(str[i++], fgcolor, bgcolor);
+        putchar_color_k(str[i], fgcolor, bgcolor);
+        i++;
     }
     return i;
 }
@@ -48,7 +49,8 @@ void putchar_color_k(char c, uint64_t fgcolor, uint64_t bgcolor) {
            put_char_at(' ', &x, &y, fgcolor, bgcolor);
         break;
     default:
-        put_char_at(c, &x, &y, fgcolor, bgcolor);
+        if (c >= 0x20 && c <= 0x7F)
+            put_char_at(c, &x, &y, fgcolor, bgcolor);
         break;
     }
 }

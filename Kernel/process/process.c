@@ -45,15 +45,9 @@ void init_process(process_t* process, int32_t pid, Function code,
     process->fds[1] = STDOUT;
     process->fds[2] = STDERR;
 
-    // if (process->parent_pid > 0) {
-    //     process_t* parent = get_process_by_pid(process->parent_pid);
-    //     if (parent != NULL) {
-    //         if (parent->fds[0] != STDIN) process->fds[0] = parent->fds[0];
-    //         if (parent->fds[1] != STDOUT) process->fds[1] = parent->fds[1];
-    //         if (parent->fds[2] != STDERR) process->fds[2] = parent->fds[2];
-    //     }
-    // }
 }
+
+
 
 static char **alloc_args(char **args, uint64_t argc)
 {
@@ -87,31 +81,30 @@ void free_process(process_t* process) {
     
     mem_free(process->stack_base);
     
-    if (process->parent_pid != -1) {
-        process_t* parent = get_process_by_pid(process->parent_pid);
-        if (parent != NULL) {
-            remove_child_process(parent, process->pid);
+    // if (process->parent_pid != -1) {
+    //     process_t* parent = get_process_by_pid(process->parent_pid);
+    //     if (parent != NULL) {
+    //         remove_child_process(parent, process->pid);
+    //     }
+    // }
+
+    if (process->children != NULL && process->parent_pid != 0) {
+        start_iterator(process->children);
+        while (has_next(process->children)) {
+            process_t* child = (process_t*)get_next(process->children);
+            child->parent_pid = 0;
         }
     }
     
-    // Free children list
+ 
     destroyLinkedList(process->children);
     
-    // Finally free the process struct itself
+  
     mem_free(process);
 }
 
 void remove_child_process(process_t* parent, int32_t child_pid) {
-    node_t* current = getFirstNode(parent->children);
-    while (current != NULL) {
-        int32_t* current_pid = (int32_t*)current->process;
-        if (*current_pid == child_pid) {
-            removeNode(parent->children, current_pid);
-            mem_free(current_pid);
-            break;
-        }
-        current = current->next;
-    }
+   
 }
 
 process_snapshot_t *get_process_snapshot(uint32_t pid)

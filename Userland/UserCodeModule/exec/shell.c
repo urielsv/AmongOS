@@ -11,8 +11,7 @@
 #define MAX_BUFFER_SIZE 1024
 
 static void infinite_loop_proc(char *argv[], int argc) {
-    while (1)
-    {
+    while (1) {
         //para cumplir con la consigna
         sleep(3000);
         printf("Infinite loop from pid: %d\n", get_pid());
@@ -52,8 +51,7 @@ static int validate_pid(char *pid_str);
 static void print_header();
 static void print_ps1(char *user, char *pwd);
 
-void shell()
-{
+void shell() {
 
     print_header();
     print_ps1("user", "~");
@@ -69,6 +67,7 @@ void shell()
         print_ps1("user", "~");
    }
 }
+
 
 
 static void parse_buffer(char *buff, parsed_input_t *parsed) {
@@ -185,7 +184,7 @@ static int execute_command(parsed_input_t *parsed) {
                      //  change_process_fd(pid, STDERR, DEV_NULL);
                     
                     unblock(pid);
-   
+                    yield();
                     printf("[%d] Running in background\n", pid);
                 } else {
                     // Normal foreground execution

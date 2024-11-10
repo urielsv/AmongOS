@@ -77,9 +77,9 @@ uint64_t syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r
 }
 
 uint64_t sys_write(uint8_t fd, const char *buffer, uint64_t count, uint64_t fgcolor, uint64_t bgcolor) {
-    // if (buffer == NULL ) {
-    //     return 0;
-    // }
+    if (buffer == NULL ) {
+        return 0;
+    }
     //Si esto anda, refactor con un case. 
     //print_number(fd);
 

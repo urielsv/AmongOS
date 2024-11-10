@@ -126,7 +126,6 @@ static int add_philo(int idx){
     char *argv[] = {philo_idx_buff, NULL};
     
     philosophers[idx].philo_pid = exec((void *)philosopher, argv, 1, "philosopher", 1);
-    printf("PID: %d\n", philosophers[idx].philo_pid);
     if(philosophers[idx].philo_pid != -1)
             philosophers_count++;
     
@@ -192,7 +191,7 @@ static void test(int i){
 
 static void print_state(){
     for(int i = 0; i < philosophers_count; i++){
-        printf("%s ", philosophers[i].state == EATING ? "E" : ".");
+        printf("%s ", philosophers[i].state == EATING ? "E" : "."); 
     }
     printf("\n");
 }
