@@ -184,13 +184,12 @@ void b_destroy(buddy_allocator_adt* allocator) {
 
 // Allocation implementation
 void* b_alloc(size_t size) {
-
     buddy_allocator_adt* allocator = b_get_allocator();
     if (size == 0) {
         return NULL;
     }
 
-    // add the struc 
+    // Añadir el tamaño de la estructura de bloque
     size += sizeof(block_node_t);
 
     if (size < MIN_ALLOC_SIZE) {
@@ -199,16 +198,12 @@ void* b_alloc(size_t size) {
 
     uint8_t order = size_to_order(size);
 
-   
-    if (order > MAX_ORDER) {
-        ker_write("Requested size is too large\n");
-        return NULL;
-    }
-
-    // Find a good usable block
-    uint8_t current_order = order;
-    while (current_order <= MAX_ORDER && !allocator->free_lists[current_order]) {
-        current_order++;
+    // Buscar un bloque utilizable
+    uint8_t current_order;
+    for (current_order = order; current_order <= MAX_ORDER; current_order++) {
+        if (allocator->free_lists[current_order]) {
+            break;
+        }
     }
 
     if (current_order > MAX_ORDER) {
@@ -228,6 +223,7 @@ void* b_alloc(size_t size) {
     
     return (void*)((uint8_t*)block + sizeof(block_node_t));
 }
+
 
 // Free implementation
 void b_free(void* addr) {
