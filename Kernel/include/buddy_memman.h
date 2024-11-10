@@ -7,7 +7,7 @@
 
 
 // Forward declaration of the buddy allocator structure
-typedef struct buddy_allocator_cdt buddy_allocator_adt;
+typedef struct buddy_allocator_cdt * buddy_allocator_adt;
 
 // Constructor - Creates a new buddy allocator
 void  b_init(void* start_addr, uint64_t total_size);
