@@ -35,4 +35,6 @@ bool containsPID(queuePIDADT queue, int64_t pid);
 // Frees all memory associated with the queue
 void destroyQueue(queuePIDADT queue);
 
+void dequeue_pid(queuePIDADT queue, int64_t pid);
+
 #endif // QUEUE_PID_H

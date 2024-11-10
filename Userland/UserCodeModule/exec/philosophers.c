@@ -56,7 +56,7 @@ static void kill_philos();
 
 
 int run_philosophers(int argc, char* argv[]){
-    
+     philosophers_count = 0;
     if(sem_open(SEM_ID, 1) < 0){
         printf("Error opening semaphore\n");
         return -1;
@@ -142,7 +142,6 @@ static int remove_philo(int idx){
         sem_wait(SEM_ID);
     }
     kill(philosophers[idx].philo_pid);
-    waitpid(philosophers[idx].philo_pid);
     sem_close(philo_sem(idx));
     philosophers[idx].philo_pid = -1;
     philosophers[idx].state = NONE;

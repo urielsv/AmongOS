@@ -95,3 +95,30 @@ void destroyQueue(queuePIDADT queue) {
     clearQueue(queue);
     mem_free(queue);
 }
+
+void dequeue_pid(queuePIDADT queue, int64_t pid) {
+    if (queue->front == NULL) {
+        return;
+    }
+    
+    node_pid_t* current = queue->front;
+    node_pid_t* prev = NULL;
+    
+    while (current != NULL) {
+        if (current->pid == pid) {
+            if (prev == NULL) {
+                queue->front = current->next;
+            } else {
+                prev->next = current->next;
+            }
+            if (queue->rear == current) {
+                queue->rear = prev;
+            }
+            mem_free(current);
+            queue->size--;
+            return;
+        }
+        prev = current;
+        current = current->next;
+    }
+}

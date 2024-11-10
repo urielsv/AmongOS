@@ -7,6 +7,7 @@
 #include <math.h>
 #include <IdtLoader.h>
 #include <lib.h>
+#include <semaphore.h>
 
 #define IDLE_PID 0
 #define DEFAULT_QUANTUM 5
@@ -137,6 +138,7 @@ static void add_children(process_t* parent, process_t* child) {
     addNode(parent->children, (void *)child);
 }
 
+
 // Crear un nuevo proceso
 int32_t create_process(Function code, char **args, int argc, char *name, uint8_t priority, uint8_t unkilliable) {
 
@@ -156,10 +158,7 @@ int32_t create_process(Function code, char **args, int argc, char *name, uint8_t
 
     init_process(process, scheduler->next_unused_pid, code, args, argc, name, priority, unkilliable); 
 
-    if (process->parent_pid  != IDLE_PID) {
-        process_t *parent = get_process_by_pid(process->parent_pid);
-        add_children(parent, process);
-    }
+
    
     node_t *process_node = mem_alloc(sizeof(node_t));
     if (process_node == NULL) {
@@ -259,6 +258,8 @@ int kill_process(uint32_t pid) {
         return -1;
     }
 
+    remove_from_all_semaphores(pid);
+
 
     if (process_to_kill->state == BLOCKED) {
         removeAllNodes(scheduler->blocked_process_list, (void *)process_to_kill);
@@ -271,16 +272,24 @@ int kill_process(uint32_t pid) {
         remove_children(parent->children, process_to_kill);
     }
     
+        for (int i = 0; i < MAX_PROCESSES; i++) {
+        if (scheduler->processes[i] != NULL) {
+            process_t *process = (process_t *)scheduler->processes[i]->process;
+            if (process->parent_pid == pid) {
+                kill_process(process->pid);
+            }
+        }
+    }
+
     scheduler->processes[pid]->process = NULL;
     scheduler->next_unused_pid = pid;
     
+
 
     free_process(process_to_kill);
     scheduler->remaining_processes--;
     process_to_kill->state = KILLED;
 
-    
-    
     yield();
     return 0;
 }

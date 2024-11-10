@@ -81,12 +81,6 @@ void free_process(process_t* process) {
     
     mem_free(process->stack_base);
     
-    // if (process->parent_pid != -1) {
-    //     process_t* parent = get_process_by_pid(process->parent_pid);
-    //     if (parent != NULL) {
-    //         remove_child_process(parent, process->pid);
-    //     }
-    // }
 
     if (process->children != NULL && process->parent_pid != 0) {
         start_iterator(process->children);

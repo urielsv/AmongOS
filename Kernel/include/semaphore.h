@@ -20,6 +20,7 @@ void sem_close(int64_t id);
 void sem_wait(int64_t id);
 void sem_post(int64_t id);
 void sem_cleanup_process(int64_t pid);
+void remove_from_all_semaphores(uint32_t pid);
 
 extern void acquire(int8_t *lock);
 extern void release(int8_t *lock);

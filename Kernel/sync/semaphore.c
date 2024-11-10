@@ -138,3 +138,11 @@ void sem_cleanup_process(int64_t pid) {
         }
     }
 }
+
+void remove_from_all_semaphores(uint32_t pid){
+    for(int i = 0; i < MAX_SEMAPHORES; i++){
+        if(semaphores[i] != NULL){
+            dequeue_pid(semaphores[i]->waiting_list, pid);
+        }
+    }
+}
