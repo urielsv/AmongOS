@@ -225,25 +225,10 @@ static void try_merge(buddy_allocator_adt allocator, block_node_t* block) {
         block->order++;
     }
 
-    // Add merged block to free list
     block->next = allocator->free_lists[block->order];
     allocator->free_lists[block->order] = block;
 }
 
-
-
-
-// Destructor implementation
-void b_destroy(buddy_allocator_adt allocator) {
-    // In a bare metal OS, we might not need to do anything here
-    // since we're managing physical memory directly
-    (void)allocator;
-}
-
-
-
-
-// Free implementation
 void b_free(void* addr) {
 
     buddy_allocator_adt allocator = b_get_allocator();
