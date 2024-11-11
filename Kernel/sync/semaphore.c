@@ -75,7 +75,7 @@ void sem_wait(int64_t id) {
         
         unlock_semaphore(sem);
         block_process(current_pid);
-        yield();
+        
         lock_semaphore(sem);
     }
 
@@ -102,13 +102,13 @@ void sem_post(int64_t id) {
         if (waiting_pid != -1) {
             dequeue(sem->waiting_list); 
             unblock_process(waiting_pid);
-            yield();
+            
         }
     }
     
 
     unlock_semaphore(sem);
-    yield();
+    
 
 }
 
