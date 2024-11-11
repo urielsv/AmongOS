@@ -94,7 +94,7 @@ bool containsPID(queuePIDADT queue, int64_t pid) {
 
 void destroyQueue(queuePIDADT queue) {
     clearQueue(queue);
-    mem_free(queue);
+    b_free(queue);
 }
 
 void dequeue_pid(queuePIDADT queue, int64_t pid) {
@@ -115,7 +115,7 @@ void dequeue_pid(queuePIDADT queue, int64_t pid) {
             if (queue->rear == current) {
                 queue->rear = prev;
             }
-            mem_free(current);
+            b_free(current);
             queue->size--;
             return;
         }

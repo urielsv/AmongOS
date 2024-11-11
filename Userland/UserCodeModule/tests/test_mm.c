@@ -56,7 +56,7 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
      uint32_t i;
     for (i = 0; i < rq; i++){
       if (mm_rqs[i].address) {
-        memset(mm_rqs[i].address, i, mm_rqs[i].size);
+        memset(mm_rqs[i].address, 2, mm_rqs[i].size);
         printf("s!    ");
       }
       else printf("invalid address");  
@@ -66,7 +66,7 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
     //Check
     for (i = 0; i < rq; i++)
       if (mm_rqs[i].address) {
-        if (!memcheck(mm_rqs[i].address, i, mm_rqs[i].size)) {
+        if (!memcheck(mm_rqs[i].address, 2, mm_rqs[i].size)) {
           printf("test_mm ERROR\n");
           return -1;
         } 

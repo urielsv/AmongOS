@@ -1,5 +1,3 @@
-// This is a personal academic project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <shell.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -167,7 +165,8 @@ static int execute_command(parsed_input_t *parsed) {
                     pid = exec((void *)commands[i].cmd, current->argv, current->argc, 
                              commands[i].name, DEFAULT_PRIORITY);
 
-                    block(pid);
+                    printf("[%d] Running in background\n", pid);
+                    // block(pid);
 
                     change_process_fd(pid, STDIN, DEV_NULL);
                     change_process_fd(pid, STDOUT, DEV_NULL);
@@ -179,6 +178,7 @@ static int execute_command(parsed_input_t *parsed) {
                 } else {
                     pid = exec((void *)commands[i].cmd, current->argv, current->argc, 
                              commands[i].name, DEFAULT_PRIORITY);
+                    printf("[%d] Running in foreground\n", pid);
                     waitpid(pid);
                 }
                 return 0;

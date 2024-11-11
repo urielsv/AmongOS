@@ -6,7 +6,6 @@
 #define SCHEDULER_ADDRESS 0x600000
 #define MAX_PRIORITY 5
 #define EOF (-1)
-#define NULL ((void *)0)
 #define BUILTIN_FDS 3
 #define DEV_NULL -1
 
