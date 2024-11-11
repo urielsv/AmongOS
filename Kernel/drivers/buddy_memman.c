@@ -4,27 +4,112 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <io.h>
+#include <lib.h>
 
 #define MIN_BLOCK_ORDER 8 // 2^8 = 256 bytes
 #define MAX_BLOCK_ORDER 19 // 2^19 = 512KB = 524288 bytes
-#define MAX_ORDER (MAX_BLOCK_ORDER - MIN_BLOCK_ORDER)
+#define MAX_ORDER (MAX_BLOCK_ORDER - MIN_BLOCK_ORDER+1)
 #define MIN_ALLOC_SIZE (1ULL << MIN_BLOCK_ORDER)  
 
 
 typedef struct block_node_t {
+    struct block_node_t* prev;
     struct block_node_t* next;
-    uint8_t order;                          
+    uint8_t order;                   
     bool is_free;
 } block_node_t;
 
 typedef struct buddy_allocator_cdt {
-    block_node_t* free_lists[MAX_ORDER + 1];
+    block_node_t* free_lists[MAX_ORDER];
     void* start_addr;                        
     uint64_t total_size;                    
     uint64_t free_memory;                    
 }buddy_allocator_cdt ;
 
 static uintptr_t ALLOCATOR_ADDRESS = -1;
+static void* get_buddy_address(buddy_allocator_adt allocator, void* addr, uint8_t order);
+static void split_block(buddy_allocator_adt allocator, uint16_t idx, uint8_t target_order);
+static uint8_t size_to_order(uint64_t size);
+static void try_merge(buddy_allocator_adt allocator, block_node_t* block);
+
+void b_init(void* start_addr, uint64_t total_size) {
+
+    if (!start_addr || total_size == 0) {
+        return;
+    }
+
+    buddy_allocator_adt allocator = (buddy_allocator_adt) start_addr;
+    uintptr_t memory_start = (uintptr_t)start_addr + sizeof(buddy_allocator_cdt);
+    memory_start = (memory_start + 0xFFF) & ~0xFFF;
+    allocator->start_addr = (void*)memory_start;
+    allocator->total_size = total_size - (memory_start - (uintptr_t)start_addr);
+    allocator->free_memory = allocator->total_size;
+
+    for (int i = 0; i < MAX_ORDER; i++) {
+        allocator->free_lists[i] = NULL;
+    }
+
+    uint8_t initial_order = size_to_order(allocator->total_size);
+
+    block_node_t* initial_block = (block_node_t*)allocator->start_addr;
+    initial_block->next = NULL;
+    initial_block->order = initial_order;
+    initial_block->is_free = true;
+    allocator->free_lists[initial_order-MIN_BLOCK_ORDER] = initial_block;
+
+    ALLOCATOR_ADDRESS = (uintptr_t)start_addr;
+}
+
+void* b_alloc(size_t size) {
+
+    buddy_allocator_adt allocator = b_get_allocator();
+    ker_write("Trying to allocate memory\n");
+    if (size == 0) {
+        ker_write("Size is 0\n");
+        return NULL;
+    }
+    size += sizeof(block_node_t);
+    size = size < MIN_ALLOC_SIZE-1 ? MIN_ALLOC_SIZE-1 : size;
+
+    ker_write("Size after min check: ");
+    print_number(size);
+    ker_write("\n");
+
+    uint64_t order = size_to_order(size);
+    ker_write("Order: ");
+    print_number(order);
+    ker_write("\n");
+    uint8_t order_idx = order-MIN_BLOCK_ORDER;
+
+    if (allocator->free_lists[order_idx] == NULL) {
+        //ker_write("No block found in order index\n");
+		uint8_t closest_idx = 0;
+		for (uint8_t i = order_idx ; i < MAX_ORDER && !closest_idx; i++)
+			if (allocator->free_lists[i] != NULL)
+				closest_idx = i;
+		if (closest_idx == 0){
+            return NULL;
+        }
+			
+		split_block(allocator, closest_idx, order_idx+MIN_BLOCK_ORDER);
+	}
+
+	block_node_t *block = allocator->free_lists[order_idx];
+	allocator->free_lists[order_idx] = block->next;
+	block->is_free = false;
+	block->prev = NULL;
+	block->next = NULL;
+    block->order = order_idx + MIN_BLOCK_ORDER;
+
+    allocator->free_memory -= (1ULL << (order_idx + MIN_BLOCK_ORDER));
+    ker_write("free memory: ");
+    print_number(allocator->free_memory);
+    ker_write("\n");
+	void *allocation = (void *) block + sizeof(block_node_t);
+	return (void *) allocation;
+
+}
+
 
 // Helper function to get buddy address
 static void* get_buddy_address(buddy_allocator_adt allocator, void* addr, uint8_t order) {
@@ -35,44 +120,79 @@ static void* get_buddy_address(buddy_allocator_adt allocator, void* addr, uint8_
 }
 
 // Split a block into two buddies
-static void split_block(buddy_allocator_adt allocator, block_node_t* block, uint8_t target_order) {
+static void split_block(buddy_allocator_adt allocator, uint16_t idx, uint8_t target_order) {
+
+    // ker_write("Block order: ");
+    // print_number(block->order);
+    // ker_write("\n");
+    // ker_write("Target order: ");
+    // print_number(target_order);
+    // ker_write("\n");
+
+    //int i = 0;
+
+    block_node_t * block = allocator->free_lists[idx];
+    
     while (block->order > target_order) {
+
+        // ker_write("Iteration: ");
+        // print_number(i);
+        // ker_write("\n");
+        // i++;
+
+        if (block->prev!=NULL) {
+            block->prev->next = block->next;
+        }
+        else {
+            allocator->free_lists[block->order-MIN_BLOCK_ORDER] = block->next;
+        }
+        if (block->next!=NULL) {
+            block->next->prev = block->prev;
+        }
+
         uint8_t curr_order = block->order;
         block->order = curr_order - 1;
 
         // Calculate buddy address
-        uint64_t block_size = 1ULL << (curr_order - 1 + MIN_BLOCK_ORDER);
+        uint64_t block_size = 1ULL << (block->order);
         block_node_t* buddy = (block_node_t*)((uint8_t*)block + block_size);
         
         // Initialize buddy
         buddy->order = curr_order - 1;
+
+        // ker_write("Buddy order: ");
+        // print_number(buddy->order);
+        // ker_write("\n");    
+
         buddy->is_free = true;
-        buddy->next = allocator->free_lists[curr_order - 1];
-        allocator->free_lists[curr_order - 1] = buddy;
+        buddy->prev = NULL;
+        buddy->next = allocator->free_lists[curr_order - 1 - MIN_BLOCK_ORDER];
+        if (buddy->next!=NULL) {
+            buddy->next->prev = buddy; 
+        }
+       
+        allocator->free_lists[curr_order - 1 - MIN_BLOCK_ORDER] = block;
+        block->order = curr_order - 1;
+
+        block->is_free = true;
+        block->next = buddy;
+        block->prev = NULL;
+
     }
+    //ker_write("End of split\n");
 }
 
 // Round up to 2^n
 static uint8_t size_to_order(uint64_t size) {
-    size = size - 1;
-    size |= size >> 1;
-    size |= size >> 2;
-    size |= size >> 4;
-    size |= size >> 8;
-    size |= size >> 16;
-    size |= size >> 32;
-    size += 1;
-
-    // Calculate order based on the power of 2 size
-    uint8_t order = 0;
-    uint64_t min_size = MIN_ALLOC_SIZE;
-    
-    while (min_size < size && order < MAX_ORDER) {
-        min_size <<= 1;
-        order++;
+    unsigned int count = 0;
+	while (size /= 2){
+        count++;
+        if (size == 1){
+            count++;
+        }
     }
-    
-    return order;
+
+	return count;
 }
 
 // Try to merge with buddy
@@ -110,59 +230,8 @@ static void try_merge(buddy_allocator_adt allocator, block_node_t* block) {
     allocator->free_lists[block->order] = block;
 }
 
-// Constructor implementation
-void b_init(void* start_addr, uint64_t total_size) {
 
-    if (!start_addr || total_size == 0) {
-        return;
-    }
-    if (((uintptr_t)start_addr & 0xFFF) != 0) {
-        return;
-    }
-    if (total_size < (sizeof(buddy_allocator_adt) + MIN_ALLOC_SIZE)) {
-        return;
-    }
-    memset(start_addr, 0, sizeof(buddy_allocator_adt));
-    buddy_allocator_adt allocator = (buddy_allocator_adt) start_addr;
-    
-    uintptr_t memory_start = (uintptr_t)start_addr + sizeof(buddy_allocator_adt);
-    memory_start = (memory_start + 0xFFF) & ~0xFFF; // Round up to next page boundary
-    
-    allocator->start_addr = (void*)memory_start;
-    allocator->total_size = total_size - (memory_start - (uintptr_t)start_addr);
-    allocator->free_memory = allocator->total_size;
 
-    // Initialize free lists
-    for (int i = 0; i <= MAX_ORDER; i++) {
-        allocator->free_lists[i] = NULL;
-    }
-
-    // Calculate maximum possible order for the available space
-    uint64_t max_possible_size = 1ULL << (MAX_ORDER + MIN_BLOCK_ORDER);
-    uint8_t initial_order = MAX_ORDER;
-    
-    while (initial_order > 0 && (1ULL << (initial_order + MIN_BLOCK_ORDER)) > allocator->total_size) {
-        initial_order--;
-    }
-
-    // Create and initialize the initial block
-    block_node_t* initial_block = (block_node_t*)allocator->start_addr;
-    if ((uintptr_t)initial_block & 0xFFF) {
-        // If somehow we still got misaligned, abort
-        return;
-    }
-
-    // Initialize the block
-    initial_block->next = NULL;
-    initial_block->order = initial_order;
-    initial_block->is_free = true;
-
-    // Add to appropriate free list
-    allocator->free_lists[initial_order] = initial_block;
-
-    // Set the global allocator address only after successful initialization
-    ALLOCATOR_ADDRESS = (uintptr_t)start_addr;
-}
 
 // Destructor implementation
 void b_destroy(buddy_allocator_adt allocator) {
@@ -171,47 +240,7 @@ void b_destroy(buddy_allocator_adt allocator) {
     (void)allocator;
 }
 
-// Allocation implementation
-void* b_alloc(size_t size) {
-    buddy_allocator_adt allocator = b_get_allocator();
-    if (size == 0) {
-        return NULL;
-    }
 
-    // Añadir el tamaño de la estructura de bloque
-    size += sizeof(block_node_t);
-
-    if (size < MIN_ALLOC_SIZE) {
-        size = MIN_ALLOC_SIZE;
-    }
-
-    uint8_t order = size_to_order(size);
-
-    // Buscar un bloque utilizable
-    uint8_t current_order;
-    for (current_order = order; current_order <= MAX_ORDER; current_order++) {
-        if (allocator->free_lists[current_order]) {
-            break;
-        }
-    }
-
-    if (current_order > MAX_ORDER) {
-        return NULL;
-    }
-
-    block_node_t* block = allocator->free_lists[current_order];
-    allocator->free_lists[current_order] = block->next;
-
-    allocator->free_memory -= (1ULL << (order + MIN_BLOCK_ORDER));
-
-    if (current_order > order) {
-        split_block(allocator, block, order);
-    }
-
-    block->is_free = false;
-    
-    return (void*)((uint8_t*)block + sizeof(block_node_t));
-}
 
 
 // Free implementation
@@ -221,15 +250,16 @@ void b_free(void* addr) {
 
     if (!addr || addr < allocator->start_addr || 
         addr >= (void*)((uint8_t*)allocator->start_addr + allocator->total_size)) {
+        ker_write("Invalid address\n");
         return;
     }
-
-    block_node_t* block = (block_node_t*)addr;
+ 
+    block_node_t* block = (block_node_t*)((uint8_t*)addr - sizeof(block_node_t));
     block->is_free = true;
 
+    //chequear desde aca. 
     // Update free memory counter
-    allocator->free_memory += (1ULL << (block->order + MIN_BLOCK_ORDER));
-
+    allocator->free_memory += (1ULL << (block->order));
     // Try to merge with buddy
     try_merge(allocator, block);
 }

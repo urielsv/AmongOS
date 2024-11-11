@@ -14,10 +14,10 @@ typedef struct MM_rq {
 uint64_t test_mm(uint64_t argc, char *argv[]) {
 
   printf("test_mm\n");
-  mm_rq mm_rqs[MAX_BLOCKS];
-  uint8_t rq;
-  uint32_t total;
-  uint64_t max_memory;
+    mm_rq mm_rqs[MAX_BLOCKS];
+    uint8_t rq;
+    uint32_t total;
+    uint64_t max_memory;
 
   if (argc != 1)
     return -1;
@@ -30,11 +30,16 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
     rq = 0;
     total = 0;
 
+    printf("max_memory: %d\n", max_memory);
+
     // Request as many blocks as we can
     while (rq < MAX_PROCESSES && total < max_memory) {
       mm_rqs[rq].size = GetUniform(max_memory - total - 1) + 1;
-      mm_rqs[rq].size = 1000;
+
+      printf("size: %d\n", mm_rqs[rq].size);
+
       mm_rqs[rq].address = mem_alloc(mm_rqs[rq].size);
+      //sleep(1000);
       if (mm_rqs[rq].address) {
         printf("a!    ");
         total += mm_rqs[rq].size;
@@ -42,21 +47,23 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
       }
       // Agregamos este set ya que intentamos pedir memoria y no nos la dieron, entonces seteamos el size en 0 para que no hayan problemas con el memcheck
       else {
+        printf("tried to alloc, but did not got enough memory\n");
         mm_rqs[rq].size = 0;
       }
     }
 
     // Set
-    uint32_t i;
+     uint32_t i;
     for (i = 0; i < rq; i++){
       if (mm_rqs[i].address) {
         memset(mm_rqs[i].address, i, mm_rqs[i].size);
         printf("s!    ");
-      }  
+      }
+      else printf("invalid address");  
 
     }
 
-    // Check
+    //Check
     for (i = 0; i < rq; i++)
       if (mm_rqs[i].address) {
         if (!memcheck(mm_rqs[i].address, i, mm_rqs[i].size)) {
@@ -69,8 +76,10 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
     // mem_free
     for (i = 0; i < rq; i++)
       if (mm_rqs[i].address){
-        mem_free(mm_rqs[i].address);
+        mem_free(mm_rqs[i].address); 
+        sleep(1000);
         printf("f!    ");
       }
+      //else printf("invalid address");  
   }
 }

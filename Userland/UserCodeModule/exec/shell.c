@@ -43,11 +43,12 @@ void shell()
 
     //print_header();
 
-
     // MM TES
      //0x1000000 (16) = 16777216 (10)
-     char *argv_test_mm[] = {"524288", NULL}; // 512KB
-     exec((void *) &test_mm_proc, argv_test_mm, 1, "Testeo_de_memoria_:D", 1    );
+
+     char *argv_test_mm[] = {"262144", NULL}; // 256KB
+     exec((void *) &test_mm_proc, argv_test_mm, 1, "Testeo_de_memoria_:D", 1);
+    
 
     // PROCESSES TEST
      //char *argv_test_processes[] = {"10", NULL};
