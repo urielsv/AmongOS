@@ -96,7 +96,6 @@ uint64_t test_sync(uint64_t argc, char *argv[]) {
     char *argvDec[] = {argv[0], "-1", argv[1], NULL};
     char *argvInc[] = {argv[0], "1", argv[1], NULL};
 
-    //printf("Initial global: %d\n", global);
     global = 0;
 
     uint64_t i;
@@ -113,11 +112,11 @@ uint64_t test_sync(uint64_t argc, char *argv[]) {
 
     for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
         printf("Wait DEC %d: ", pids[i]);
-        my_wait(pids[i]);
+        waitpid(pids[i]);
         printf("Done\n");
 
         printf("Wait INC %d: ", pids[i + TOTAL_PAIR_PROCESSES]);
-        my_wait(pids[i + TOTAL_PAIR_PROCESSES]);
+        waitpid(pids[i + TOTAL_PAIR_PROCESSES]);
         printf("Done\n");
     }
 

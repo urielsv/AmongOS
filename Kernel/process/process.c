@@ -75,13 +75,14 @@ void free_process(process_t* process) {
     for (int i = 0; i < process->argc; i++) {
         mem_free(process->argv[i]);
     }
+
     mem_free(process->argv);
     
     mem_free(process->name);
     
     mem_free(process->stack_base);
     
-
+    
     if (process->children != NULL && process->parent_pid != 0) {
         start_iterator(process->children);
         while (has_next(process->children)) {
