@@ -499,23 +499,27 @@ void unblock_proc(int argc, char *argv[])
 
 int cat(int argc, char *argv[]) {
 
-
-    // no funciona asi pues los parametros ya de por si se los pasas en parse_buffer
-	// char c;
-	// while ((c = getchar()) != EOF){ //solo cuando !='\n' o !=NULL parece leer el EOF
-	// 	putchar(c);
-	// } 
-
-    //esta es la alternativa que encontre. Como se puede pasar param por linea de comando es valido
-     printf("%s",argv[0]); 
-
+    for (int i = 0; i < argc; i++) {
+        printf("%s ", argv[i]);
+    }
 	return 0;
 }
 
 int wc(int argc, char **argv) {
 
-	reset_line_count();
-	printf("La cantidad de lineas es: %d\n", get_line_count());
+    int buffer_count = 0;
+    uint64_t width, height;
+    screen_info(&width, &height);
+
+    for (int i = 0; i < argc; i++) {
+        int index = 0;
+        while(argv[i][index++] != '\0') {
+            buffer_count++;
+        }
+        buffer_count++;
+    }
+    // no es responsiva, pero bueno, esto ya tiene q ver con el tp anterior de arqui
+    printf("La cantidad de lineas es: %d\n", buffer_count/128+1);
 	return 0;
 }
 
@@ -526,15 +530,17 @@ int filter(int argc, char **argv) {
         printf("Usage: filter <text>\n");
         return 0;
     }
-
-    for (int count_buffer = 0; argv[0][count_buffer] != '\0'; count_buffer++) {
-        if (toLower(argv[0][count_buffer]) != 'a' && 
-            toLower(argv[0][count_buffer]) != 'e' && 
-            toLower(argv[0][count_buffer]) != 'i' && 
-            toLower(argv[0][count_buffer]) != 'o' && 
-            toLower(argv[0][count_buffer]) != 'u') {
-            putchar(argv[0][count_buffer]);
+    for (int i = 0; i < argc; i++) {
+        for (int count_buffer = 0; argv[i][count_buffer] != '\0'; count_buffer++) {
+            if (toLower(argv[i][count_buffer]) != 'a' && 
+                toLower(argv[i][count_buffer]) != 'e' && 
+                toLower(argv[i][count_buffer]) != 'i' && 
+                toLower(argv[i][count_buffer]) != 'o' && 
+                toLower(argv[i][count_buffer]) != 'u') {
+                putchar(argv[i][count_buffer]);
+            }
         }
+        putchar(' ');
     }
     return 0;
 }
