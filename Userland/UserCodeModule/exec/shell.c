@@ -496,12 +496,18 @@ void unblock_proc(int argc, char *argv[])
 }
 
 
-// no funciona
+
 int cat(int argc, char *argv[]) {
-	char c;
-	while ((c = getchar()) != EOF){ //solo cuando !='\n' o !=NULL parece leer el EOF
-		putchar(c);
-	} 
+
+
+    // no funciona asi pues los parametros ya de por si se los pasas en parse_buffer
+	// char c;
+	// while ((c = getchar()) != EOF){ //solo cuando !='\n' o !=NULL parece leer el EOF
+	// 	putchar(c);
+	// } 
+
+    //esta es la alternativa que encontre. Como se puede pasar param por linea de comando es valido
+     printf("%s",argv[0]); 
 
 	return 0;
 }
@@ -517,13 +523,22 @@ int wc(int argc, char *argv[]) {
 
 
 int filter(int argc, char **argv) {
-	char c;
-	while ((int) (c = getchar()) != EOF) {
-		if (toLower(c) == 'a' || toLower(c) == 'e' || toLower(c) == 'i' || toLower(c) == 'o' || toLower(c) == 'u')
-			putchar(c);
-	}
-	putchar('\n');
-	return 0;
+
+    if (argc < 1) {
+        printf("Usage: filter <text>\n");
+        return 0;
+    }
+
+    for (int count_buffer = 0; argv[0][count_buffer] != '\0'; count_buffer++) {
+        if (toLower(argv[0][count_buffer]) != 'a' && 
+            toLower(argv[0][count_buffer]) != 'e' && 
+            toLower(argv[0][count_buffer]) != 'i' && 
+            toLower(argv[0][count_buffer]) != 'o' && 
+            toLower(argv[0][count_buffer]) != 'u') {
+            putchar(argv[0][count_buffer]);
+        }
+    }
+    return 0;
 }
 
 size_t print_mem_info() {
