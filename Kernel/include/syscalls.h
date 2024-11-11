@@ -229,4 +229,8 @@ uint16_t sys_change_process_fd(uint32_t pid, uint16_t fd_index, int16_t new_fd);
 
 size_t *sys_mem_info();
 
+int sys_get_line_count();
+
+void sys_reset_line_count();
+
 #endif

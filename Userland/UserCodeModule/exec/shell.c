@@ -512,12 +512,10 @@ int cat(int argc, char *argv[]) {
 	return 0;
 }
 
-int wc(int argc, char *argv[]) {
-	char c;
-	int line_counter = 0;
-	while ((int) (c = getchar()) != EOF)
-		line_counter += (c == '\n');
-	printf("La cantidad de lineas es: %d\n", line_counter);
+int wc(int argc, char **argv) {
+
+	reset_line_count();
+	printf("La cantidad de lineas es: %d\n", get_line_count());
 	return 0;
 }
 
