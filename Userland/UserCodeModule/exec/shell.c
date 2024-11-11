@@ -245,7 +245,7 @@ static int execute_command(parsed_input_t *parsed) {
 
 
 void ps() {
-    printf("PID\t\tPRIO\t\t\t\tSTATE\t\t\t\t\tNAME\n");
+    printf("PID\t\tPRIO\t\t\t\tSTATE\t\t\t\t\tNAME\t\t\tSP\t\t\t\t\tBP\n");
     // TODO: MAke this more efficient sicne we are iterating over all the processes
     for (int i = 0; i < MAX_PROCESSES; i++) {
         process_snapshot_t *process = process_snapshot(i);
@@ -286,7 +286,7 @@ void ps() {
                     priority = "HIGH       ";
                     break;
             }
-            printf("%d\t\t%s\t\t%s\t\t%s %s", process->pid, priority, state, process->name, process->argv);
+            printf("%d\t\t%s\t\t%s\t\t%s %s\t\t%s\t%s", process->pid, priority, state, process->name, process->argv, process->stack_pointer, process->base_pointer);
             if (i < MAX_PROCESSES - 1) {
                 printf("\n");
             }
@@ -487,6 +487,6 @@ int filter(int argc, char **argv) {
 
 size_t print_mem_info() {
     size_t *info = memory_info();
-    printf("Total: %d, Used: %d, Free: %d\n", info[0], info[1], info[2]);
+    printf("\nTotal: %d, Used: %d, Free: %d\n", info[0], info[1], info[2]);
     return 0;
 }

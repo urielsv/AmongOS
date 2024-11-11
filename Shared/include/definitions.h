@@ -28,6 +28,8 @@ typedef struct {
     char* name;
     int argc;
     char** argv;
+    char * stack_pointer;
+    char * base_pointer;
 } process_snapshot_t;
 
 #endif

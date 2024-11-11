@@ -13,6 +13,7 @@
 #define LIB_H
 
 #include <stdint.h>
+#include <stddef.h>
 
 
 extern char *cpuVendor(char *result);
@@ -36,6 +37,8 @@ uint64_t get_random_number(int seed);
 void int_to_string(int num, char *str);
 
 void print_number(int number);
+
+void pointer_to_string(void *ptr, char *buffer, size_t buffer_size);
 
 // Equal to assinging "out val, port" in assembly
 extern void outb(unsigned short port, unsigned char val);
