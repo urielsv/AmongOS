@@ -507,8 +507,19 @@ int cat(int argc, char *argv[]) {
 
 int wc(int argc, char **argv) {
 
-	reset_line_count();
-	printf("La cantidad de lineas es: %d\n", get_line_count());
+    int buffer_count = 0;
+    uint64_t width, height;
+    screen_info(&width, &height);
+
+    for (int i = 0; i < argc; i++) {
+        int index = 0;
+        while(argv[i][index++] != '\0') {
+            buffer_count++;
+        }
+        buffer_count++;
+    }
+    // no es responsiva, pero bueno, esto ya tiene q ver con el tp anterior de arqui
+    printf("La cantidad de lineas es: %d\n", buffer_count/128+1);
 	return 0;
 }
 
