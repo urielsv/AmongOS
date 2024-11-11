@@ -41,3 +41,9 @@ char *strchr(char* str, char c)
     }
     return 0;
 }
+
+char toLower(char c) {
+    if (c >= 'A' && c <= 'Z')
+        return c + 32;
+    return c;
+}

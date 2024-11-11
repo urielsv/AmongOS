@@ -227,4 +227,6 @@ process_snapshot_t *sys_process_snapshot(uint32_t pid);
 
 uint16_t sys_change_process_fd(uint32_t pid, uint16_t fd_index, int16_t new_fd);
 
+size_t *sys_mem_info();
+
 #endif

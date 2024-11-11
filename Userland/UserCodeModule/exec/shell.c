@@ -43,12 +43,14 @@ command_t commands[] = {
     {"kill", "Kill a process <pid>.", (Function) kill_proc},
     {"nice", "Change the scheduling priority of a process <pid> to <priority>.", (Function) nice},
     {"ps", "List all processes", (Function) ps},
+    {"mem", "Muestra la memoria total, usada y libre", (Function) print_mem_info},
     {"infinite_loop", "Starts an infinite loop", (Function) infinite_loop_proc},
     {"philos", "start the classic philosophers dilemma", (Function) philos_proc},
     {"cat", "Imprime el stdin tal como lo recibe", (Function) cat},
     {"wc", "Cuenta la cantidad de lineas del stdin", (Function) wc},
     {"block","Bloquea un proceso", (Function) block_proc},
     {"unblock", "Desbloquea un proceso", (Function) unblock_proc},
+    {"filter", "Filtra las vocales del stdin", (Function) filter}
 };
 
 
@@ -192,7 +194,6 @@ static int execute_command(parsed_input_t *parsed) {
     }
 
     uint16_t pipe_id = create_pipe();
-    uint16_t pipe_id2 = create_pipe();
 
     int pids[MAX_CMDS] = {0};
     
@@ -204,14 +205,17 @@ static int execute_command(parsed_input_t *parsed) {
                 pids[i] = exec((void *)commands[j].cmd, current->argv, current->argc, 
                              commands[j].name, DEFAULT_PRIORITY);
                 block(pids[i]);
+                
                 if (i == 0) {
-                    open_pipe(pids[i], pipe_id, READ_MODE);
+                    open_pipe(pids[i], pipe_id, WRITE_MODE);
                     change_process_fd(pids[i], STDOUT, pipe_id);
                 }
+
                 if (i == 1) {
-                    open_pipe(pids[i], pipe_id, WRITE_MODE);
+                    open_pipe(pids[i], pipe_id, READ_MODE);
                     change_process_fd(pids[i], STDIN, pipe_id);
                 }
+
                 found = 1;
                 break;
             }
@@ -237,14 +241,14 @@ static int execute_command(parsed_input_t *parsed) {
     }
 
     close_pipe(pipe_id);
-    close_pipe(pipe_id2);
+    //close_pipe(pipe_id2);
     
     return 0;
 }
 
 
 void ps() {
-    printf("PID\t\tPRIO\t\t\t\tSTATE\t\t\t\t\tNAME\n");
+    printf("PID\t\tPRIO\t\t\t\tSTATE\t\t\t\t\tNAME\t\t\tSP\t\t\t\t\tBP\n");
     // TODO: MAke this more efficient sicne we are iterating over all the processes
     for (int i = 0; i < MAX_PROCESSES; i++) {
         process_snapshot_t *process = process_snapshot(i);
@@ -285,7 +289,7 @@ void ps() {
                     priority = "HIGH       ";
                     break;
             }
-            printf("%d\t\t%s\t\t%s\t\t%s %s", process->pid, priority, state, process->name, process->argv);
+            printf("%d\t\t%s\t\t%s\t\t%s %s\t\t%s\t%s", process->pid, priority, state, process->name, process->argv, process->stack_pointer, process->base_pointer);
             if (i < MAX_PROCESSES - 1) {
                 printf("\n");
             }
@@ -511,4 +515,19 @@ int wc(int argc, char *argv[]) {
 	return 0;
 }
 
-//falta filter
+
+int filter(int argc, char **argv) {
+	char c;
+	while ((int) (c = getchar()) != EOF) {
+		if (toLower(c) == 'a' || toLower(c) == 'e' || toLower(c) == 'i' || toLower(c) == 'o' || toLower(c) == 'u')
+			putchar(c);
+	}
+	putchar('\n');
+	return 0;
+}
+
+size_t print_mem_info() {
+    size_t *info = memory_info();
+    printf("\nTotal: %d, Used: %d, Free: %d\n", info[0], info[1], info[2]);
+    return 0;
+}

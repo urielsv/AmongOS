@@ -79,3 +79,30 @@ void print_number(int number) {
     int_to_string(number, buffer); 
     ker_write(buffer); 
 }
+
+
+void pointer_to_string(void *ptr, char *buffer, size_t buffer_size) {
+    
+    memset(buffer, 0, buffer_size);
+    
+    if (buffer_size < 20) {
+        return; 
+    }
+
+    uintptr_t address = (uintptr_t)ptr;
+
+    int index = 0;
+    buffer[index++] = '0';   
+    buffer[index++] = 'x';   
+
+    for (int i = 15; i >= 0; i--) {
+        int digit = (address >> (i * 4)) & 0xF; 
+        if (digit < 10) {
+            buffer[index++] = '0' + digit; 
+        } else {
+            buffer[index++] = 'a' + (digit - 10); 
+        }
+    }
+
+    buffer[index] = '\0';
+}

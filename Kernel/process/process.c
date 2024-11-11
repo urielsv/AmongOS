@@ -116,9 +116,10 @@ process_snapshot_t *get_process_snapshot(uint32_t pid)
     process_snapshot->argc = process->argc;
     process_snapshot->name = mem_alloc(strlen(process->name) + 1);
     memcpy(process_snapshot->name, process->name, strlen(process->name) + 1);
+    process_snapshot->stack_pointer = mem_alloc(20);
+    pointer_to_string(process->stack_pointer, process_snapshot->stack_pointer, 20);
+    process_snapshot->base_pointer = mem_alloc(20);
+    pointer_to_string(process->stack_base, process_snapshot->base_pointer, 20);
     return process_snapshot;
 }
-
-
-
 

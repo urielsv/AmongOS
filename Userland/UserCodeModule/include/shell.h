@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <colors.h>
 #include <definitions.h>
+#include <stddef.h>
 
 #define MAX_CMDS 2
 #define MAX_ARGS 10
@@ -71,4 +72,6 @@ void nice(int argc, char *argv[]);
 void ps();
 int cat(int argc, char **argv);
 int wc(int argc, char **argv);
+int filter(int argc, char **argv);
+size_t print_mem_info();
 #endif

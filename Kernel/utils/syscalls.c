@@ -64,7 +64,7 @@ static syscall_t syscalls[] = {
     [34] = (syscall_t)&sys_open_pipe,
     [35] = (syscall_t)&sys_close_pipe,
     [36] = (syscall_t)&sys_change_process_fd,
-
+    [37] = (syscall_t)&sys_mem_info,
 };
 
 uint64_t syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9) {
@@ -116,8 +116,7 @@ char *sys_read(uint8_t fd, char *buffer, uint64_t count) {
     // }
 
     int16_t current_fd = get_current_process_file_descriptor(fd);
-    //print_number(current_fd);
-
+    // print_number(current_fd);
     if (current_fd == DEV_NULL){
        buffer[0] = EOF;
 		return 0;
@@ -127,6 +126,7 @@ char *sys_read(uint8_t fd, char *buffer, uint64_t count) {
     }
 
     if (current_fd >= BUILTIN_FDS){
+       // ker_write("reading pipe");
         read_pipe(get_current_pid(), current_fd, buffer, count);
     }
     else{
@@ -316,4 +316,8 @@ process_snapshot_t *sys_process_snapshot(uint32_t pid) {
 
 uint16_t sys_change_process_fd(uint32_t pid, uint16_t fd_index, int16_t new_fd) {
     return change_process_fd(pid, fd_index, new_fd);
+}
+
+size_t * sys_mem_info() {
+    return mem_info();
 }
