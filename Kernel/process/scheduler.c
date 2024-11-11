@@ -131,11 +131,13 @@ void* scheduler(void* stack_pointer) {
     return next_process->stack_pointer;
 }
 
-static void add_children(process_t* parent, process_t* child) {
-    if (parent == NULL || child == NULL) {
-        return;
+static uint32_t get_next_unused_pid(){
+    scheduler_adt scheduler = getSchedulerADT();
+    int i = IDLE_PID + 1;
+    while(scheduler->processes[i] != NULL){
+        i++;
     }
-    addNode(parent->children, (void *)child);
+    return i;
 }
 
 
@@ -144,7 +146,6 @@ int32_t create_process(Function code, char **args, int argc, char *name, uint8_t
 
     priority = CAPPED_PRIORITY(priority);
     scheduler_adt scheduler = getSchedulerADT();
-    //ker_write("Creating process\n");
     if (scheduler->remaining_processes >= MAX_PROCESSES) {
         ker_write("Max processes reached\n");
         return -1;
@@ -176,7 +177,8 @@ int32_t create_process(Function code, char **args, int argc, char *name, uint8_t
     }
 
     scheduler->processes[process->pid] = process_node;
-    scheduler->next_unused_pid = (scheduler->next_unused_pid + 1) % MAX_PROCESSES;
+    //scheduler->next_unused_pid = (scheduler->next_unused_pid + 1) % MAX_PROCESSES;
+    scheduler->next_unused_pid = get_next_unused_pid();
     scheduler->remaining_processes++;
 
     return process->pid;
@@ -281,10 +283,7 @@ int kill_process(uint32_t pid) {
         }
     }
 
-    scheduler->processes[pid]->process = NULL;
     scheduler->next_unused_pid = pid;
-    
-
 
     free_process(process_to_kill);
     scheduler->remaining_processes--;

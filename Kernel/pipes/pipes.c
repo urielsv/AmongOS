@@ -14,7 +14,7 @@ typedef struct pipe_t
     int16_t input_pid, output_pid;
     uint16_t opened;
     
-}pipe_t;
+} pipe_t;
 
 typedef struct pipe_manager_cdt
 {
@@ -70,7 +70,7 @@ static uint16_t get_next_pipe_id(){
 
 }
 
-uint16_t create_pipe(){
+uint16_t create_pipe() {
 
     pipe_manager_adt pipe_manager = get_pipe_manager();
     pipe_t * pipe = mem_alloc(sizeof(struct pipe_t));
@@ -157,11 +157,10 @@ uint16_t write_pipe(uint16_t pid, uint16_t pipe_id, const char * data, uint16_t 
         return -1;
     }
 
-    ker_write("writingggg pipesssss output pid ");
-    print_number(pipe->output_pid);
-    ker_write("\n");
-    
-   uint64_t written_bytes = 0;
+    // ker_write("writing pipe ");
+
+ 
+    uint64_t written_bytes = 0;
 	while (written_bytes < size && (int) pipe->buffer[buffer_position(pipe)] != EOF) {
 		if (pipe->buffer_count >= PIPE_BUFFER_SIZE) {
 			pipe->opened = CLOSED;
@@ -171,6 +170,8 @@ uint16_t write_pipe(uint16_t pid, uint16_t pipe_id, const char * data, uint16_t 
 
 		while (pipe->buffer_count < PIPE_BUFFER_SIZE && written_bytes < size) {
 			pipe->buffer[buffer_position(pipe)] = data[written_bytes];
+            // putchar_k(data[written_bytes]);
+            // ker_write("\n");
 			if ((int) data[written_bytes++] == EOF)
 				break;
 			pipe->buffer_count++;
@@ -190,13 +191,11 @@ uint16_t read_pipe(uint16_t pid, uint16_t pipe_id, char * data, uint16_t size){
 
     pipe_t * pipe = get_pipe(pipe_id);
     
-    if ( size == 0 || data == NULL || pipe==NULL|| pipe->output_pid != pid){
+    if ( size == 0 || data == NULL || pipe == NULL || pipe->output_pid != pid){
         return -1;
     }
-    ker_write("readingggg pipesssss input pid ");
-    print_number(pipe->input_pid);
-    ker_write("\n");
 
+    // ker_write("reading pipe ");
 
     uint8_t eof_read = 0;
 	uint64_t read_bytes = 0;
@@ -208,6 +207,8 @@ uint16_t read_pipe(uint16_t pid, uint16_t pipe_id, char * data, uint16_t size){
 		}
 		while ((pipe->buffer_count > 0 || (int) pipe->buffer[pipe->start_position] == EOF) && read_bytes < size) {
 			data[read_bytes] = pipe->buffer[pipe->start_position];
+            // putchar_k(data[read_bytes]);
+            // ker_write("\n");
 			if ((int) data[read_bytes++] == EOF) {
 				eof_read = 1;
 				break;

@@ -10,7 +10,12 @@
 
 #define MAX_BUFFER_SIZE 1024
 
-static void infinite_loop_proc(char *argv[], int argc) {
+static void infinite_loop_proc(int argc, char *argv[]) {
+    printf("Argc: %d\n", argc);
+    for (int i = 0; i < argc; i++) {
+        printf("argv[%d]: %s\n", i, argv[i]);
+    }
+
     while (1) {
         //para cumplir con la consigna
         sleep(3000);
@@ -73,34 +78,28 @@ void shell() {
 static void parse_buffer(char *buff, parsed_input_t *parsed) {
     if (!buff || !parsed) return;
     
-    // Initialize structure
     memset(parsed, 0, sizeof(parsed_input_t));
     
-    // Remove trailing spaces and newlines
     int len = strlen(buff);
     while (len > 0 && (buff[len-1] == ' ' || buff[len-1] == '\n')) {
         buff[--len] = '\0';
     }
     
-    // Check for background process
     if (len > 0 && buff[len-1] == '&') {
         parsed->is_bg = 1;
-        buff[--len] = '\0';  // Remove &
+        buff[--len] = '\0';
         while (len > 0 && buff[len-1] == ' ') {
             buff[--len] = '\0';
         }
     }
     
-    // Split by pipe
     char *cmd_str = buff;
     char *pipe_pos;
     
     while (cmd_str && *cmd_str && parsed->cmd_count < MAX_CMDS) {
-        // Skip leading spaces
         while (*cmd_str == ' ') cmd_str++;
         if (!*cmd_str) break;
         
-        // Find next pipe or end of string
         pipe_pos = strchr(cmd_str, '|');
         if (pipe_pos) {
             *pipe_pos = '\0';
@@ -108,12 +107,10 @@ static void parse_buffer(char *buff, parsed_input_t *parsed) {
         
         command_input_t *current_cmd = &parsed->cmds[parsed->cmd_count];
         
-        // Parse command and arguments
         char *token = cmd_str;
         char *next_token = NULL;
         int arg_count = 0;
 
-        // Get command name(first token)
         while (*token == ' ') token++;
         next_token = strchr(token, ' ');
         if (next_token) {
@@ -122,22 +119,18 @@ static void parse_buffer(char *buff, parsed_input_t *parsed) {
         }
         current_cmd->cmd = token;
         
-        // Parse arguments if they exist
         if (next_token) {
             token = next_token;
-            while (*token && arg_count < MAX_ARGS - 1) {  // -1 to ensure NULL termination
-                // Skip spaces
+            while (*token && arg_count < MAX_ARGS - 1) { 
                 while (*token == ' ') token++;
                 if (!*token) break;
                 
-                // Find end of argument
                 next_token = strchr(token, ' ');
                 if (next_token) {
                     *next_token = '\0';
                     next_token++;
                 }
                 
-                // Store argument
                 current_cmd->argv[arg_count++] = token;
                 
                 if (!next_token) break;
@@ -146,11 +139,10 @@ static void parse_buffer(char *buff, parsed_input_t *parsed) {
         }
         
         current_cmd->argc = arg_count;
-        current_cmd->argv[arg_count] = NULL;  // NULL terminate argument list
+        current_cmd->argv[arg_count] = NULL;
         
         parsed->cmd_count++;
         
-        // Move to next command after pipe
         if (pipe_pos) {
             cmd_str = pipe_pos + 1;
         } else {
@@ -167,27 +159,24 @@ static int execute_command(parsed_input_t *parsed) {
     if (parsed->cmd_count == 1) {
         command_input_t *current = &parsed->cmds[0];
         
-        // Search command in commands array
         for (int i = 0; i < sizeof(commands) / sizeof(command_t); i++) {
             if (strcmp(commands[i].name, current->cmd) == 0) {
                 int pid;
                 
                 if (parsed->is_bg) {
-                    // Execute the process
                     pid = exec((void *)commands[i].cmd, current->argv, current->argc, 
                              commands[i].name, DEFAULT_PRIORITY);
 
                     block(pid);
 
-                      // change_process_fd(pid, STDIN, DEV_NULL);
-                       change_process_fd(pid, STDOUT, DEV_NULL);
-                     //  change_process_fd(pid, STDERR, DEV_NULL);
+                    change_process_fd(pid, STDIN, DEV_NULL);
+                    change_process_fd(pid, STDOUT, DEV_NULL);
+                    change_process_fd(pid, STDERR, DEV_NULL);
                     
-                    unblock(pid);
                     yield();
+                    unblock(pid);
                     printf("[%d] Running in background\n", pid);
                 } else {
-                    // Normal foreground execution
                     pid = exec((void *)commands[i].cmd, current->argv, current->argc, 
                              commands[i].name, DEFAULT_PRIORITY);
                     waitpid(pid);
@@ -199,51 +188,27 @@ static int execute_command(parsed_input_t *parsed) {
         return 0;
     }
 
-    // Handle piped commands
-    ///uint16_t pipes[MAX_CMDS - 1];
-    
-    // Create all needed pipes first
-    // for (int i = 0; i < parsed->cmd_count - 1; i++) {
-    //     pipes[i] = create_pipe();
-    //     if (pipes[i] == -1) {
-    //         for (int j = 0; j < i; j++) {
-    //             close_pipe(pipes[j]);
-    //         }
-    //         printf("Error creating pipes\n");
-    //         return -1;
-    //    }
-    
     uint16_t pipe_id = create_pipe();
-    printf("pipe_id: %d\n", pipe_id);
+    uint16_t pipe_id2 = create_pipe();
 
     int pids[MAX_CMDS] = {0};
     
-    // Execute all commands in the pipe chain
     for (int i = 0; i < parsed->cmd_count; i++) {
         command_input_t *current = &parsed->cmds[i];
         int found = 0;
         for (int j = 0; j < sizeof(commands) / sizeof(command_t); j++) {
             if (strcmp(commands[j].name, current->cmd) == 0) {
-                // Execute the command first
                 pids[i] = exec((void *)commands[j].cmd, current->argv, current->argc, 
                              commands[j].name, DEFAULT_PRIORITY);
                 block(pids[i]);
-                // Configure pipes after executing
-                //if (i < parsed->cmd_count - 1) {
-                if (i == 0 ){
-                    // Set up write end for current process
+                if (i == 0) {
                     open_pipe(pids[i], pipe_id, READ_MODE);
                     change_process_fd(pids[i], STDOUT, pipe_id);
                 }
-                
-               // if (i > 0) {
-               if (i ==1){
-                    // Set up read end for current process
+                if (i == 1) {
                     open_pipe(pids[i], pipe_id, WRITE_MODE);
                     change_process_fd(pids[i], STDIN, pipe_id);
                 }
-
-               // unblock(pids[i]);
                 found = 1;
                 break;
             }
@@ -258,11 +223,9 @@ static int execute_command(parsed_input_t *parsed) {
         unblock(pids[i]);
     }
     
-    // For pipe chains, only wait for the last process if not in background
     if (!parsed->is_bg) {
         waitpid(pids[parsed->cmd_count - 1]);
     } else {
-        // For background pipe chains, ensure first process has null stdin
         uint16_t null_pipe = create_pipe();
         if (null_pipe != -1) {
             open_pipe(pids[0], null_pipe, READ_MODE);
@@ -270,12 +233,8 @@ static int execute_command(parsed_input_t *parsed) {
         }
     }
 
-    // Clean up pipes
-    // for (int i = 0; i < parsed->cmd_count - 1; i++) {
-    //     close_pipe(pipes[i]);
-    // }
-
     close_pipe(pipe_id);
+    close_pipe(pipe_id2);
     
     return 0;
 }
@@ -324,9 +283,9 @@ void ps() {
                     break;
             }
             printf("%d\t\t%s\t\t%s\t\t%s %s", process->pid, priority, state, process->name, process->argv);
-           if (i < MAX_PROCESSES - 1) {
-               printf("\n");
-           }
+            if (i < MAX_PROCESSES - 1) {
+                printf("\n");
+            }
         }
     }
 }
@@ -510,3 +469,5 @@ int wc(int argc, char *argv[]) {
 	printf("La cantidad de lineas es: %d\n", line_counter);
 	return 0;
 }
+
+//falta filter

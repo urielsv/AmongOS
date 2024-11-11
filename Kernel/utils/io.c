@@ -3,6 +3,7 @@
 #include "io.h"
 #include "keyboard.h"
 #include "video.h"
+#include <definitions.h>
 
 // starting position
 static uint64_t x = 0;
@@ -47,6 +48,9 @@ void putchar_color_k(char c, uint64_t fgcolor, uint64_t bgcolor) {
     case '\t':
         for (int i = 0; i < 4; i++)
            put_char_at(' ', &x, &y, fgcolor, bgcolor);
+        break;
+    case EOF:
+        // handling of EOF
         break;
     default:
         if (c >= 0x20 && c <= 0x7F)
