@@ -189,7 +189,6 @@ static int execute_command(parsed_input_t *parsed) {
     }
 
     uint16_t pipe_id = create_pipe();
-    uint16_t pipe_id2 = create_pipe();
 
     int pids[MAX_CMDS] = {0};
     
@@ -201,14 +200,17 @@ static int execute_command(parsed_input_t *parsed) {
                 pids[i] = exec((void *)commands[j].cmd, current->argv, current->argc, 
                              commands[j].name, DEFAULT_PRIORITY);
                 block(pids[i]);
+                
                 if (i == 0) {
-                    open_pipe(pids[i], pipe_id, READ_MODE);
+                    open_pipe(pids[i], pipe_id, WRITE_MODE);
                     change_process_fd(pids[i], STDOUT, pipe_id);
                 }
+
                 if (i == 1) {
-                    open_pipe(pids[i], pipe_id, WRITE_MODE);
+                    open_pipe(pids[i], pipe_id, READ_MODE);
                     change_process_fd(pids[i], STDIN, pipe_id);
                 }
+
                 found = 1;
                 break;
             }
@@ -234,7 +236,7 @@ static int execute_command(parsed_input_t *parsed) {
     }
 
     close_pipe(pipe_id);
-    close_pipe(pipe_id2);
+    //close_pipe(pipe_id2);
     
     return 0;
 }
