@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <buddy_memman.h>
 // #include "./include/scheduler.h"
+#include <pipes.h>
 
 #define STRING_SIZE "1000000"
 
@@ -30,8 +31,6 @@ extern uint8_t bss;
 extern uint8_t endOfKernelBinary;
 extern uint8_t endOfKernel;
 
-// extern void asm_getsp();
-// extern void asm_getbp();
 
 static const uint64_t PageSize = 0x1000;
 
@@ -62,11 +61,9 @@ void *initializeKernelBinary()
     //mem_init(heapStartAddress, size);
     b_init(heapStartAddress, size);
     init_scheduler();
+    init_pipe_manager();
     return getStackBase();
 }
-
-// TODOS:
-// 1. Add/remove priority to processes in sched
 
 int main()
 {

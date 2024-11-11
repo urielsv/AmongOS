@@ -3,20 +3,22 @@
 #include <stddef.h>
 #include <io.h>
 #include <buddy_memman.h>
-typedef struct linkedListCDT_t {
-    node_t * head;
-    node_t * tail;
-    node_t * current;
-    int size;
-} linkedListCDT_t;
+
+    typedef struct linkedListCDT_t {
+        node_t * head;
+        node_t * tail;
+        node_t * current;
+        node_t * iterator;
+        int size;
+    } linkedListCDT_t;
 
 
-// change b_alloc to buddy
 linkedListADT createLinkedList() {
     linkedListADT list = b_alloc(sizeof(linkedListCDT_t));
     list->head = NULL;
     list->tail = NULL;
     list->current = NULL;
+    list->iterator = NULL;
     list->size = 0;
     return list;
 }
@@ -38,23 +40,35 @@ void addNode(linkedListADT list, void * process) {
 void removeAllNodes(linkedListADT list, void * process) {
     node_t * prev = NULL;
     node_t * current = list->head;
+    
     while (current != NULL) {
         if (current->process == process) {
+            node_t * next = current->next;
+            
             if (prev == NULL) {
-                list->head = current->next;
+                // Deleting from head
+                list->head = next;
             } else {
-                prev->next = current->next;
+                prev->next = next;
             }
+            
             if (current == list->tail) {
                 list->tail = prev;
             }
-            list->size--;
+            
             b_free(current);
-            current = prev->next;
+            list->size--;
+            
+            current = next;  
         } else {
             prev = current;
             current = current->next;
         }
+    }
+    
+    if (list->size == 0) {
+        list->head = NULL;
+        list->tail = NULL;
     }
 }
 void removeNode(linkedListADT list, void * process) {
@@ -153,3 +167,23 @@ uint64_t getSize(linkedListADT list) {
     return list->size;
 }
 
+int8_t isEmptyList(linkedListADT list) {
+    return list->size == 0;
+}
+
+void start_iterator(linkedListADT list) {
+    list->iterator = list->head;
+}
+
+uint8_t has_next(linkedListADT list) {
+    return list->iterator != NULL;
+}
+
+void * get_next(linkedListADT list) {
+    if (list->iterator == NULL) {
+        return NULL;
+    }
+    void * process = list->iterator->process;
+    list->iterator = list->iterator->next;
+    return process;
+}

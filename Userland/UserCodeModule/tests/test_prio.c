@@ -17,7 +17,7 @@ int64_t prio[TOTAL_PROCESSES] = {LOW, LOW_MEDIUM, MEDIUM, HIGH_MEDIUM, HIGH};
 
 void test_prio() {
   int64_t pids[TOTAL_PROCESSES];
-  char *argv[] = {0};
+  //char *argv[] = {0};
   uint64_t i;
 
   for (i = 0; i < TOTAL_PROCESSES; i++)

@@ -3,15 +3,16 @@
 #include "io.h"
 #include "keyboard.h"
 #include "video.h"
+#include <definitions.h>
 
 // starting position
 static uint64_t x = 0;
-static uint64_t y = 16;
+static uint64_t y = 0;
 
 void clear(uint32_t hex) {
     clear_screen(hex);
     x = 0;
-    y = 16;
+    y = 0;
 }
 
 void set_position(uint64_t new_x, uint64_t new_y) {
@@ -30,7 +31,8 @@ uint64_t ker_write_color(const char *str, uint64_t fgcolor, uint64_t bgcolor) {
     int i = 0;
   //  uint64_t tempx, tempy;
     while (str[i]) {
-        putchar_color_k(str[i++], fgcolor, bgcolor);
+        putchar_color_k(str[i], fgcolor, bgcolor);
+        i++;
     }
     return i;
 }
@@ -43,8 +45,16 @@ void putchar_color_k(char c, uint64_t fgcolor, uint64_t bgcolor) {
     case '\b':
         delete_char(&x, &y, fgcolor, bgcolor);
         break;
+    case '\t':
+        for (int i = 0; i < 4; i++)
+           put_char_at(' ', &x, &y, fgcolor, bgcolor);
+        break;
+    case EOF:
+        // handling of EOF
+        break;
     default:
-        put_char_at(c, &x, &y, fgcolor, bgcolor);
+        if (c >= 0x20 && c <= 0x7F)
+            put_char_at(c, &x, &y, fgcolor, bgcolor);
         break;
     }
 }
@@ -53,11 +63,3 @@ void putchar_k(char c) {
     putchar_color_k(c, 0xFFFFFF, 0x000000);
 }
 
-// uint64_t scanf(const char *fmt, ...) {
-
-//     printf("InvalArgumentException");
-//     while (*fmt) {
-//         if (*fmt == '%') {
-//         }
-//     }
-// }

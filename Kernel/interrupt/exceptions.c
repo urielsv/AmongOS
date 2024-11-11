@@ -50,46 +50,27 @@ void exception_dispatcher(uint32_t exception, uint64_t* stack){
 void print_regs(uint64_t * stack){
     
     if (stack == 0){
-        //printf("\nError. Before print registers, press the key '0'\n");
         return;
     }
     
-    //putchar('\n'); 
  
     for(int i = 0; i < registers_len - 2; i++){ 
-        //printf(regs[i]);
         char buff[16];
         uintToBase(stack[i],buff,16);
-        //printf(buff);
-        //putchar('\n');
     }
     if(flag == 0){
-        //printf(regs[registers_len -2]);
         char buff1[16];
         uintToBase(stack[16], buff1,16);
-        //printf(buff1);
-        //putchar('\n');
 
-        // test rp value
-        // char buff2[16];
-        // uintToBase(rp.sp, buff2, 16);
-        // printf(buff2);
-        // putchar('\n');
     }else if(flag == 1){
-        //printf(regs[registers_len -2]);
         char buff1[16];
         uintToBase(rp.ip, buff1,16);
-        //printf(buff1);
-        //putchar('\n');
 
         flag = 0;
     }
-    //printf(regs[registers_len - 1]);
     
     char buff2[16]; 
     uintToBase(stack[registers_len + 1], buff2, 16);  
-    //printf(buff2); 
-    //putchar('\n');
 
 }
 
@@ -105,15 +86,9 @@ set_restore_point(uint64_t ip, uint64_t sp, uint64_t bp)
 static void
 restore_state(uint64_t* stack)
 {
-    
-	//printf("Restoring state from: IP=0x");
     char buffer[30];
 	uintToBase(stack[registers_len - 2], buffer, 16);
-	//printf(buffer);
-	//printf("  SP=0x");
 	uintToBase(rp.sp, buffer, 16);
-	//printf(buffer);
-	//printf("\n\n");
     
 	// restauramos los valores
 	stack[registers_len - 2] = rp.ip;  // RIP

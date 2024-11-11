@@ -121,7 +121,7 @@ uint64_t test_sync(uint64_t argc, char *argv[]) {
         printf("Done\n");
     }
 
-    sleep(30000000000000000);
+    //waitpid(pid); TODO: Handle waitpid(-1) to wpid any child
     printf("\n=== TEST END ===\n");
     printf("Final global: %d\n", global);
     return 0;

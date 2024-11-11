@@ -6,6 +6,8 @@
 #include <math.h>
 #include <IdtLoader.h>
 #include <buddy_memman.h>
+#include <lib.h>
+#include <semaphore.h>
 
 #define IDLE_PID 0
 #define DEFAULT_QUANTUM 5
@@ -22,8 +24,10 @@ typedef struct scheduler_cdt {
     int32_t current_quantum;
 } scheduler_cdt;
 
+uint8_t sig_fg_kill = 0;
 
-void print_number2(int number);
+void print_process_lists();
+
 // Inicializa el scheduler
 scheduler_adt init_scheduler() {
     scheduler_adt scheduler = (scheduler_adt) SCHEDULER_ADDRESS;
@@ -39,6 +43,8 @@ scheduler_adt init_scheduler() {
     scheduler->next_unused_pid = 0;
     scheduler->current_pid = -1;
     scheduler->current_quantum = DEFAULT_QUANTUM;
+
+    sig_fg_kill = 0;
 
     return scheduler;
 }
@@ -59,21 +65,17 @@ int32_t get_next_ready_pid() {
     if (next_node != NULL) {
         return ((process_t *) next_node->process)->pid;
     }
-    return IDLE_PID;  // Si no hay otro proceso listo, regresar al proceso idle
+    return IDLE_PID; 
 
 }
 
 
 void* scheduler(void* stack_pointer) {
     scheduler_adt scheduler = getSchedulerADT();
-    
-    // Disable interrupts during scheduling
-    asm_cli();
 
     process_t *current_process = NULL;
     process_t *next_process = NULL;
 
-    // Save current context if there is a current process
     if (scheduler->current_pid != -1) {
         current_process = (process_t *)scheduler->processes[scheduler->current_pid]->process;
         current_process->stack_pointer = stack_pointer;
@@ -81,50 +83,62 @@ void* scheduler(void* stack_pointer) {
 
     scheduler->current_quantum--;
     
-    // Don't switch if quantum hasn't expired and process isn't blocked/killed
+   
     if (scheduler->current_quantum > 0 && 
         current_process != NULL && 
         (current_process->state == RUNNING || current_process->state == READY)) {
-        asm_sti();
         return stack_pointer;
     }
 
-    // Get next process to run
+   
     int32_t next_pid = get_next_ready_pid();
     
-    // Handle state transition atomically
-    if (current_process != NULL) {
         switch (current_process->state) {
             case RUNNING:
                 current_process->state = READY;
                 swapToLast(scheduler->process_list, current_process);
                 break;
             case KILLED:
-                scheduler->processes[scheduler->current_pid] = NULL;
-                free_process(current_process);
-                scheduler->remaining_processes--;
+                
                 break;
-            case BLOCKED:
-                // Already handled by block_process()
+            case BLOCKED: 
                 break;
+            case WAITING_FOR_CHILD:
+                start_iterator(current_process->children);
+                while(has_next(current_process->children)){
+                    process_t *child = (process_t *) get_next(current_process->children);
+                    if(child == NULL || child->parent_pid != current_process->pid){
+                        removeNode(current_process->children, child);
+                        start_iterator(current_process->children);
+                    }
+                }
+                if(isEmptyList(current_process->children)){
+                    current_process->state = READY;
+                }
             default:
                 break;
         }
-    }
+    
 
-    // Set up next process
     scheduler->current_pid = next_pid;
     next_process = (process_t *)scheduler->processes[next_pid]->process;
     next_process->state = RUNNING;
     
     scheduler->current_quantum = DEFAULT_QUANTUM;
-    
-    // Re-enable interrupts before returning
-    asm_sti();
-    
+
+   
+   
     return next_process->stack_pointer;
 }
 
+static uint32_t get_next_unused_pid(){
+    scheduler_adt scheduler = getSchedulerADT();
+    int i = IDLE_PID + 1;
+    while(scheduler->processes[i] != NULL){
+        i++;
+    }
+    return i;
+}
 
 
 // Crear un nuevo proceso
@@ -132,7 +146,6 @@ int32_t create_process(Function code, char **args, int argc, char *name, uint8_t
 
     priority = CAPPED_PRIORITY(priority);
     scheduler_adt scheduler = getSchedulerADT();
-    //ker_write("Creating process\n");
     if (scheduler->remaining_processes >= MAX_PROCESSES) {
         ker_write("Max processes reached\n");
         return -1;
@@ -144,7 +157,9 @@ int32_t create_process(Function code, char **args, int argc, char *name, uint8_t
         return -1;
     }
 
-     init_process(process, scheduler->next_unused_pid, code, args, argc, name, priority, unkilliable); 
+    init_process(process, scheduler->next_unused_pid, code, args, argc, name, priority, unkilliable); 
+
+
    
     node_t *process_node = b_alloc(sizeof(node_t));
     if (process_node == NULL) {
@@ -162,94 +177,27 @@ int32_t create_process(Function code, char **args, int argc, char *name, uint8_t
     }
 
     scheduler->processes[process->pid] = process_node;
-    scheduler->next_unused_pid = (scheduler->next_unused_pid + 1) % MAX_PROCESSES;
+    //scheduler->next_unused_pid = (scheduler->next_unused_pid + 1) % MAX_PROCESSES;
+    scheduler->next_unused_pid = get_next_unused_pid();
     scheduler->remaining_processes++;
 
     return process->pid;
 }
 
 
-int32_t waitpid(int32_t pid, int *status) {
-    scheduler_adt scheduler = getSchedulerADT();
-    int32_t current_pid = get_current_pid();
-    process_t *current_process = (process_t *)scheduler->processes[current_pid]->process;
-    
-    if (pid == -1) {
-        int has_children = 0;
-        
-        for (int i = 0; i < MAX_PROCESSES; i++) {
-            if (scheduler->processes[i] != NULL) {
-                process_t *proc = (process_t *)scheduler->processes[i]->process;
-                if (proc->parent_pid == current_pid) {
-                    has_children = 1;
-                    
-                    if (proc->state == KILLED && !proc->has_been_waited) {
-                        proc->has_been_waited = 1;
-                        if (status != NULL) {
-                            *status = proc->exit_code;
-                        }
-                        return proc->pid;
-                    }
-                }
-            }
-        }
-        
-        if (!has_children) {
-            return -1;
-        }
+void waitpid(uint32_t child_pid){
 
-        // current_process->state = WAITING_FOR_CHILD;
-        removeAllNodes(scheduler->process_list, current_process);
-        block_process(current_pid);
-        
-        for (int i = 0; i < MAX_PROCESSES; i++) {
-            if (scheduler->processes[i] != NULL) {
-                process_t *proc = (process_t *)scheduler->processes[i]->process;
-                if (proc->parent_pid == current_pid && 
-                    proc->state == KILLED && 
-                    !proc->has_been_waited) {
-                    proc->has_been_waited = 1;
-                    if (status != NULL) {
-                        *status = proc->exit_code;
-                    }
-                    return proc->pid;
-                }
-            }
-        }
-    } else {
-        if (pid < 0 || pid >= MAX_PROCESSES || scheduler->processes[pid] == NULL) {
-            return -1;
-        }
-        
-        process_t *target = (process_t *)scheduler->processes[pid]->process;
-        
-        if (target->parent_pid != current_pid) {
-            return -1;
-        }
-        
-        if (target->state == KILLED && !target->has_been_waited) {
-            target->has_been_waited = 1;
-            if (status != NULL) {
-                *status = target->exit_code;
-            }
-            return pid;
-        }
-        
-        // current_process->state = WAITING_FOR_CHILD;
-        removeAllNodes(scheduler->process_list, current_process);
-        block_process(current_pid);
-        
-        if (target->state == KILLED && !target->has_been_waited) {
-            target->has_been_waited = 1;
-            if (status != NULL) {
-                *status = target->exit_code;
-            }
-            return pid;
-        }
+    process_t * parent = get_current_process();
+    process_t * child = get_process_by_pid(child_pid);
+    if(child == NULL || child->parent_pid != parent->pid){
+        return;
     }
-    
-    return -1;
+
+    addNode(parent->children ,(void *) child);
+    parent->state = WAITING_FOR_CHILD;
+    yield();
 }
+
 
 process_t * get_current_process() {
     scheduler_adt scheduler = getSchedulerADT();
@@ -264,10 +212,10 @@ void process_priority(uint64_t pid, uint8_t new_prio) {
     process_t *current_process = (process_t *) scheduler->processes[pid]->process;
     int priority_delta = new_prio - current_process->priority;
     
-    // Case when we have to add to unblock 
+    
     if (priority_delta == 0) {
         for (int i = 0; i < current_process->priority; i++) {
-            //ker_write("UNBLOCKING\n");
+           
             if (current_process->state!=READY && current_process->state!=RUNNING)
             addNode(scheduler->process_list, (void *) current_process);
         }
@@ -286,12 +234,18 @@ void process_priority(uint64_t pid, uint8_t new_prio) {
     current_process->priority = new_prio;  
 }
 
+static void remove_children(linkedListADT children, process_t *child) {
+    if (children == NULL || child == NULL) {
+        return;
+    }
 
-// Terminar un proceso
-int kill_process(uint16_t pid) {
+    removeNode(children, (void *)child);
+}
+
+int kill_process(uint32_t pid) {
     scheduler_adt scheduler = getSchedulerADT();
     if (pid == IDLE_PID) {
-        ker_write("Cannot kill idle process\n");
+        ker_write("\nCannot kill idle process\n");
         return -1;
     }
 
@@ -306,20 +260,34 @@ int kill_process(uint16_t pid) {
         return -1;
     }
 
+    remove_from_all_semaphores(pid);
+
+
     if (process_to_kill->state == BLOCKED) {
         removeAllNodes(scheduler->blocked_process_list, (void *)process_to_kill);
     } else {
         removeAllNodes(scheduler->process_list, (void *)process_to_kill);
     }
 
-    process_to_kill->state = KILLED;
+    if(process_to_kill->parent_pid != IDLE_PID){
+        process_t *parent = get_process_by_pid(process_to_kill->parent_pid);
+        remove_children(parent->children, process_to_kill);
+    }
+    
+        for (int i = 0; i < MAX_PROCESSES; i++) {
+        if (scheduler->processes[i] != NULL) {
+            process_t *process = (process_t *)scheduler->processes[i]->process;
+            if (process->parent_pid == pid) {
+                block_process(process->pid);
+            }
+        }
+    }
 
-    // if (process_to_kill->parent_pid != -1) {
-    //     process_t *parent = (process_t *)scheduler->processes[process_to_kill->parent_pid]->process;
-    //     if (parent->state == WAITING_FOR_CHILD) {
-    //         unblock_process(parent->pid);
-    //     }
-    // }
+    scheduler->next_unused_pid = pid;
+
+    free_process(process_to_kill);
+    scheduler->remaining_processes--;
+    process_to_kill->state = KILLED;
 
     yield();
     return 0;
@@ -343,19 +311,13 @@ int block_process(uint64_t pid) {
         return -1;
     }
 
-   // Disable interrupts during critical section
-    asm_cli();
-
     process_t *process_to_block = (process_t *) scheduler->processes[pid]->process;
     process_to_block->state = BLOCKED;
     removeAllNodes(scheduler->blocked_process_list, process_to_block);
     addNode(scheduler->blocked_process_list, process_to_block);
     removeAllNodes(scheduler->process_list, process_to_block);
-    
-    // Re-enable interrupts 
-    asm_sti();
-    
-    yield();
+     
+    //yield();
     return 0;
 }
 
@@ -368,14 +330,10 @@ int unblock_process(uint64_t pid) {
 
     process_t *process_to_unblock = (process_t *) scheduler->processes[pid]->process;
     process_to_unblock->state = READY;
-    // ker_write("pid unblocked: ");
-    // print_number2(pid);
-    // ker_write("\n");
     removeAllNodes(scheduler->blocked_process_list, process_to_unblock);
     for (int i =0 ; i < process_to_unblock->priority;i++){
         addNode(scheduler->process_list,process_to_unblock);
     }
-   // process_priority(pid, process_to_unblock->priority);
     yield();
 
     return 0;
@@ -388,53 +346,84 @@ uint32_t get_current_pid() {
 
 process_t *get_process_by_pid(uint32_t pid) {
     scheduler_adt scheduler = getSchedulerADT();
+    if (scheduler->processes[pid] == NULL) {
+        return NULL;
+    }
+
     return (process_t *) scheduler->processes[pid]->process;
 }
-#undef CAPPED_PRIORITY
 
+int16_t get_current_process_file_descriptor(uint8_t fd_index) {
+	scheduler_adt scheduler = getSchedulerADT();
+	process_t *process = scheduler->processes[scheduler->current_pid]->process;
+	return process->fds[fd_index];
+}
 
-void int_to_string2(int num, char *str) {
-    int i = 0;
-    int is_negative = 0;
+//Simulating dup2().
+uint16_t change_process_fd(uint32_t pid, uint16_t fd_index, int16_t new_fd){
+    scheduler_adt scheduler = getSchedulerADT();
+    process_t* process = (process_t *) scheduler->processes[pid]->process;
+    if (process == NULL){
+        return -1;
+    }
+    process->fds[fd_index] = new_fd;
+    return 0;
+}
 
-    // Handle 0 explicitly, since it is a special case
-    if (num == 0) {
-        str[i++] = '0';
-        str[i] = '\0';
+void kill_current_ppid() {
+    process_t *process = get_current_process();
+    if (process->parent_pid != IDLE_PID) {
+        kill_process(process->parent_pid);
+    } else {
+        kill_current_process();
+    }
+}
+
+void kill_fg_process() {
+    process_t* current = get_current_process();
+    
+    if (current == NULL || current->pid == IDLE_PID) {
         return;
     }
-
-    // Handle negative numbers
-    if (num < 0) {
-        is_negative = 1;
-        num = -num;
-    }
-
-    // Process individual digits
-    while (num != 0) {
-        str[i++] = (num % 10) + '0'; // Convert digit to character
-        num /= 10;
-    }
-
-    // If the number is negative, append '-'
-    if (is_negative) {
-        str[i++] = '-';
-    }
-
-    str[i] = '\0'; // Null-terminate the string
-
-    // Reverse the string
-    for (int j = 0; j < i / 2; j++) {
-        char temp = str[j];
-        str[j] = str[i - j - 1];
-        str[i - j - 1] = temp;
+    
+    if (current->fds[STDIN] == STDIN) {
+        ker_write("Killing current process\n");
+        if (current->parent_pid != IDLE_PID) {
+            kill_process(current->parent_pid);
+            print_number(current->parent_pid);
+        } else {
+            print_number(current->pid);
+            kill_process(current->pid);
+        }
     }
 }
 
-void print_number2(int number) {
-    char buffer[20]; // Buffer to hold the string representation of the number
-    int_to_string2(number, buffer); // Convert integer to string
-    ker_write(buffer); // Print the number
+void print_process_lists() {
+    scheduler_adt scheduler = getSchedulerADT();
+    
+    // Print processes in the process list
+    node_t *process_node = getFirstNode(scheduler->process_list);
+    ker_write("Processes in the process list:\n");
+    while (process_node != NULL) {
+        process_t *process = (process_t *)process_node->process;
+        ker_write("pid: ");
+        print_number(process->pid);
+        ker_write(" parent_pid: ");
+        print_number(process->parent_pid);
+        ker_write(" state: ");
+        print_number(process->state);
+        ker_write("\n");
+        process_node = (node_t *) (process_node->next);
+    }
+
+    // Print blocked processes
+    node_t *blocked_node = getFirstNode(scheduler->blocked_process_list);
+    ker_write("Blocked processes:\n");
+    while (blocked_node != NULL) {
+        process_t *blocked_process = (process_t *)blocked_node->process;
+        print_number(blocked_process->pid);
+        blocked_node = (node_t *) (process_node->next);
+    }
 }
 
-
+#undef CAPPED_PRIORITY

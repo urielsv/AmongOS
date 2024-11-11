@@ -20,6 +20,8 @@
 #define RSHIFT 0x36
 #define RELEASE_LSHIFT LSHIFT + 128
 #define RELEASE_RSHIFT RSHIFT + 128
+#define LCTRL 0x1D
+#define RELEASE_LCTRL LCTRL + 128
 #define CAPSLOCK 0x3A
 #define DELETE 0x0E
 #define ESC 0x01

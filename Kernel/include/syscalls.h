@@ -16,6 +16,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <process.h>
+#include <stdlib.h>
 
 /*
  * @name sys_write
@@ -206,6 +207,24 @@ void sys_sem_post(int64_t id);
 
 void sys_sem_close(int64_t id);
 
-uint32_t sys_waitpid(uint64_t pid, int *status);
+//uint32_t sys_waitpid(uint64_t pid, int *status);
+
+void sys_waitpid(uint32_t child_pid);
+
+uint16_t sys_create_pipe();
+
+uint16_t sys_open_pipe(uint16_t pid, uint16_t pipe_id, uint8_t mode);
+
+uint16_t sys_close_pipe(uint16_t pipe_id);
+
+uint16_t sys_write_pipe(uint16_t pid, uint16_t pipe_id, char * data, uint16_t size);
+
+uint16_t sys_read_pipe(uint16_t pid, uint16_t pipe_id, char * data, uint16_t size);
+
+uint8_t sys_process_exists(uint32_t pid);
+
+process_snapshot_t *sys_process_snapshot(uint32_t pid);
+
+uint16_t sys_change_process_fd(uint32_t pid, uint16_t fd_index, int16_t new_fd);
 
 #endif

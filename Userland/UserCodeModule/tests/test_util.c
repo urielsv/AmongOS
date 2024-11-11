@@ -70,10 +70,10 @@ void endless_loop() {
 }
 
 void endless_loop_print(uint64_t wait) {
-  int64_t pid = get_pid();
+  // int64_t pid = get_pid();
 
   while (1) {
-    printf("%d ", pid);
+    // printf("%d ", pid);
     bussy_wait(wait);
   }
 }

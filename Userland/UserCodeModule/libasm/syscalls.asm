@@ -1,4 +1,4 @@
-GLOBAL read, write, random, read_char, draw, sleep, time, sound, hlt, clear, writing_pos, screen_info,font_size,sys_registers,test_exc_zero,test_exc_invalid_opcode,mem_alloc,mem_free, exec, kill, block, unblock, set_priority, get_pid, yield, sem_open, sem_wait, sem_post, sem_close, waitpid 
+GLOBAL read, write, random, read_char, draw, sleep, time, sound, hlt, clear, writing_pos, screen_info,font_size,sys_registers,test_exc_zero,test_exc_invalid_opcode,mem_alloc,mem_free, exec, kill, block, unblock, set_priority, get_pid, yield, sem_open, sem_wait, sem_post, sem_close, waitpid, process_exists, process_snapshot, create_pipe, open_pipe, close_pipe, change_process_fd
 
 
 
@@ -149,6 +149,38 @@ sem_close:
     ret
 
 waitpid:
+    mov rax, 2
+    int 0x80
+    ret
+   
+process_exists:
+    mov rax, 3
+    int 0x80
+    ret
+
+process_snapshot:
+    mov rax, 11
+    int 0x80
+    ret
+
+create_pipe:
     mov rax, 33
     int 0x80
     ret
+
+open_pipe:
+    mov rax, 34
+    int 0x80
+    ret
+
+close_pipe:
+    mov rax, 35
+    int 0x80
+    ret
+
+change_process_fd:
+    mov rax, 36
+    int 0x80
+    ret
+
+

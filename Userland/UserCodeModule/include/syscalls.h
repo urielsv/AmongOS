@@ -146,6 +146,12 @@ extern int32_t sem_open(int64_t id, int64_t initialValue);
 extern void sem_wait(int64_t id);
 extern void sem_post(int64_t id);
 extern void sem_close(int64_t id);
-extern int waitpid(uint64_t pid, int *status);
+extern void waitpid(uint32_t pid);
+extern uint8_t process_exists(uint32_t pid);
+extern process_snapshot_t *process_snapshot(uint32_t pid);
+extern uint16_t create_pipe();
+extern uint16_t  open_pipe(uint16_t pid, uint16_t pipe_id, uint8_t mode);
+extern uint16_t  close_pipe(uint16_t pipe_id);
+extern uint16_t change_process_fd(uint32_t pid, uint16_t fd_index, uint16_t new_fd);
 
 #endif

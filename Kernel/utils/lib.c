@@ -3,6 +3,7 @@
 #include <naiveConsole.h>
 #include <stdint.h>
 #include "../include/lib.h"
+#include <io.h>
 
 #define TIMEZONE -3 // argentina
 
@@ -33,13 +34,6 @@ void getTime() {
     ncPrintDec(getSeconds());
 }
 
-// void itoa(char *str, int num, int width) {
-//     for (int i = width - 1; i >= 0; i--) {
-//         str[i] = num % 10 + '0';
-//         num /= 10;
-//     }
-//     str[width] = '\0';
-// }
 
 uint64_t get_random_number(int seed) {
 
