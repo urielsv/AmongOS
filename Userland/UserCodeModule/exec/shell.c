@@ -46,7 +46,9 @@ command_t commands[] = {
     {"infinite_loop", "Starts an infinite loop", (Function) infinite_loop_proc},
     {"philos", "start the classic philosophers dilemma", (Function) philos_proc},
     {"cat", "Imprime el stdin tal como lo recibe", (Function) cat},
-    {"wc", "Cuenta la cantidad de lineas del stdin", (Function) wc}
+    {"wc", "Cuenta la cantidad de lineas del stdin", (Function) wc},
+    {"block","Bloquea un proceso", (Function) block_proc},
+    {"unblock", "Desbloquea un proceso", (Function) unblock_proc},
 };
 
 
@@ -166,15 +168,16 @@ static int execute_command(parsed_input_t *parsed) {
                 if (parsed->is_bg) {
                     pid = exec((void *)commands[i].cmd, current->argv, current->argc, 
                              commands[i].name, DEFAULT_PRIORITY);
-
+                
                     block(pid);
-
+                  
                     change_process_fd(pid, STDIN, DEV_NULL);
                     change_process_fd(pid, STDOUT, DEV_NULL);
                     change_process_fd(pid, STDERR, DEV_NULL);
+                
                     
-                    yield();
                     unblock(pid);
+                    //yield();
                     printf("[%d] Running in background\n", pid);
                 } else {
                     pid = exec((void *)commands[i].cmd, current->argv, current->argc, 
@@ -450,6 +453,44 @@ int philos_proc(int argc, char *argv[])
 {
     return run_philosophers(argc, argv);
 }
+
+void block_proc(int argc, char *argv[])
+{
+    if (argc != 1)
+    {
+        printf("Usage: block <pid>");
+        return;
+    }
+
+    int32_t pid = -1;
+    if ((pid = validate_pid(argv[0])) < 0)
+    {
+        printf("Error: invalid pid %d", argv[0]);
+        return;
+    }
+
+    block(pid);
+}
+
+
+void unblock_proc(int argc, char *argv[])
+{
+    if (argc != 1)
+    {
+        printf("Usage: unblock <pid>");
+        return;
+    }
+
+    int32_t pid = -1;
+    if ((pid = validate_pid(argv[0])) < 0)
+    {
+        printf("Error: invalid pid %d", argv[0]);
+        return;
+    }
+
+    unblock(pid);
+}
+
 
 // no funciona
 int cat(int argc, char *argv[]) {

@@ -27,7 +27,7 @@ static void unlock_semaphore(sem_t *sem) {
 
 int32_t sem_open(int64_t id, int64_t initial_value) {
 
-    int find =find_semaphore(id);
+    int find = find_semaphore(id);
     if ( find != -1) {
         return find;
     }
@@ -75,6 +75,7 @@ void sem_wait(int64_t id) {
         
         unlock_semaphore(sem);
         block_process(current_pid);
+        yield();
         lock_semaphore(sem);
     }
 
@@ -101,11 +102,13 @@ void sem_post(int64_t id) {
         if (waiting_pid != -1) {
             dequeue(sem->waiting_list); 
             unblock_process(waiting_pid);
+            yield();
         }
     }
     
 
     unlock_semaphore(sem);
+    yield();
 
 }
 

@@ -156,7 +156,7 @@ int32_t create_process(Function code, char **args, int argc, char *name, uint8_t
         ker_write("Error creating process\n");
         return -1;
     }
-
+    
     init_process(process, scheduler->next_unused_pid, code, args, argc, name, priority, unkilliable); 
 
 
@@ -164,7 +164,7 @@ int32_t create_process(Function code, char **args, int argc, char *name, uint8_t
     node_t *process_node = mem_alloc(sizeof(node_t));
     if (process_node == NULL) {
         ker_write("Error creating process node\n");
-        mem_free(process);  // Liberar proceso creado en caso de error
+        mem_free(process);  
         return -1;
     } 
 
@@ -177,7 +177,6 @@ int32_t create_process(Function code, char **args, int argc, char *name, uint8_t
     }
 
     scheduler->processes[process->pid] = process_node;
-    //scheduler->next_unused_pid = (scheduler->next_unused_pid + 1) % MAX_PROCESSES;
     scheduler->next_unused_pid = get_next_unused_pid();
     scheduler->remaining_processes++;
 
@@ -260,6 +259,7 @@ int kill_process(uint32_t pid) {
         return -1;
     }
 
+    ker_write("\n");
     remove_from_all_semaphores(pid);
 
 
@@ -279,6 +279,7 @@ int kill_process(uint32_t pid) {
             process_t *process = (process_t *)scheduler->processes[i]->process;
             if (process->parent_pid == pid) {
                 block_process(process->pid);
+                process->parent_pid = IDLE_PID;
             }
         }
     }
@@ -321,7 +322,7 @@ int block_process(uint64_t pid) {
     return 0;
 }
 
-// Desbloquear un proceso
+
 int unblock_process(uint64_t pid) {
     scheduler_adt scheduler = getSchedulerADT();
     if (scheduler->processes[pid] == NULL) {
@@ -334,7 +335,7 @@ int unblock_process(uint64_t pid) {
     for (int i =0 ; i < process_to_unblock->priority;i++){
         addNode(scheduler->process_list,process_to_unblock);
     }
-    yield();
+    //yield();
 
     return 0;
 }

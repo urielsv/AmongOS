@@ -63,6 +63,8 @@ uint64_t test_processes_proc(uint64_t argc, char *argv[]);
 int test_prio_proc();
 int test_synchro_proc(uint64_t argc, char *argv[]);
 int philos_proc(int argc, char *argv[]);
+void block_proc(int argc, char *argv[]);
+void unblock_proc(int argc, char *argv[]);
 
 void kill_proc(int argc, char *argv[]);
 void nice(int argc, char *argv[]);

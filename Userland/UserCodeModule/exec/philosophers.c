@@ -76,6 +76,7 @@ int run_philosophers(int argc, char* argv[]){
         }
     }
 
+    start_philosophers = 5;
     printf("Starting the dilemma with %d philosophers\n", start_philosophers);
 
     for(int i = 0; i < start_philosophers; i++){
@@ -196,8 +197,9 @@ static void print_state(){
 }
 
 static void think(){
-    int seed = atoi(time());
-    sleep(rand(seed, MAX_THINKING_TIME - MIN_THINKING_TIME) + MIN_THINKING_TIME);
+    sleep(1000);
+    //int seed = atoi(time());
+    //sleep(rand(seed, MAX_THINKING_TIME - MIN_THINKING_TIME) + MIN_THINKING_TIME);
 }
 
 static void kill_philos(){
