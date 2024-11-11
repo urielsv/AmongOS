@@ -159,7 +159,6 @@ static void parse_buffer(char *buff, parsed_input_t *parsed) {
 static int execute_command(parsed_input_t *parsed) {
     if (!parsed || parsed->cmd_count == 0) return 0;
 
-    // For single commands without pipe
     if (parsed->cmd_count == 1) {
         command_input_t *current = &parsed->cmds[0];
         
@@ -241,7 +240,6 @@ static int execute_command(parsed_input_t *parsed) {
     }
 
     close_pipe(pipe_id);
-    //close_pipe(pipe_id2);
     
     return 0;
 }

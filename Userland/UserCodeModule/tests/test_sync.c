@@ -74,11 +74,9 @@ uint64_t my_process_inc(uint64_t argc, char *argv[]) {
         }
     }
 
-    if (use_sem) {
-        printf("PID %d SEM: Closing\n", get_pid());
+    if (use_sem==0) {
         sem_close(SEM_ID);
     }
-
     printf("PID %d END\n", get_pid());
     return 0;
 }
@@ -119,6 +117,7 @@ uint64_t test_sync(uint64_t argc, char *argv[]) {
         waitpid(pids[i + TOTAL_PAIR_PROCESSES]);
         printf("Done\n");
     }
+    //sleep(1000);
 
     //waitpid(pid); TODO: Handle waitpid(-1) to wpid any child
     printf("\n=== TEST END ===\n");
