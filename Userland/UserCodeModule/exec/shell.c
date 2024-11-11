@@ -43,10 +43,12 @@ command_t commands[] = {
     {"kill", "Kill a process <pid>.", (Function) kill_proc},
     {"nice", "Change the scheduling priority of a process <pid> to <priority>.", (Function) nice},
     {"ps", "List all processes", (Function) ps},
+    {"mem", "Muestra la memoria total, usada y libre", (Function) print_mem_info},
     {"infinite_loop", "Starts an infinite loop", (Function) infinite_loop_proc},
     {"philos", "start the classic philosophers dilemma", (Function) philos_proc},
     {"cat", "Imprime el stdin tal como lo recibe", (Function) cat},
-    {"wc", "Cuenta la cantidad de lineas del stdin", (Function) wc}
+    {"wc", "Cuenta la cantidad de lineas del stdin", (Function) wc},
+    {"filter", "Filtra las vocales del stdin", (Function) filter}
 };
 
 
@@ -472,4 +474,19 @@ int wc(int argc, char *argv[]) {
 	return 0;
 }
 
-//falta filter
+
+int filter(int argc, char **argv) {
+	char c;
+	while ((int) (c = getchar()) != EOF) {
+		if (toLower(c) == 'a' || toLower(c) == 'e' || toLower(c) == 'i' || toLower(c) == 'o' || toLower(c) == 'u')
+			putchar(c);
+	}
+	putchar('\n');
+	return 0;
+}
+
+size_t print_mem_info() {
+    size_t *info = memory_info();
+    printf("Total: %d, Used: %d, Free: %d\n", info[0], info[1], info[2]);
+    return 0;
+}

@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "memman.h"
+#include <lib.h>
 
 #define MEM_BLOCK_SIZE 4096
 
@@ -20,6 +21,9 @@ typedef struct mem_manager {
     void *heap_start_addr;
     void *heap_end_addr;
     mem_node *mem_list;
+    size_t total_memory;  
+    size_t used_memory;   
+    size_t free_memory;  
 } mem_manager;
 
 mem_manager *memory_manager;
@@ -30,6 +34,9 @@ void mem_init(void *start_addr, size_t size) {
     memory_manager->heap_start_addr = start_addr + sizeof(mem_manager);
     memory_manager->heap_end_addr = start_addr + size;
     memory_manager->mem_list = NULL;
+    memory_manager->total_memory = mem_size;  
+    memory_manager->free_memory = mem_size;   
+    memory_manager->used_memory = memory_manager->total_memory - memory_manager->free_memory;       
 }
 
 static mem_node create_block(void *start_addr, size_t size) {
@@ -51,6 +58,8 @@ void *mem_alloc(size_t size) {
     while (current_node != NULL) {
         if (current_node->is_free && current_node->size >= size) {
             current_node->is_free = 0;
+            memory_manager->used_memory += current_node->size; 
+            memory_manager->free_memory -= current_node->size;
             return current_node->start_addr;
         }
         prev_node = current_node;
@@ -74,7 +83,11 @@ void *mem_alloc(size_t size) {
         prev_node->next = new_node;
     }
 
+    memory_manager->used_memory += size; 
+    memory_manager->free_memory -= size;
+
     return new_node->start_addr;
+    //nunca llega aca 
      if (prev_node->start_addr + prev_node->size + size + sizeof(mem_node) > memory_manager->heap_end_addr) {
         return (void*)0;
     }
@@ -83,15 +96,28 @@ void *mem_alloc(size_t size) {
     return node.start_addr;
 }
 
-
-
 void mem_free(void *ptr) {
     mem_node *current_node = memory_manager->mem_list;
     while (current_node != NULL) {
         if (current_node->start_addr == ptr) {
             current_node->is_free = 1;
+            memory_manager->used_memory -= current_node->size; 
+            memory_manager->free_memory += current_node->size;
+            mem_info();
             return;
         }
         current_node = current_node->next;
     }
 }
+
+size_t * mem_info() {
+    size_t *info = (size_t *)mem_alloc(3 * sizeof(size_t)); 
+    if (info == NULL) {
+        return NULL; 
+    }
+    info[0] = memory_manager->total_memory;
+    info[1] = memory_manager->used_memory;
+    info[2] = memory_manager->free_memory;
+    return info; 
+}
+

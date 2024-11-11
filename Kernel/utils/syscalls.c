@@ -64,7 +64,7 @@ static syscall_t syscalls[] = {
     [34] = (syscall_t)&sys_open_pipe,
     [35] = (syscall_t)&sys_close_pipe,
     [36] = (syscall_t)&sys_change_process_fd,
-
+    [37] = (syscall_t)&sys_mem_info,
 };
 
 uint64_t syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9) {
@@ -316,4 +316,8 @@ process_snapshot_t *sys_process_snapshot(uint32_t pid) {
 
 uint16_t sys_change_process_fd(uint32_t pid, uint16_t fd_index, int16_t new_fd) {
     return change_process_fd(pid, fd_index, new_fd);
+}
+
+size_t * sys_mem_info() {
+    return mem_info();
 }
