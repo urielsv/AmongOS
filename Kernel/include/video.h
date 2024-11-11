@@ -35,6 +35,4 @@ void video_fontsize(int newsize);
 int get_width();
 int get_height();
 void new_line(uint64_t *x, uint64_t *y);
-void reset_line_count();
-int get_line_count();
 #endif

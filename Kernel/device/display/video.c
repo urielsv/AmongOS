@@ -52,11 +52,9 @@ typedef struct vbe_mode_info_structure *VBEInfoPtr;
 VBEInfoPtr vbe_mode_info = (VBEInfoPtr)0x0000000000005C00;
 
 static int size = 1;
-int * line_count = 1;
 
 // Check if the posx of the pixel is out of the screens width
 static char posx_out_screen(uint64_t x) {
-    (*line_count)++;
     return x + FONT_WIDTH * size - 1 >= vbe_mode_info->width;
 }
 
@@ -73,7 +71,6 @@ void video_fontsize(int newsize) {
 void put_char_at(unsigned char c, uint64_t *x, uint64_t *y, uint64_t fgcolor, uint64_t bgcolor) {
     // rx and ry are the "real values"
     if (posx_out_screen(*x)) {
-        (*line_count)++;
         *x = 0;
         *y += FONT_HEIGHT * size;
     }
@@ -88,7 +85,6 @@ void put_char_at(unsigned char c, uint64_t *x, uint64_t *y, uint64_t fgcolor, ui
     unsigned char *bm_char = get_char_bitmap(c);
     for (cy = 0; cy < FONT_HEIGHT * size; cy++) {
         for (cx = 0; cx < FONT_WIDTH * size; cx++) {
-            (*line_count)++;
             put_pixel((bm_char[cy / size] & 1 << (FONT_WIDTH - cx / size - 1)) ? fgcolor : bgcolor, *x + cx, *y * size + cy + 12); // 12 is baseline
         }
     }
@@ -109,7 +105,6 @@ void put_pixel(uint32_t hexColor, uint64_t x, uint64_t y) {
     frameBuffer[offset] = (hexColor) & 0xFF;
     frameBuffer[offset + 1] = (hexColor >> 8) & 0xFF;
     frameBuffer[offset + 2] = (hexColor >> 16) & 0xFF;
-    (*line_count)++;
 }
 
 void clear_screen(uint32_t hexColor) {
@@ -131,13 +126,5 @@ int get_height() {
 void new_line(uint64_t *x, uint64_t *y) {
     *x = 0;
     *y += FONT_HEIGHT * size;
-    (*line_count)++;
 }
 
-void reset_line_count() {
-    (*line_count) = 1;
-}
-
-int get_line_count() {
-    return (*line_count);
-}

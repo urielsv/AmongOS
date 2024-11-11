@@ -187,14 +187,3 @@ memory_info:
     mov rax, 37
     int 0x80
     ret
-
-get_line_count:
-    mov rax, 38
-    int 0x80
-    ret
-
-reset_line_count:
-    mov rax, 39
-    int 0x80
-    ret
-
