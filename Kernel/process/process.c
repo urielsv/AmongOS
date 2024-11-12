@@ -99,7 +99,7 @@ void remove_child_process(process_t* parent, int32_t child_pid) {
 process_snapshot_t *get_process_snapshot(uint32_t pid)
 {
     process_t *process = get_process_by_pid(pid);
-    if (process == NULL || process->pid < 0 || process->pid > max_processes) {
+    if (process == NULL || process->pid < 0 || process->pid >MAX_PROCESSES) {
         return NULL;
     }
 

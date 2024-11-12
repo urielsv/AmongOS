@@ -35,7 +35,7 @@ static void free_pipe(uint16_t pipe_id);
 pipe_manager_adt init_pipe_manager() {
 
     pipe_manager_adt pipe_manager = (pipe_manager_adt) pipe_manager_address;
-    for (uint16_t i = builtin_fds; i < max_pipes; i++){
+    for (uint16_t i = BUILTIN_FDS; i < max_pipes; i++){
         pipe_manager->pipes[i] = NULL;
     }
 
@@ -44,8 +44,8 @@ pipe_manager_adt init_pipe_manager() {
     pipe_manager->pipes[STDOUT] = (pipe_t *) b_alloc(sizeof(pipe_t));
     pipe_manager->pipes[STDERR] = (pipe_t *) b_alloc(sizeof(pipe_t));
 
-    pipe_manager->next_pipe_id = builtin_fds;
-    pipe_manager->pipe_count = builtin_fds;
+    pipe_manager->next_pipe_id = BUILTIN_FDS;
+    pipe_manager->pipe_count = BUILTIN_FDS;
     return pipe_manager;
 
 }
@@ -89,7 +89,7 @@ static pipe_t * get_pipe(uint16_t pipe_id){
 
     pipe_manager_adt pipe_manager = get_pipe_manager();
     pipe_t * pipe = pipe_manager->pipes[pipe_id];
-    if (pipe == NULL || pipe_id < builtin_fds){
+    if (pipe == NULL || pipe_id < BUILTIN_FDS){
         ker_write("pipe not found\n");
         return NULL;
     }

@@ -81,9 +81,9 @@ static void handle_control_sequence(uint8_t key) {
             break;
             
         case ctrl_d:
-            // handle eof
+            // handle EOF
             if (count == 0) {  
-                // signal_handler(eof);
+                // signal_handler(EOF);
                 add_to_buffer('^');
                 add_to_buffer('d');
                 add_to_buffer('\n');

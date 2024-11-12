@@ -12,10 +12,10 @@
 #define idle_pid 0
 #define default_quantum 5
 
-#define capped_priority(prio) (prio >= max_priority ? max_priority : prio)
+#define capped_priority(prio) (prio >= MAX_PRIORITY ? MAX_PRIORITY : prio)
 
 typedef struct scheduler_cdt {
-    node_t * processes[max_processes];
+    node_t * processes[MAX_PROCESSES];
     linked_list_adt blocked_process_list;
     linked_list_adt process_list;
     int32_t current_pid;
@@ -30,12 +30,12 @@ void print_process_lists();
 
 // inicializa el scheduler
 scheduler_adt init_scheduler() {
-    scheduler_adt scheduler = (scheduler_adt) scheduler_address;
+    scheduler_adt scheduler = (scheduler_adt)SCHEDULER_ADDRESS;
 
     scheduler->process_list = create_linked_list();
     scheduler->blocked_process_list = create_linked_list();
 
-    for (int i = 0; i < max_processes; i++) {
+    for (int i = 0; i <MAX_PROCESSES; i++) {
         scheduler->processes[i] = NULL;
     }
 
@@ -50,7 +50,7 @@ scheduler_adt init_scheduler() {
 }
 
 scheduler_adt get_scheduler_adt() {
-    return (scheduler_adt) scheduler_address;
+    return (scheduler_adt)SCHEDULER_ADDRESS;
 }
 
 
@@ -149,7 +149,7 @@ int32_t create_process(function code, char **args, int argc, char *name, uint8_t
 
     priority = capped_priority(priority);
     scheduler_adt scheduler = get_scheduler_adt();
-    if (scheduler->remaining_processes >= max_processes) {
+    if (scheduler->remaining_processes >=MAX_PROCESSES) {
         ker_write("max processes reached\n");
         return -1;
     }
@@ -236,13 +236,6 @@ void process_priority(uint64_t pid, uint8_t new_prio) {
     current_process->priority = new_prio;  
 }
 
-static void remove_children(linked_list_adt children, process_t *child) {
-    if (children == NULL || child == NULL) {
-        return;
-    }
-
-    remove_node(children, (void *)child);
-}
 
 
 uint8_t last_child(uint32_t parent_pid) {
@@ -286,7 +279,7 @@ int kill_process(uint32_t pid) {
         
     }
     
-        for (int i = 0; i < max_processes; i++) {
+        for (int i = 0; i <MAX_PROCESSES; i++) {
         if (scheduler->processes[i] != NULL) {
             process_t *process = (process_t *)scheduler->processes[i]->process;
             if (process->parent_pid == pid) {

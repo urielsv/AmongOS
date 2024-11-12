@@ -9,8 +9,6 @@
 #define philo_sem(i) (sem_id - (i) - 1)
 #define left(i) (((i) + philosophers_count - 1) % philosophers_count)	
 #define right(i) (((i) + 1) % philosophers_count)
-#define max_thinking_time 10000
-#define min_thinking_time 1000
 
 typedef enum {
     none = 0,
@@ -76,7 +74,7 @@ int run_philosophers(int argc, char* argv[]){
         }
     }
 
-    start_philosophers = 5;
+    //start_philosophers = 5;
     printf("starting the dilemma with %d philosophers\n", start_philosophers);
 
     for(int i = 0; i < start_philosophers; i++){
@@ -198,8 +196,6 @@ static void print_state(){
 
 static void think(){
     sleep(1000);
-    //int seed = atoi(time());
-    //sleep(rand(seed, max_thinking_time - min_thinking_time) + min_thinking_time);
 }
 
 static void kill_philos(){

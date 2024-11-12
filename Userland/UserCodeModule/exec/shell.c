@@ -8,7 +8,7 @@
 #include <tests.h>
 #include <philosophers.h>
 
-#define max_buffer_size 1024
+#define MAX_BUFFER_SIZE 1024
 
 static void infinite_loop_proc(int argc, char *argv[]) {
 
@@ -67,11 +67,11 @@ void shell() {
     print_ps1("user", "~");
 
     // shell loop
-    char buff[max_buffer_size];
+    char buff[MAX_BUFFER_SIZE];
     parsed_input_t parsed;
     memset(&parsed, 0, sizeof(parsed_input_t));
     while (1) {
-        gets(buff, max_buffer_size);
+        gets(buff, MAX_BUFFER_SIZE);
         parse_buffer(buff, &parsed);
         execute_command(&parsed);
         print_ps1("user", "~");
@@ -169,27 +169,27 @@ static int execute_command(parsed_input_t *parsed) {
                 
                 if (parsed->is_bg) {
                     pid = exec((void *)commands[i].cmd, current->argv, current->argc, 
-                             commands[i].name, default_priority);
+                             commands[i].name, DEFAULT_PRIORITY);
                 
                     block(pid);
                   
-                    change_process_fd(pid, STDIN, dev_NULL);
-                    change_process_fd(pid, STDOUT, dev_NULL);
-                    change_process_fd(pid, STDERR, dev_NULL);
+                    change_process_fd(pid, STDIN, DEV_NULL);
+                    change_process_fd(pid, STDOUT, DEV_NULL);
+                    change_process_fd(pid, STDERR, DEV_NULL);
                 
                     
-                    unblock(pid);
-                    //yield();
+                    yield();
+                    //unblock(pid);
                     printf("[%d] running in background\n", pid);
                 } else {
                     pid = exec((void *)commands[i].cmd, current->argv, current->argc, 
-                             commands[i].name, default_priority);
+                             commands[i].name, DEFAULT_PRIORITY);
                     waitpid(pid);
                 }
                 return 0;
             }
         }
-        printf("su_shell: '%s' command not found", current->cmd);
+        printf("sus_shell: '%s' command not found", current->cmd);
         return 0;
     }
 
@@ -203,7 +203,7 @@ static int execute_command(parsed_input_t *parsed) {
         for (int j = 0; j < sizeof(commands) / sizeof(command_t); j++) {
             if (strcmp(commands[j].name, current->cmd) == 0) {
                 pids[i] = exec((void *)commands[j].cmd, current->argv, current->argc, 
-                             commands[j].name, default_priority);
+                             commands[j].name, DEFAULT_PRIORITY);
                 block(pids[i]);
                 
                 if (i == 0) {
@@ -221,7 +221,7 @@ static int execute_command(parsed_input_t *parsed) {
             }
         }
         if (!found) {
-            printf("su_shell: '%s' command not found", current->cmd);
+            printf("sus_shell: '%s' command not found", current->cmd);
             return 0;
         }
     }
@@ -247,9 +247,9 @@ static int execute_command(parsed_input_t *parsed) {
 
 
 void ps() {
-    printf("pid\t\t_prio\t\t\t\t_state\t\t\t\t\t_name\t\t\t_sp\t\t\t\t\t_bp\n");
+    printf("PID\t\tPRIO\t\t\t\tSTATE\t\t\t\t\tNAME\t\n");
     // todo: m_ake this more efficient sicne we are iterating over all the processes
-    for (int i = 0; i < max_processes; i++) {
+    for (int i = 0; i <MAX_PROCESSES; i++) {
         process_snapshot_t *process = process_snapshot(i);
         if (process != NULL) {
             char *state = "";
@@ -288,8 +288,8 @@ void ps() {
                     priority = "high       ";
                     break;
             }
-            printf("%d\t\t%s\t\t%s\t\t%s %s\t\t%s\t%s", process->pid, priority, state, process->name, process->argv, process->stack_pointer, process->base_pointer);
-            if (i < max_processes - 1) {
+            printf("%d\t\t%s\t\t%s\t\t%s %s\t\t", process->pid, priority, state, process->name, process->argv);
+            if (i <MAX_PROCESSES - 1) {
                 printf("\n");
             }
         }
@@ -448,6 +448,11 @@ int test_prio_proc()
 
 int test_synchro_proc(uint64_t argc, char *argv[])
 {
+    if (argc != 2)
+    {
+        printf("usage: test_synchro <n> <sem>");
+        return 0;
+    }
     test_sync(argc, argv); //{n, use_sem, 0}
     return 0;
 }
