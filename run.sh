@@ -18,10 +18,10 @@ else
     # Assuming Linux/Windows
     if [[ "$OS" == "Linux" ]]; then
         # Check if running under WSL2
-        if grep -qEi "(Microsoft|WSL)" /proc/version &> /dev/null ; then
+        if grep -qEi "(Microsoft|WSL)" /proc/version &> /dev/NULL ; then
             echo "Running on WSL2..."
             # Ensure PulseAudio is installed and running
-            if ! pgrep -x "pulseaudio" > /dev/null; then
+            if ! pgrep -x "pulseaudio" > /dev/NULL; then
                 echo "PulseAudio is not running. Starting PulseAudio..."
                 pulseaudio --start
             fi

@@ -1,19 +1,19 @@
-#include "../include/linkedListADT.h"
-#include "../include/memman.h"
+#include "../include/linked_list_adt.h"
 #include <stddef.h>
 #include <io.h>
+#include <buddy_memman.h>
 
-    typedef struct linkedListCDT_t {
+    typedef struct linked_list_cdt_t {
         node_t * head;
         node_t * tail;
         node_t * current;
         node_t * iterator;
         int size;
-    } linkedListCDT_t;
+    } linked_list_cdt_t;
 
 
-linkedListADT createLinkedList() {
-    linkedListADT list = mem_alloc(sizeof(linkedListCDT_t));
+linked_list_adt create_linked_list() {
+    linked_list_adt list = b_alloc(sizeof(linked_list_cdt_t));
     list->head = NULL;
     list->tail = NULL;
     list->current = NULL;
@@ -22,8 +22,8 @@ linkedListADT createLinkedList() {
     return list;
 }
 
-void addNode(linkedListADT list, void * process) {
-    node_t * node = mem_alloc(sizeof(node_t));
+void add_node(linked_list_adt list, void * process) {
+    node_t * node = b_alloc(sizeof(node_t));
     node->process = process;
     node->next = NULL;
     if (list->head == NULL) {
@@ -36,7 +36,7 @@ void addNode(linkedListADT list, void * process) {
     list->size++;
 }
 
-void removeAllNodes(linkedListADT list, void * process) {
+void remove_all_nodes(linked_list_adt list, void * process) {
     node_t * prev = NULL;
     node_t * current = list->head;
     
@@ -45,7 +45,7 @@ void removeAllNodes(linkedListADT list, void * process) {
             node_t * next = current->next;
             
             if (prev == NULL) {
-                // Deleting from head
+                // deleting from head
                 list->head = next;
             } else {
                 prev->next = next;
@@ -55,7 +55,7 @@ void removeAllNodes(linkedListADT list, void * process) {
                 list->tail = prev;
             }
             
-            mem_free(current);
+            b_free(current);
             list->size--;
             
             current = next;  
@@ -70,7 +70,7 @@ void removeAllNodes(linkedListADT list, void * process) {
         list->tail = NULL;
     }
 }
-void removeNode(linkedListADT list, void * process) {
+void remove_node(linked_list_adt list, void * process) {
     node_t * prev = NULL;
     node_t * current = list->head;
     while (current != NULL) {
@@ -84,7 +84,7 @@ void removeNode(linkedListADT list, void * process) {
                 list->tail = prev;
             }
             list->size--;
-            mem_free(current);
+            b_free(current);
 
             return;
         }
@@ -93,11 +93,11 @@ void removeNode(linkedListADT list, void * process) {
     }
 
 }
-node_t * getFirstNode(linkedListADT list) {
+node_t * get_first_node(linked_list_adt list) {
     return list->head;
 }
 
-void * swapToLast(linkedListADT list, void * process) {
+void * swap_to_last(linked_list_adt list, void * process) {
     node_t * prev = NULL;
     node_t * current = list->head;
     while (current != NULL) {
@@ -121,7 +121,7 @@ void * swapToLast(linkedListADT list, void * process) {
     return NULL;
 }
 
-void * getNode(linkedListADT list, void * process) {
+void * get_node(linked_list_adt list, void * process) {
     node_t * current = list->head;
     while (current != NULL) {
         if (current->process == process) {
@@ -132,7 +132,7 @@ void * getNode(linkedListADT list, void * process) {
     return NULL;
 }
 
-void * getNextNode(linkedListADT list) {
+void * get_next_node(linked_list_adt list) {
     if (list->current == NULL) {
         list->current = list->head;
     } else {
@@ -141,44 +141,44 @@ void * getNextNode(linkedListADT list) {
     return list->current;
 }
 
-void destroyLinkedList(linkedListADT list) {
+void destroy_linked_list(linked_list_adt list) {
     node_t * current = list->head;
     node_t * next;
     while (current != NULL) {
         next = current->next;
-        mem_free(current);
+        b_free(current);
         current = next;
     }
-    mem_free(list);
+    b_free(list);
 }
 
-void removeFirstNode(linkedListADT list) {
+void remove_first_node(linked_list_adt list) {
     if (list->head == NULL) {
         return;
     }
     node_t * next = list->head->next;
-    mem_free(list->head);
+    b_free(list->head);
     list->head = next;
     list->size--;
 }
 
-uint64_t getSize(linkedListADT list) {
+uint64_t get_size(linked_list_adt list) {
     return list->size;
 }
 
-int8_t isEmptyList(linkedListADT list) {
+int8_t is_empty_list(linked_list_adt list) {
     return list->size == 0;
 }
 
-void start_iterator(linkedListADT list) {
+void start_iterator(linked_list_adt list) {
     list->iterator = list->head;
 }
 
-uint8_t has_next(linkedListADT list) {
+uint8_t has_next(linked_list_adt list) {
     return list->iterator != NULL;
 }
 
-void * get_next(linkedListADT list) {
+void * get_next(linked_list_adt list) {
     if (list->iterator == NULL) {
         return NULL;
     }

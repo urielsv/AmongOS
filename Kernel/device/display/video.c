@@ -9,7 +9,7 @@ struct vbe_mode_info_structure {
                     // indicates the mode supports a linear frame buffer.
     uint8_t window_a; // deprecated
     uint8_t window_b; // deprecated
-    uint16_t granularity; // deprecated; used while calculating bank numbers
+    uint16_t graNULLarity; // deprecated; used while calculating bank numbers
     uint16_t window_size;
     uint16_t segment_a;
     uint16_t segment_b;

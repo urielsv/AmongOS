@@ -1,9 +1,9 @@
-// This is a personal academic project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+// this is a personal academic project. dear pvs-studio, please check it.
+// pvs-studio static code analyzer for c, c++ and c#: http://www.viva64.com
 #include <amongus.h>
 #include <stdint.h>
 
-#define PIXEL 8
+#define pixel 8
 
 const char silence_art[][COLS] = {
     "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
@@ -48,20 +48,20 @@ void amongus(uint64_t startx, uint64_t starty) {
         for (int j = 0; j < COLS; j++) {
             switch(silence_art[i][j]) {
                 case '/':
-                    draw(0xFFFFED, x, y);
+                    draw(0xffffed, x, y);
                     break;
                 case ',':
                 case '*':
-                    draw(COLOR_YELLOW, x, y);
+                    draw(color_yellow, x, y);
                     break;
                 case '@':
-                    draw(COLOR_WHITE, x, y);
+                    draw(color_white, x, y);
                     break;
                 case '&':
-                    draw(0xC24641, x, y);
+                    draw(0xc24641, x, y);
                     break;
                 case '^':
-                    draw(COLOR_RED, x, y);
+                    draw(color_red, x, y);
                     break;
                 case '#':
                 case '(':
@@ -73,10 +73,10 @@ void amongus(uint64_t startx, uint64_t starty) {
                 default:
                     break;
             }
-            x += PIXEL;
+            x += pixel;
         }
         x = startx;
-        y += PIXEL;
+        y += pixel;
     }
 }
 

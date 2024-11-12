@@ -1,13 +1,13 @@
-// This is a personal academic project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-#include <naiveConsole.h>
+// this is a personal academic project. dear pvs-studio, please check it.
+// pvs-studio static code analyzer for c, c++ and c#: http://www.viva64.com
+#include <naive_console.h>
 #include <stdint.h>
 #include "../include/lib.h"
 #include <io.h>
 
-#define TIMEZONE -3 // argentina
+#define timezone -3 // argentina
 
-static unsigned int randSeed = 12345; // Initial seed for the random number generator
+static unsigned int rand_seed = 12345; // initial seed for the random number generator
 
 
 static uint32_t format(uint8_t num) {
@@ -16,29 +16,29 @@ static uint32_t format(uint8_t num) {
     return dec * 10 + units;
 }
 
-uint32_t getSeconds() {
-    return format(rtcTime(0x00));
+uint32_t get_seconds() {
+    return format(rtc_time(0x00));
 }
-uint32_t getMinutes() {
-    return format(rtcTime(0x02));
+uint32_t get_minutes() {
+    return format(rtc_time(0x02));
 }
-uint32_t getHours() {
-    return format(rtcTime(0x04)) + TIMEZONE;
+uint32_t get_hours() {
+    return format(rtc_time(0x04)) + timezone;
 }
 
-void getTime() {
-    ncPrintDec(getHours());
-    ncPrint(":");
-    ncPrintDec(getMinutes());
-    ncPrint(":");
-    ncPrintDec(getSeconds());
+void get_time() {
+    nc_print_dec(get_hours());
+    nc_print(":");
+    nc_print_dec(get_minutes());
+    nc_print(":");
+    nc_print_dec(get_seconds());
 }
 
 
 uint64_t get_random_number(int seed) {
 
-    randSeed = randSeed * 1103515245 + 12345;
-    return (unsigned int)(randSeed / 65536) % 32768;
+    rand_seed = rand_seed * 1103515245 + 12345;
+    return (unsigned int)(rand_seed / 65536) % 32768;
 }
 
 void int_to_string(int num, char *str) {
@@ -96,7 +96,7 @@ void pointer_to_string(void *ptr, char *buffer, size_t buffer_size) {
     buffer[index++] = 'x';   
 
     for (int i = 15; i >= 0; i--) {
-        int digit = (address >> (i * 4)) & 0xF; 
+        int digit = (address >> (i * 4)) & 0xf; 
         if (digit < 10) {
             buffer[index++] = '0' + digit; 
         } else {

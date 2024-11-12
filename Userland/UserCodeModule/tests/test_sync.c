@@ -3,12 +3,12 @@
 #include <tests.h>
 #include <syscalls.h>
 
-#define SEM_ID 0
-#define TOTAL_PAIR_PROCESSES 2
+#define sem_id 0
+#define total_pair_processes 2
 
 int64_t global; // shared memory
 
-void slowInc(int64_t *p, int64_t inc) {
+void slow_inc(int64_t *p, int64_t inc) {
     int64_t aux = *p;
     yield();
     aux += inc;
@@ -20,107 +20,107 @@ uint64_t my_process_inc(uint64_t argc, char *argv[]) {
     int8_t inc;
     int8_t use_sem;
 
-    printf("\nPID %d START (n=%s, inc=%s, sem=%s)\n", get_pid(), argv[0], argv[1], argv[2]);
+    printf("\n_pid %d start (n=%s, inc=%s, sem=%s)\n", get_pid(), argv[0], argv[1], argv[2]);
 
     if (argc != 3) {
-        printf("[ERROR] Invalid argument count: %d\n", argc);
+        printf("[error] invalid argument count: %d\n", argc);
         return -1;
     }
 
     if ((n = satoi(argv[0])) <= 0) {
-        printf("[ERROR] Invalid n value: %s\n", argv[0]);
+        printf("[error] invalid n value: %s\n", argv[0]);
         return -1;
     }
 
     if ((inc = satoi(argv[1])) == 0) {
-        printf("[ERROR] Invalid increment value: %s\n", argv[1]);
+        printf("[error] invalid increment value: %s\n", argv[1]);
         return -1;
     }
 
     if ((use_sem = satoi(argv[2])) < 0) {
-        printf("[ERROR] Invalid semaphore flag: %s\n", argv[2]);
+        printf("[error] invalid semaphore flag: %s\n", argv[2]);
         return -1;
     }
 
-    printf("PID %d CONFIG: n=%d inc=%d sem=%d\n", get_pid(), n, inc, use_sem);
+    printf("pid %d config: n=%d inc=%d sem=%d\n", get_pid(), n, inc, use_sem);
 
    // printf("use_sem value = %d\n",use_sem);
     if (use_sem==0) {
       //  printf("enter use_sem value = %d\n",use_sem);
 
-        int aux = sem_open(SEM_ID, 1); 
+        int aux = sem_open(sem_id, 1); 
         
         if ((aux ) == -1) {
-            printf("PID %d SEM: Open failed\n", get_pid());
+            printf("pid %d sem: open failed\n", get_pid());
             return -1;
         }
     }
 
     uint64_t i;
     for (i = 0; i < n; i++) {
-        printf("PID %d ITER %d/%d\n", get_pid(), i+1, n);
+        printf("pid %d iter %d/%d\n", get_pid(), i+1, n);
         if (use_sem==0) {
-            printf("PID %d SEM: Wait\n", get_pid());
-            sem_wait(SEM_ID);
-            printf("PID %d SEM: Got\n", get_pid());
+            printf("pid %d sem: wait\n", get_pid());
+            sem_wait(sem_id);
+            printf("pid %d sem: got\n", get_pid());
         }
-        printf("PRE INC GLOBAL: %d\n", global);
-        slowInc(&global, inc);
-        printf("POST INC GLOBAL: %d\n", global);
+        printf("pre inc global: %d\n", global);
+        slow_inc(&global, inc);
+        printf("post inc global: %d\n", global);
 
         if (use_sem==0) {
-            printf("PID %d SEM: Post\n", get_pid());
-            sem_post(SEM_ID);
+            printf("pid %d sem: post\n", get_pid());
+            sem_post(sem_id);
         }
     }
 
     if (use_sem==0) {
-        sem_close(SEM_ID);
+        sem_close(sem_id);
     }
-    printf("PID %d END\n", get_pid());
+    printf("pid %d end\n", get_pid());
     return 0;
 }
 
 uint64_t test_sync(uint64_t argc, char *argv[]) {
-    uint64_t pids[2 * TOTAL_PAIR_PROCESSES];
+    uint64_t pids[2 * total_pair_processes];
 
-    printf("\n=== TEST START (n=%s, sem=%s) ===\n", argv[0], argv[1]);
+    printf("\n=== test start (n=%s, sem=%s) ===\n", argv[0], argv[1]);
 
     if (argc != 2) {
-        printf("[ERROR] Invalid args: %d\n", argc);
+        printf("[error] invalid args: %d\n", argc);
         return -1;
     }
 
-    char *argvDec[] = {argv[0], "-1", argv[1], NULL};
-    char *argvInc[] = {argv[0], "1", argv[1], NULL};
+    char *argv_dec[] = {argv[0], "-1", argv[1], NULL};
+    char *argv_inc[] = {argv[0], "1", argv[1], NULL};
 
     global = 0;
 
     uint64_t i;
-    for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-        printf("\nCreating pair %d:\n", i+1);
-        pids[i] = exec((void *)&my_process_inc, argvDec, 3, "my_process_dec", 1);
-        printf("\n- DEC PID: %d, GLOBAL:%d \n", pids[i], global);
+    for (i = 0; i < total_pair_processes; i++) {
+        printf("\n_creating pair %d:\n", i+1);
+        pids[i] = exec((void *)&my_process_inc, argv_dec, 3, "my_process_dec", 1);
+        printf("\n- dec pid: %d, global:%d \n", pids[i], global);
         
-        pids[i + TOTAL_PAIR_PROCESSES] = exec((void *)&my_process_inc, argvInc, 3, "my_process_inc", 1);
-        printf("\n- INC PID: %d\n, GLOBAL: %d", pids[i + TOTAL_PAIR_PROCESSES], global);
+        pids[i + total_pair_processes] = exec((void *)&my_process_inc, argv_inc, 3, "my_process_inc", 1);
+        printf("\n- inc pid: %d\n, global: %d", pids[i + total_pair_processes], global);
     }
 
-    printf("\nWaiting for processes\n");
+    printf("\n_waiting for processes\n");
 
-    for (i = 0; i < TOTAL_PAIR_PROCESSES; i++) {
-        printf("Wait DEC %d: ", pids[i]);
+    for (i = 0; i < total_pair_processes; i++) {
+        printf("wait dec %d: ", pids[i]);
         waitpid(pids[i]);
-        printf("Done\n");
+        printf("done\n");
 
-        printf("Wait INC %d: ", pids[i + TOTAL_PAIR_PROCESSES]);
-        waitpid(pids[i + TOTAL_PAIR_PROCESSES]);
-        printf("Done\n");
+        printf("wait inc %d: ", pids[i + total_pair_processes]);
+        waitpid(pids[i + total_pair_processes]);
+        printf("done\n");
     }
     sleep(10000);
 
-    //waitpid(pid); TODO: Handle waitpid(-1) to wpid any child
-    printf("\n=== TEST END ===\n");
-    printf("Final global: %d\n", global);
+    //waitpid(pid); todo: handle waitpid(-1) to wpid any child
+    printf("\n=== test end ===\n");
+    printf("final global: %d\n", global);
     return 0;
 }

@@ -3,20 +3,20 @@
 #include <keyboard.h>
 #include <scheduler.h>
 
-#define BUFFER_SIZE 128
-#define CTRL_MASK 0x1F  // For detecting Control key combinations
-#define CTRL_C 0x03     // ASCII value for Ctrl+C
-#define CTRL_D 0x04     // ASCII value for Ctrl+D
+#define buffer_size 128
+#define ctrl_mask 0x1f  // for detecting control key combinations
+#define ctrl_c 0x03     // ascii value for ctrl+c
+#define ctrl_d 0x04     // ascii value for ctrl+d
 
 static uint8_t shift = 0;
-static uint8_t ctrl = 0;   // New flag for Control key
+static uint8_t ctrl = 0;   // new flag for control key
 static uint8_t last_key = 0;
-static char buffer[BUFFER_SIZE] = {0};
+static char buffer[buffer_size] = {0};
 static int8_t first_ptr = 0;
 static int8_t last_ptr = 0;
 static uint8_t count = 0;
 
-// Function declarations
+// function declarations
 static void clear_buffer(void);
 static void handle_control_sequence(uint8_t key);
 
@@ -27,29 +27,29 @@ void keyboard_handler() {
 uint8_t get_key() {
     uint8_t key = asm_get_key();
     
-    // Handle modifier keys
+    // handle modifier keys
     switch(key) {
-        case LSHIFT:
-        case RSHIFT:
+        case lshift:
+        case rshift:
             shift = 1;
             return 0;
-        case RELEASE_LSHIFT:
-        case RELEASE_RSHIFT:
+        case release_lshift:
+        case release_rshift:
             shift = 0;
             return 0;
-        case LCTRL:
+        case lctrl:
             ctrl = 1;
             return 0;
-        case RELEASE_LCTRL:
+        case release_lctrl:
             ctrl = 0;
             return 0;
     }
 
-    // Process regular keys
-    if (key >= 0 && key <= KBD_LENGTH) {
+    // process regular keys
+    if (key >= 0 && key <= kbd_length) {
         key = kbd_codes[key][shift];
         
-        // Handle control sequences
+        // handle control sequences
         if (ctrl) {
             handle_control_sequence(key);
             return key;
@@ -64,28 +64,28 @@ uint8_t get_key() {
 }
 
 static void handle_control_sequence(uint8_t key) {
-    // Convert to uppercase for consistent handling
+    // convert to uppercase for consistent handling
     uint8_t upper_key = (key >= 'a' && key <= 'z') ? (key - 32) : key;
     
-    // Apply CTRL mask and handle special cases
-    uint8_t ctrl_key = upper_key & CTRL_MASK;
+    // apply ctrl mask and handle special cases
+    uint8_t ctrl_key = upper_key & ctrl_mask;
     
     switch(ctrl_key) {
-        case CTRL_C:
+        case ctrl_c:
             clear_buffer();
             kill_fg_process();
             add_to_buffer('^');
-            add_to_buffer('C');
+            add_to_buffer('c');
             add_to_buffer('\n');
             yield();
             break;
             
-        case CTRL_D:
-            // Handle EOF
+        case ctrl_d:
+            // handle eof
             if (count == 0) {  
-                // signal_handler(EOF);
+                // signal_handler(eof);
                 add_to_buffer('^');
-                add_to_buffer('D');
+                add_to_buffer('d');
                 add_to_buffer('\n');
             }
             break;
@@ -93,8 +93,8 @@ static void handle_control_sequence(uint8_t key) {
 }
 
 void add_to_buffer(uint8_t key) {
-    if (count >= BUFFER_SIZE) {
-        return;  // Buffer full
+    if (count >= buffer_size) {
+        return;  // buffer full
     }
     
     count++;
@@ -107,7 +107,7 @@ void add_to_buffer(uint8_t key) {
     }
     
     buffer[last_ptr] = key;
-    last_ptr = (last_ptr + 1) % BUFFER_SIZE;
+    last_ptr = (last_ptr + 1) % buffer_size;
 }
 
 uint64_t get_buffer(char *buff, uint64_t max_count) {
@@ -119,9 +119,9 @@ uint64_t get_buffer(char *buff, uint64_t max_count) {
         if (current != '\b') {
             buff[i++] = current;
         } else if (i > 0) {
-            i--;  // Handle backspace
+            i--;  // handle backspace
         }
-        first_ptr = (first_ptr + 1) % BUFFER_SIZE;
+        first_ptr = (first_ptr + 1) % buffer_size;
     }
     
     first_ptr = 0;
@@ -130,7 +130,7 @@ uint64_t get_buffer(char *buff, uint64_t max_count) {
 
 uint8_t get_last_input() {
     if (last_key != 0) {
-        last_ptr = (last_ptr - 1 + BUFFER_SIZE) % BUFFER_SIZE;
+        last_ptr = (last_ptr - 1 + buffer_size) % buffer_size;
         uint8_t to_ret = last_key;
         last_key = 0;
         return to_ret;
@@ -139,7 +139,7 @@ uint8_t get_last_input() {
 }
 
 static void clear_buffer() {
-    for (int i = 0; i < BUFFER_SIZE; i++) {
+    for (int i = 0; i < buffer_size; i++) {
         buffer[i] = 0;
     }
     count = 0;

@@ -2,15 +2,15 @@
  *
  * @file    shell.h
  *
- * @brief   Shell.
+ * @brief   shell.
  *
- * @author  Luca Pugliese                           <lpugliese@itba.edu.ar>
- * @author  Felipes Venturino                        <fventurino@itba.edu.ar>
- * @author  Uriel Sosa Vazquez                      <usosavazquez@itba.edu.ar>
+ * @author  luca pugliese                           <lpugliese@itba.edu.ar>
+ * @author  felipes venturino                        <fventurino@itba.edu.ar>
+ * @author  uriel sosa vazquez                      <usosavazquez@itba.edu.ar>
  *
  ******************************************************************************/
-#ifndef SHELL_H
-#define SHELL_H
+#ifndef shell_h
+#define shell_h
 
 #include <stdint.h>
 #include <stdio.h>
@@ -19,29 +19,29 @@
 #include <definitions.h>
 #include <stddef.h>
 
-#define MAX_CMDS 2
-#define MAX_ARGS 10
+#define max_cmds 2
+#define max_args 10
 typedef struct command {
 	char* name; 
 	char* description;
-	Function cmd;
+	function cmd;
 } command_t;
 
 typedef struct {
     char *cmd;
-    char *argv[MAX_ARGS];
+    char *argv[max_args];
     int argc;
 } command_input_t;
 
 typedef struct {
-    command_input_t cmds[MAX_CMDS];
+    command_input_t cmds[max_cmds];
     uint8_t cmd_count;
     uint8_t is_bg;
 } parsed_input_t;
 
 /*
  * @name shell
- * @brief Shell :).
+ * @brief shell :).
  */
 void shell();
 

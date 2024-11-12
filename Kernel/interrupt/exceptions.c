@@ -1,15 +1,15 @@
-// This is a personal academic project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+// this is a personal academic project. dear pvs-studio, please check it.
+// pvs-studio static code analyzer for c, c++ and c#: http://www.viva64.com
 #include <exceptions.h>
 // #include <io.h>
 #include <stdio.h>
-#include <naiveConsole.h>
+#include <naive_console.h>
 
-#define ERROR_FGCOLOR 0xFF0000
-#define ERROR_BGCOLOR 0x000000
-#define ZERO_DIVISION 0
-#define INVALID_OPCODE  6
-#define BUFF_SIZE 30
+#define error_fgcolor 0xff0000
+#define error_bgcolor 0x000000
+#define zero_division 0
+#define invalid_opcode  6
+#define buff_size 30
 
 static int flag = 0;
 static void restore_state(uint64_t* stack);
@@ -20,24 +20,24 @@ typedef struct{
 
 static restore_point rp;
 
-// Length of the registers array is 17
+// length of the registers array is 17
 static char * regs[] = {
-        "R15 = 0x", "R14 = 0x", "R13 = 0x", "R12 = 0x", "R11 = 0x", "R10 = 0x", "R9 = 0x", "R8 = 0x", "RSI = 0x",
-         "RDI = 0x", "RBP = 0x", "RDX = 0x", "RCX = 0x", "RBX = 0x", "RAX = 0x", "IP = 0x", "RSP = 0x",  
+        "r15 = 0x", "r14 = 0x", "r13 = 0x", "r12 = 0x", "r11 = 0x", "r10 = 0x", "r9 = 0x", "r8 = 0x", "rsi = 0x",
+         "rdi = 0x", "rbp = 0x", "rdx = 0x", "rcx = 0x", "rbx = 0x", "rax = 0x", "ip = 0x", "rsp = 0x",  
 };
 
-//static char buffer[BUFF_SIZE];
+//static char buffer[buff_size];
 
 static uint32_t registers_len = sizeof(regs)/sizeof(regs[0]);
 
 
 void exception_dispatcher(uint32_t exception, uint64_t* stack){
     switch(exception){
-        case ZERO_DIVISION:
-                //printf_color("\nZero Division Error Exception\n",ERROR_FGCOLOR, ERROR_BGCOLOR);
+        case zero_division:
+                //printf_color("\n_zero division error exception\n",error_fgcolor, error_bgcolor);
         break;
-        case INVALID_OPCODE:
-                //printf_color("\nInvadid Opcode Exception\n", ERROR_FGCOLOR,ERROR_BGCOLOR);
+        case invalid_opcode:
+                //printf_color("\n_invadid opcode exception\n", error_fgcolor,error_bgcolor);
         break;
     }
     flag = 1;
@@ -56,21 +56,21 @@ void print_regs(uint64_t * stack){
  
     for(int i = 0; i < registers_len - 2; i++){ 
         char buff[16];
-        uintToBase(stack[i],buff,16);
+        uint_to_base(stack[i],buff,16);
     }
     if(flag == 0){
         char buff1[16];
-        uintToBase(stack[16], buff1,16);
+        uint_to_base(stack[16], buff1,16);
 
     }else if(flag == 1){
         char buff1[16];
-        uintToBase(rp.ip, buff1,16);
+        uint_to_base(rp.ip, buff1,16);
 
         flag = 0;
     }
     
     char buff2[16]; 
-    uintToBase(stack[registers_len + 1], buff2, 16);  
+    uint_to_base(stack[registers_len + 1], buff2, 16);  
 
 }
 
@@ -87,11 +87,11 @@ static void
 restore_state(uint64_t* stack)
 {
     char buffer[30];
-	uintToBase(stack[registers_len - 2], buffer, 16);
-	uintToBase(rp.sp, buffer, 16);
+	uint_to_base(stack[registers_len - 2], buffer, 16);
+	uint_to_base(rp.sp, buffer, 16);
     
 	// restauramos los valores
-	stack[registers_len - 2] = rp.ip;  // RIP
-	stack[registers_len + 1] = rp.sp;  // RSP
-	stack[registers_len - 7] = rp.bp;  // RSP
+	stack[registers_len - 2] = rp.ip;  // rip
+	stack[registers_len + 1] = rp.sp;  // rsp
+	stack[registers_len - 7] = rp.bp;  // rsp
 }

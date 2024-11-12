@@ -2,35 +2,35 @@
  *
  * @file    sound.h
  *
- * @brief   Sound functions to play sounds.
+ * @brief   sound functions to play sounds.
  *
- * @author  Luca Pugliese                           <lpugliese@itba.edu.ar>
- * @author  Felipes Venturino                        <fventurino@itba.edu.ar>
- * @author  Uriel Sosa Vazquez                      <usosavazquez@itba.edu.ar>
+ * @author  luca pugliese                           <lpugliese@itba.edu.ar>
+ * @author  felipes venturino                        <fventurino@itba.edu.ar>
+ * @author  uriel sosa vazquez                      <usosavazquez@itba.edu.ar>
  *
  ******************************************************************************/
 
-#ifndef SOUND_H
-#define SOUND_H
+#ifndef sound_h
+#define sound_h
 #include <stdint.h>
 
-// Setup the sound with frequency.
+// setup the sound with frequency.
 extern void asm_start_sound(uint32_t freq);
 
-// Stop the sound.
+// stop the sound.
 extern void asm_end_sound();
 
 
 /*
  * @name sound
  *
- * @brief Plays a sound with the frequency and duration passed as parameters.
+ * @brief plays a sound with the frequency and duration passed as parameters.
  * 
- * @param freq Frequency of the sound.
- * @param duration Duration of the sound.
+ * @param freq frequency of the sound.
+ * @param duration duration of the sound.
  */
 void sound(uint8_t freq, uint64_t duration);
 
-// Play a beep sound.
+// play a beep sound.
 void beep();
 #endif

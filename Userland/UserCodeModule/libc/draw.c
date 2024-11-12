@@ -1,5 +1,5 @@
-// This is a personal academic project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+// this is a personal academic project. dear pvs-studio, please check it.
+// pvs-studio static code analyzer for c, c++ and c#: http://www.viva64.com
 #include <draw.h>
 #include <syscalls.h>
 
@@ -12,8 +12,8 @@ static int abs(int n) {
 
 void draw_pixel(color_t color, uint16_t size, uint64_t x, uint64_t y) {
     // each pixel from draw is 8x8
-    for (int i = 0; i < size; i += PIXELSIZE) {
-        for (int j = 0; j < size; j += PIXELSIZE) {
+    for (int i = 0; i < size; i += pixelsize) {
+        for (int j = 0; j < size; j += pixelsize) {
             draw(color, x + i, y + j);
         }
     }
@@ -58,12 +58,12 @@ void draw_bitmap(color_t color, char *bitmap[], uint16_t rows, uint16_t cols, ui
     uint64_t y = starty;
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
-            if (bitmap[i][j] == 'X') {
+            if (bitmap[i][j] == 'x') {
                 draw(color, x, y);
             }
-            x += PIXELSIZE;
+            x += pixelsize;
         }
         x = startx;
-        y += PIXELSIZE;
+        y += pixelsize;
     }
 }

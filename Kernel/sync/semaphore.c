@@ -1,15 +1,15 @@
 #include "semaphore.h"
-#include "memman.h"
 #include "scheduler.h"
-#include <queuePidADT.h>
+#include <queue_pid_adt.h>
+#include <syscalls.h>
 #include <io.h>
 
-static sem_t *semaphores[MAX_SEMAPHORES] = {NULL};
+static sem_t *semaphores[max_semaphores] = {NULL};
 
 void print_number(int number);
 
 static int find_semaphore(int64_t id) {
-    for (int i = 0; i < MAX_SEMAPHORES; i++) {
+    for (int i = 0; i < max_semaphores; i++) {
         if (semaphores[i] != NULL && semaphores[i]->id == id) {
             return i;
         }
@@ -32,18 +32,18 @@ int32_t sem_open(int64_t id, int64_t initial_value) {
         return find;
     }
         if (semaphores[id] == NULL) {
-            semaphores[id] = (sem_t *)mem_alloc(sizeof(sem_t));
+            semaphores[id] = (sem_t *)b_alloc(sizeof(sem_t));
             semaphores[id]->id = id;
             semaphores[id]->value = initial_value;
             semaphores[id]->mutex = 1;  
-            semaphores[id]->waiting_list = createQueue();
+            semaphores[id]->waiting_list = create_queue();
             return 0;
         }
     return -1;
 }
 
 int32_t sem_create(int64_t initial_value) {
-    for (int i = 0; i < MAX_SEMAPHORES; i++) {
+    for (int i = 0; i < max_semaphores; i++) {
         if (semaphores[i] == NULL) {
             int64_t id = 1;
             while (find_semaphore(id) != -1) {
@@ -117,32 +117,32 @@ void sem_close(int64_t id) {
         return;
     }
     
-    destroyQueue(semaphores[idx]->waiting_list);
-    mem_free(semaphores[idx]);
+    destroy_queue(semaphores[idx]->waiting_list);
+    b_free(semaphores[idx]);
     semaphores[idx] = NULL;
 }
 
 void sem_cleanup_process(int64_t pid) {
    
-    for (int i = 0; i < MAX_SEMAPHORES; i++) {
+    for (int i = 0; i < max_semaphores; i++) {
         if (semaphores[i] != NULL) {
            
-            queuePIDADT new_waiting_list = createQueue();            
+            queue_pid_adt new_waiting_list = create_queue();            
          
-            while (!isEmpty(semaphores[i]->waiting_list)) {
+            while (!is_empty(semaphores[i]->waiting_list)) {
                 int64_t current_pid = dequeue(semaphores[i]->waiting_list);
                 if (current_pid != pid) {
                     enqueue(new_waiting_list, current_pid);
                 }
             }
-            destroyQueue(semaphores[i]->waiting_list);
+            destroy_queue(semaphores[i]->waiting_list);
             semaphores[i]->waiting_list = new_waiting_list;
         }
     }
 }
 
 void remove_from_all_semaphores(uint32_t pid){
-    for(int i = 0; i < MAX_SEMAPHORES; i++){
+    for(int i = 0; i < max_semaphores; i++){
         if(semaphores[i] != NULL){
             dequeue_pid(semaphores[i]->waiting_list, pid);
         }

@@ -1,5 +1,5 @@
-#ifndef AMONGUS_H
-#define AMONGUS_H
+#ifndef amongus_h
+#define amongus_h
 
 #include <stdint.h>
 #include <colors.h>

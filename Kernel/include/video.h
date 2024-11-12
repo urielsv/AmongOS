@@ -2,36 +2,36 @@
  *
  * @file    video.h
  *
- * @brief   Video functions to draw on screen while in video mode.
+ * @brief   video functions to draw on screen while in video mode.
  *
- * @author  Luca Pugliese                           <lpugliese@itba.edu.ar>
- * @author  Felipes Venturino                        <fventurino@itba.edu.ar>
- * @author  Uriel Sosa Vazquez                      <usosavazquez@itba.edu.ar>
+ * @author  luca pugliese                           <lpugliese@itba.edu.ar>
+ * @author  felipes venturino                        <fventurino@itba.edu.ar>
+ * @author  uriel sosa vazquez                      <usosavazquez@itba.edu.ar>
  *
  ******************************************************************************/
 
-#ifndef VIDEO_H__
-#define VIDEO_H__
+#ifndef video_h__
+#define video_h__
 
 #include <stdint.h>
 
 
-// Write a character to the screen
+// write a character to the screen
 void put_char_at(unsigned char c, uint64_t *x, uint64_t *y, uint64_t fgcolor, uint64_t bgcolor);
 
-// Remove last character from the screen
+// remove last character from the screen
 void delete_char(uint64_t *x, uint64_t *y, uint64_t fgcolor, uint64_t bgcolor);
 
-// Fill the whole screen with a color
-void clear_screen(uint32_t hexColor);
+// fill the whole screen with a color
+void clear_screen(uint32_t hex_color);
 
-// Put a pixel in position (pixel size is 1x1)
-void put_pixel(uint32_t hexColor, uint64_t x, uint64_t y);
+// put a pixel in position (pixel size is 1x1)
+void put_pixel(uint32_t hex_color, uint64_t x, uint64_t y);
 
-// Set de font size for the draweable characters
+// set de font size for the draweable characters
 void video_fontsize(int newsize);
 
-// Screen information (width and height)
+// screen information (width and height)
 int get_width();
 int get_height();
 void new_line(uint64_t *x, uint64_t *y);

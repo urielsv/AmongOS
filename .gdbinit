@@ -531,7 +531,7 @@ class Dashboard(gdb.Command):
                     fs.write(Dashboard.setup_terminal())
                 else:
                     fs = gdb
-                    fd = 1  # stdout
+                    fd = 1  # STDOUT
                 # get the terminal size (default main terminal if either the
                 # output is not a file)
                 try:

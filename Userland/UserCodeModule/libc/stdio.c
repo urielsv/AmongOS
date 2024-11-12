@@ -1,5 +1,5 @@
-// This is a personal academic project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+// this is a personal academic project. dear pvs-studio, please check it.
+// pvs-studio static code analyzer for c, c++ and c#: http://www.viva64.com
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdint.h>
@@ -14,7 +14,7 @@ void putchar_color(char c, uint64_t fgcolor, uint64_t bgcolor) {
 }
 
 void putchar(char c) {
-    putchar_color(c, 0xFFFFFF, 0x000000);
+    putchar_color(c, 0xffffff, 0x000000);
 }
 
 
@@ -27,7 +27,7 @@ int64_t gets(char *buff, uint64_t length) {
     char c;
     do {
         c = getchar();
-        if (c >= 0x20 && c <= 0x7F) {
+        if (c >= 0x20 && c <= 0x7f) {
             buff[i] = c;
             putchar(buff[i++]);
         }
@@ -94,17 +94,17 @@ uint64_t printf_color(const char *fmt, uint32_t fgcolor, uint32_t bgcolor, ...) 
             continue;
         }
 
-        // Handle % format specifier
-        i++;  // Skip the %
+        // handle % format specifier
+        i++;  // skip the %
         if (fmt[i] == '\0') break;
 
-        memset(buffer, 0, sizeof(buffer));  // Clear buffer before each conversion
+        memset(buffer, 0, sizeof(buffer));  // clear buffer before each conversion
 
         switch (fmt[i]) {
             case 'd': {
                 int val = va_arg(args, int);
                 itoa(val, buffer);
-                if (buffer[0]) {  // Check if conversion succeeded
+                if (buffer[0]) {  // check if conversion succeeded
                     for (char* p = buffer; *p; p++) {
                         putchar_color(*p, fgcolor, bgcolor);
                         chars_printed++;
@@ -127,7 +127,7 @@ uint64_t printf_color(const char *fmt, uint32_t fgcolor, uint32_t bgcolor, ...) 
                 chars_printed++;
                 break;
             default:
-                // Invalid format specifier - print it as is
+                // invalid format specifier - print it as is
                 putchar_color('%', fgcolor, bgcolor);
                 putchar_color(fmt[i], fgcolor, bgcolor);
                 chars_printed += 2;

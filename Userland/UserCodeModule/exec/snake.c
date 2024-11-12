@@ -1,5 +1,5 @@
-// This is a personal academic project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+// this is a personal academic project. dear pvs-studio, please check it.
+// pvs-studio static code analyzer for c, c++ and c#: http://www.viva64.com
 #include "snake.h"
 #include <amongus.h>
 #include <colors.h>
@@ -9,13 +9,13 @@
 #include <stdlib.h>
 #include <syscalls.h>
 
-#define PIXEL 16
-#define BOARD_SIZE 32
-#define FRUIT -1
+#define pixel 16
+#define board_size 32
+#define fruit -1
 
-#define DRAW_START_X 10 * PIXEL
-#define DRAW_START_Y 5 * PIXEL
-#define SNAKE_LENGTH 5
+#define draw_start_x 10 * pixel
+#define draw_start_y 5 * pixel
+#define snake_length 5
 
 struct controller {
     uint8_t up;
@@ -53,7 +53,7 @@ struct block {
     int count;
 };
 
-static block_t collision_board[BOARD_SIZE][BOARD_SIZE];
+static block_t collision_board[board_size][board_size];
 static uint8_t player_count;
 
 int snake() {
@@ -70,52 +70,52 @@ void main_menu() {
     player_t player1 = {0}; 
     player_t player2 = {0};
 
-    clear(COLOR_BLACK);
+    clear(color_black);
     amongus(0, height / 2 + 160);
     font_size(2);
-    writing_pos(width / 2 - 12 * PIXEL, 90);
-    printf_color("SNAKE: ", COLOR_RED, COLOR_BLACK);
-    printf_color("The last impostor", COLOR_WHITE, COLOR_BLACK);
+    writing_pos(width / 2 - 12 * pixel, 90);
+    printf_color("snake: ", color_red, color_black);
+    printf_color("the last impostor", color_white, color_black);
     font_size(1);
-    writing_pos(width / 2 - 5 * PIXEL, height / 2 - 8 * PIXEL);
+    writing_pos(width / 2 - 5 * pixel, height / 2 - 8 * pixel);
     int plcount = 0;
-    scanf("Player count (1-2): %d", &plcount);
+    scanf("player count (1-2): %d", &plcount);
 
     // initialize collision board
-    for (int i = 0; i < BOARD_SIZE; i++) {
-        for (int j = 0; j < BOARD_SIZE; j++) {
+    for (int i = 0; i < board_size; i++) {
+        for (int j = 0; j < board_size; j++) {
             collision_board[i][j].uid = 0;
             collision_board[i][j].count = 0;
         }
     }
 
     if (plcount == 1) {
-        init_player(player1, COLOR_RED, (controller_t){'w', 's', 'a', 'd'});
+        init_player(player1, color_red, (controller_t){'w', 's', 'a', 'd'});
     } else if (plcount == 2) {
-        init_player(player1, COLOR_RED, (controller_t){'w', 's', 'a', 'd'});
-        init_player(player2, COLOR_GREEN, (controller_t){'i', 'k', 'j', 'l'});
+        init_player(player1, color_red, (controller_t){'w', 's', 'a', 'd'});
+        init_player(player2, color_green, (controller_t){'i', 'k', 'j', 'l'});
     } else {
-        clear(COLOR_BLACK);
-        printf_color("Invalid player count, aborting...\n", COLOR_WHITE, COLOR_BLACK);
+        clear(color_black);
+        printf_color("invalid player count, aborting...\n", color_white, color_black);
         sleep(500);
-        clear(COLOR_BLACK);
+        clear(color_black);
         return;
     }
 
     for (int i = 3; i > 0; i--) {
-        writing_pos(width / 2 - 5 * PIXEL, height / 2 - 6 * PIXEL);
-        printf("Game starting in: %d", i);
+        writing_pos(width / 2 - 5 * pixel, height / 2 - 6 * pixel);
+        printf("game starting in: %d", i);
         sleep(500);
     }
 
-    clear(COLOR_BLACK);
+    clear(color_black);
 
     game(player1, player2);
 }
 
 void game(player_t player1, player_t player2) {
 
-    draw_board(COLOR_WHITE, BOARD_SIZE * PIXEL, DRAW_START_X, DRAW_START_Y);
+    draw_board(color_white, board_size * pixel, draw_start_x, draw_start_y);
     hud(player1, player2);
 
     // initialize player
@@ -140,19 +140,19 @@ void gameover_menu() {
     uint64_t width, height;
     screen_info(&width, &height);
 
-    clear(COLOR_BLACK);
+    clear(color_black);
 
     font_size(2);
-    writing_pos(width / 2 - 12 * PIXEL, 90);
-    printf_color("SNAKE: ", COLOR_RED, COLOR_BLACK);
-    printf_color("The last impostor", COLOR_WHITE, COLOR_BLACK);
+    writing_pos(width / 2 - 12 * pixel, 90);
+    printf_color("snake: ", color_red, color_black);
+    printf_color("the last impostor", color_white, color_black);
     font_size(1);
-    writing_pos(width / 2 - 9 * PIXEL, height / 2 - 9 * PIXEL);
-    printf("The game is over, good luck next time!");
-    writing_pos(width / 2 - 5 * PIXEL + 8, height / 2 - 6 * PIXEL);
-    printf("Press 'Q' to quit");
-    writing_pos(width / 2 - 5 * PIXEL + 8, height / 2 - 4 * PIXEL);
-    printf("Press 'R' to restart");
+    writing_pos(width / 2 - 9 * pixel, height / 2 - 9 * pixel);
+    printf("the game is over, good luck next time!");
+    writing_pos(width / 2 - 5 * pixel + 8, height / 2 - 6 * pixel);
+    printf("press 'q' to quit");
+    writing_pos(width / 2 - 5 * pixel + 8, height / 2 - 4 * pixel);
+    printf("press 'r' to restart");
     uint8_t ch;
     // ask for a character until it is 'q' or 'r' with getchar
     do {
@@ -160,26 +160,26 @@ void gameover_menu() {
     } while (ch != 'q' && ch != 'r');
 
     if (ch == 'q') {
-        clear(COLOR_BLACK);
-        writing_pos(width / 2 - 5 * PIXEL, height / 2 - PIXEL);
-        printf_color("Thanks for playing! <3\n", COLOR_GREEN, COLOR_BLACK);
+        clear(color_black);
+        writing_pos(width / 2 - 5 * pixel, height / 2 - pixel);
+        printf_color("thanks for playing! <3\n", color_green, color_black);
          for(int i = 1000; i > 850; i-=10){
             sound(i, 100);
     }
         sleep(500);
-        clear(COLOR_BLACK);
+        clear(color_black);
         return;
     } else if (ch == 'r') {
-        clear(COLOR_BLACK);
+        clear(color_black);
         snake();
     }
-    clear(COLOR_BLACK);
+    clear(color_black);
 }
 
 void init_player(player_t player, color_t color, controller_t controller) {
     player->color = color;
     player->controller = controller;
-    player->snake.len = SNAKE_LENGTH;
+    player->snake.len = snake_length;
 
     player->alive = 1;
 
@@ -194,36 +194,36 @@ void init_player(player_t player, color_t color, controller_t controller) {
 }
 
 void draw_board(color_t color, uint16_t size, uint64_t x, uint64_t y) {
-    draw_rectangle(color, size + PIXEL, x - PIXEL, y - PIXEL);
+    draw_rectangle(color, size + pixel, x - pixel, y - pixel);
 }
 
 // change name to update board
 void draw_game(player_t player1, player_t player2) {
-    for (int i = 0; i < BOARD_SIZE; i++) {
-        for (int j = 0; j < BOARD_SIZE; j++) {
+    for (int i = 0; i < board_size; i++) {
+        for (int j = 0; j < board_size; j++) {
             switch (collision_board[i][j].uid) {
             // fruit
-            case FRUIT:
-                draw_pixel(COLOR_MAGENTA, PIXEL / 2, DRAW_START_X + i * PIXEL, DRAW_START_Y + j * PIXEL);
+            case fruit:
+                draw_pixel(color_magenta, pixel / 2, draw_start_x + i * pixel, draw_start_y + j * pixel);
                 break;
             // nothing
             case 0:
-                draw_pixel(COLOR_BLACK, PIXEL, DRAW_START_X + i * PIXEL, DRAW_START_Y + j * PIXEL);
+                draw_pixel(color_black, pixel, draw_start_x + i * pixel, draw_start_y + j * pixel);
                 break;
             // player
             case 1:
                 if (player1->alive)
-                    draw_pixel(player1->color, PIXEL, DRAW_START_X + i * PIXEL, DRAW_START_Y + j * PIXEL);
+                    draw_pixel(player1->color, pixel, draw_start_x + i * pixel, draw_start_y + j * pixel);
                 break;
             case 2:
                 if (player2->alive)
-                    draw_pixel(player2->color, PIXEL, DRAW_START_X + i * PIXEL, DRAW_START_Y + j * PIXEL);
+                    draw_pixel(player2->color, pixel, draw_start_x + i * pixel, draw_start_y + j * pixel);
                 break;
             }
 
             if (collision_board[i][j].count > 0) {
                 collision_board[i][j].count--;
-            } else if (collision_board[i][j].uid != FRUIT) {
+            } else if (collision_board[i][j].uid != fruit) {
                 collision_board[i][j].uid = 0;
             }
         }
@@ -256,7 +256,7 @@ void move_player(player_t player1, player_t player2) {
 
 void update_position(player_t player, uint8_t dir) {
 
-    // If no input or oposite direction, move in the same direction as the previous head
+    // if no input or oposite direction, move in the same direction as the previous head
     if ((dir == 0) || (dir == player->controller.up && player->snake.head.dir == player->controller.down) ||
         (dir == player->controller.down && player->snake.head.dir == player->controller.up) ||
         (dir == player->controller.left && player->snake.head.dir == player->controller.right) ||
@@ -266,7 +266,7 @@ void update_position(player_t player, uint8_t dir) {
         player->snake.head.dir = dir;
     }
 
-    // Move the head to the new position (based on the direction of the previous head or the new input)
+    // move the head to the new position (based on the direction of the previous head or the new input)
     if (dir == player->controller.up) {
         player->snake.head = (snake_body_t){player->snake.head.x, player->snake.head.y - 1,
             player->snake.head.dir};
@@ -283,29 +283,29 @@ void update_position(player_t player, uint8_t dir) {
 
     // debug player position
     // writing_pos(0, 30);
-    // printf("X: %d, Y: %d\n", player->snake.head.x, player->snake.head.y);
+    // printf("x: %d, y: %d\n", player->snake.head.x, player->snake.head.y);
 
     check_collision(player);
     collision_board[player->snake.head.x][player->snake.head.y].count = player->snake.len;
     collision_board[player->snake.head.x][player->snake.head.y].uid = player->uid;
-    // Set the new head position to the player id
+    // set the new head position to the player id
 }
 
 void food() {
 
     int x, y;
     do {
-        x = rand(21304, BOARD_SIZE);
-        y = rand(21304, BOARD_SIZE);
+        x = rand(21304, board_size);
+        y = rand(21304, board_size);
     } while (collision_board[x][y].uid != 0);
 
-    collision_board[x][y].uid = FRUIT;
+    collision_board[x][y].uid = fruit;
 }
 
 void check_collision(player_t player) {
 
     // check player in bound of playing area
-    if (player->snake.head.x < 0 || player->snake.head.x >= BOARD_SIZE || player->snake.head.y < 0 || player->snake.head.y >= BOARD_SIZE) {
+    if (player->snake.head.x < 0 || player->snake.head.x >= board_size || player->snake.head.y < 0 || player->snake.head.y >= board_size) {
         player->alive = 0;
         delete_snake(player);
         kill_snake(player);
@@ -317,7 +317,7 @@ void check_collision(player_t player) {
     case 0:
         break;
 
-    case FRUIT:
+    case fruit:
         collision_board[player->snake.head.x][player->snake.head.y].uid = player->uid;
         increment_length(player);
         food();
@@ -336,8 +336,8 @@ void check_collision(player_t player) {
 
 void delete_snake(player_t player) {
     // iterate through the colliosion matrix and replace all the values of the player id with 0
-    for (int i = 0; i < BOARD_SIZE; i++) {
-        for (int j = 0; j < BOARD_SIZE; j++) {
+    for (int i = 0; i < board_size; i++) {
+        for (int j = 0; j < board_size; j++) {
             if (collision_board[i][j].uid == player->uid) {
                 collision_board[i][j].uid = 0;
                 collision_board[i][j].count = 0;
@@ -355,23 +355,23 @@ void increment_length(player_t player) {
 
 void update_points(player_t player) {
     if (player->uid == 1) {
-        writing_pos(46 * PIXEL, 7 * PIXEL);
+        writing_pos(46 * pixel, 7 * pixel);
     } else if (player->uid == 2) {
-        writing_pos(46 * PIXEL, 17 * PIXEL);
+        writing_pos(46 * pixel, 17 * pixel);
     }
-    printf("points: %d\n", player->snake.len - SNAKE_LENGTH);
+    printf("points: %d\n", player->snake.len - snake_length);
 }
 
 void hud(player_t player1, player_t player2) {
     switch (player_count) {
     case 2:
-        draw_rectangle(COLOR_WHITE, 8 * PIXEL, 45 * PIXEL, 15 * PIXEL);
-        writing_pos(46 * PIXEL, 16 * PIXEL);
+        draw_rectangle(color_white, 8 * pixel, 45 * pixel, 15 * pixel);
+        writing_pos(46 * pixel, 16 * pixel);
         printf("player 2");
         update_points(player2);
     case 1:
-        draw_rectangle(COLOR_WHITE, 8 * PIXEL, 45 * PIXEL, 5 * PIXEL);
-        writing_pos(46 * PIXEL, 6 * PIXEL);
+        draw_rectangle(color_white, 8 * pixel, 45 * pixel, 5 * pixel);
+        writing_pos(46 * pixel, 6 * pixel);
         printf("player 1");
         update_points(player1);
         break;
@@ -380,9 +380,9 @@ void hud(player_t player1, player_t player2) {
 
 void kill_snake(player_t player) {
     if (player->uid == 1) {
-        writing_pos(47 * PIXEL, 8 * PIXEL);
+        writing_pos(47 * pixel, 8 * pixel);
     } else if (player->uid == 2) {
-        writing_pos(47 * PIXEL, 18 * PIXEL);
+        writing_pos(47 * pixel, 18 * pixel);
     }
-    printf_color("EXECUTED", COLOR_RED, COLOR_BLACK);
+    printf_color("executed", color_red, color_black);
 }

@@ -315,7 +315,7 @@ os_int_to_string_next_digit:
 	inc rdi
 	loop os_int_to_string_next_digit	; again for other remainders
 	mov al, 0x00
-	stosb					; Store the null terminator at the end of the string
+	stosb					; Store the NULL terminator at the end of the string
 
 	pop rax
 	pop rbx

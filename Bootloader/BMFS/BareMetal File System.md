@@ -43,7 +43,7 @@ BMFS supports a single directory with a maximum of 64 individual files. Each fil
 
 **Directory Record structure**:
 
-	Filename (32 bytes) - Null-terminated ASCII string
+	Filename (32 bytes) - NULL-terminated ASCII string
 	Starting Block number (64-bit unsigned int)
 	Blocks reserved (64-bit unsigned int)
 	File size (64-bit unsigned int)
@@ -69,7 +69,7 @@ The following system calls should be available:
 
 The create function accepts two parameters:
 
-	Name = A null-terminated string no more that 31 characters
+	Name = A NULL-terminated string no more that 31 characters
 	Reserved = The number of blocks to reserve for the file
 
 

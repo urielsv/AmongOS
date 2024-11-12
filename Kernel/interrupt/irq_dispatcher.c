@@ -1,21 +1,21 @@
-// This is a personal academic project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+// this is a personal academic project. dear pvs-studio, please check it.
+// pvs-studio static code analyzer for c, c++ and c#: http://www.viva64.com
 #include <stdint.h>
 #include <time.h>
 #include <keyboard.h>
 
 enum irq{
-    TIMER = 0, KEYBOARD
+    timer = 0, keyboard
 };
 
 void irq_dispatcher(uint64_t irq) {
     switch(irq) 
     {
-        case TIMER: {
+        case timer: {
             timer_handler();
                 break;
         } 
-        case KEYBOARD: {
+        case keyboard: {
             keyboard_handler();
                 break;
         }

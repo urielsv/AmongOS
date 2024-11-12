@@ -2,19 +2,19 @@
  *
  * @file    draw.h
  *
- * @brief   Draw functions.
+ * @brief   draw functions.
  *
- * @author  Luca Pugliese                           <lpugliese@itba.edu.ar>
- * @author  Felipes Venturino                        <fventurino@itba.edu.ar>
- * @author  Uriel Sosa Vazquez                      <usosavazquez@itba.edu.ar>
+ * @author  luca pugliese                           <lpugliese@itba.edu.ar>
+ * @author  felipes venturino                        <fventurino@itba.edu.ar>
+ * @author  uriel sosa vazquez                      <usosavazquez@itba.edu.ar>
  *
  ******************************************************************************/
-#ifndef DRAW_H
-#define DRAW_H
+#ifndef draw_h
+#define draw_h
 
 #include <colors.h>
 
-#define PIXELSIZE 8
+#define pixelsize 8
 
 void draw_pixel(color_t color, uint16_t size, uint64_t x, uint64_t y);
 void draw_rectangle(color_t color, uint16_t size, uint64_t x, uint64_t y);

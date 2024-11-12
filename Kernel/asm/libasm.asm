@@ -1,17 +1,17 @@
-GLOBAL cpuVendor
-GLOBAL rtcTime
-GLOBAL asm_get_key
-GLOBAL scanf
-GLOBAL asm_getsp
-GLOBAL asm_getbp
+global cpu_vendor
+global rtc_time
+global asm_get_key
+global scanf
+global asm_getsp
+global asm_getbp
 
-GLOBAL test_write
+global test_write
 
 global outb, inb
 
 section .text
 	
-cpuVendor:
+cpu_vendor:
 	push rbp
 	mov rbp, rsp
 
@@ -35,7 +35,7 @@ cpuVendor:
 	pop rbp
 	ret
 
-rtcTime:
+rtc_time:
 	push rbp
 	mov rbp, rsp
 
@@ -71,7 +71,7 @@ test_write:
 
 
 
-inb:				; Funciones para el correcto funcionamiento del soundDriver
+inb:				; funciones para el correcto funcionamiento del sound_driver
 	push rbp
 	mov rbp, rsp
 

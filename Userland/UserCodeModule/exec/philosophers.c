@@ -3,20 +3,20 @@
 #include <stdio.h>
 #include <random.h>
 
-#define MAX_PHILOSOPHERS 12
-#define MIN_PHILOSOPHERS 5
-#define SEM_ID ((1<<6) - 1) //start at end
-#define philo_sem(i) (SEM_ID - (i) - 1)
+#define max_philosophers 12
+#define min_philosophers 5
+#define sem_id ((1<<6) - 1) //start at end
+#define philo_sem(i) (sem_id - (i) - 1)
 #define left(i) (((i) + philosophers_count - 1) % philosophers_count)	
 #define right(i) (((i) + 1) % philosophers_count)
-#define MAX_THINKING_TIME 10000
-#define MIN_THINKING_TIME 1000
+#define max_thinking_time 10000
+#define min_thinking_time 1000
 
 typedef enum {
-    NONE = 0,
-    EATING,
-    HUNGRY,
-    THINKING
+    none = 0,
+    eating,
+    hungry,
+    thinking
 } philo_state;
 
 
@@ -25,22 +25,22 @@ typedef struct {
     int philo_pid;
 } philo_t;
 
-static char * philo_names[MAX_PHILOSOPHERS] = {
-    "Yasuo",
-    "Zed",
-    "Riven",
-    "Darius",
-    "Garen",
-    "Jinx",
-    "Jhin",
-    "Katarina",
-    "Akali",
-    "Ahri",
-    "Lux",
-    "Ezreal"
+static char * philo_names[max_philosophers] = {
+    "yasuo",
+    "zed",
+    "riven",
+    "darius",
+    "garen",
+    "jinx",
+    "jhin",
+    "katarina",
+    "akali",
+    "ahri",
+    "lux",
+    "ezreal"
 };
 
-static philo_t philosophers[MAX_PHILOSOPHERS];
+static philo_t philosophers[max_philosophers];
 static int philosophers_count = 0;
 
 static int add_philo(int idx);
@@ -57,8 +57,8 @@ static void kill_philos();
 
 int run_philosophers(int argc, char* argv[]){
      philosophers_count = 0;
-    if(sem_open(SEM_ID, 1) < 0){
-        printf("Error opening semaphore\n");
+    if(sem_open(sem_id, 1) < 0){
+        printf("error opening semaphore\n");
         return -1;
     }
     int start_philosophers = 0;
@@ -66,21 +66,21 @@ int run_philosophers(int argc, char* argv[]){
     if(argc == 0){
         int seed = atoi(time());
         printf("seed: %d\n", seed);
-        start_philosophers = rand(seed, MAX_PHILOSOPHERS - MIN_PHILOSOPHERS) + MIN_PHILOSOPHERS;
+        start_philosophers = rand(seed, max_philosophers - min_philosophers) + min_philosophers;
     }else{
         start_philosophers = atoi(argv[0]);
     
-        if(philosophers_count < MIN_PHILOSOPHERS || philosophers_count > MAX_PHILOSOPHERS){
-            printf("Invalid number of philosophers. Must be between %d and %d\n", MIN_PHILOSOPHERS, MAX_PHILOSOPHERS);
+        if(philosophers_count < min_philosophers || philosophers_count > max_philosophers){
+            printf("invalid number of philosophers. must be between %d and %d\n", min_philosophers, max_philosophers);
             return -1;
         }
     }
 
     start_philosophers = 5;
-    printf("Starting the dilemma with %d philosophers\n", start_philosophers);
+    printf("starting the dilemma with %d philosophers\n", start_philosophers);
 
     for(int i = 0; i < start_philosophers; i++){
-        philosophers[i].state = NONE;
+        philosophers[i].state = none;
         philosophers[i].philo_pid = -1;
     }
 
@@ -92,33 +92,33 @@ int run_philosophers(int argc, char* argv[]){
     while((c = getchar()) != 'q'){
         switch(c){
             case 'a':
-                if(philosophers_count < MAX_PHILOSOPHERS){
+                if(philosophers_count < max_philosophers){
                     add_philo(philosophers_count);
                 }else{
-                    printf("The table is full of philosophers\n");
+                    printf("the table is full of philosophers\n");
                 }
                 break;
             case 'r':
-                if(philosophers_count > MIN_PHILOSOPHERS){
+                if(philosophers_count > min_philosophers){
                     remove_philo(philosophers_count - 1);
                     
                 }else{
-                    printf("The table should have at least %d philosophers\n", MIN_PHILOSOPHERS);
+                    printf("the table should have at least %d philosophers\n", min_philosophers);
                 }
                 break;
         }
     }
     kill_philos();
-    sem_close(SEM_ID);
+    sem_close(sem_id);
     return 0;
 }
 
 static int add_philo(int idx){
-    printf("The philosopher %s has joined the table\n", philo_names[idx]);
-    sem_wait(SEM_ID);
+    printf("the philosopher %s has joined the table\n", philo_names[idx]);
+    sem_wait(sem_id);
 
     if(sem_open(philo_sem(idx), 1) < 0){
-        printf("Error opening semaphore\n");
+        printf("error opening semaphore\n");
         return -1;
     }
 
@@ -130,32 +130,32 @@ static int add_philo(int idx){
     if(philosophers[idx].philo_pid != -1)
             philosophers_count++;
     
-    sem_post(SEM_ID);
+    sem_post(sem_id);
     return -1 * !(philosophers[idx].philo_pid + 1);
 }
 
 static int remove_philo(int idx){
-    printf("The philosopher %d %s has left the table\n", idx, philo_names[idx]);
-    sem_wait(SEM_ID);
-    while(philosophers[left(idx)].state == EATING && philosophers[right(idx)].state == EATING){
-        sem_post(SEM_ID);
+    printf("the philosopher %d %s has left the table\n", idx, philo_names[idx]);
+    sem_wait(sem_id);
+    while(philosophers[left(idx)].state == eating && philosophers[right(idx)].state == eating){
+        sem_post(sem_id);
         sem_wait(philo_sem(idx));
-        sem_wait(SEM_ID);
+        sem_wait(sem_id);
     }
     kill(philosophers[idx].philo_pid);
     sem_close(philo_sem(idx));
     philosophers[idx].philo_pid = -1;
-    philosophers[idx].state = NONE;
+    philosophers[idx].state = none;
     philosophers_count--;
 
-    sem_post(SEM_ID);
+    sem_post(sem_id);
     
     return 0;
 }
 
 static void philosopher(int argc, char *argv[]){
     int i = atoi(argv[0]);
-    philosophers[i].state = THINKING;
+    philosophers[i].state = thinking;
     while(1){
         think();
         take_forks(i);
@@ -166,24 +166,24 @@ static void philosopher(int argc, char *argv[]){
 }
 
 static void take_forks(int i){
-    sem_wait(SEM_ID);
-    philosophers[i].state = HUNGRY;
+    sem_wait(sem_id);
+    philosophers[i].state = hungry;
     test(i);
-    sem_post(SEM_ID);
+    sem_post(sem_id);
     sem_wait(philo_sem(i));
 }
 
 static void put_forks(int i){
-    sem_wait(SEM_ID);
-    philosophers[i].state = THINKING;
+    sem_wait(sem_id);
+    philosophers[i].state = thinking;
     test(left(i));
     test(right(i));
-    sem_post(SEM_ID);
+    sem_post(sem_id);
 }
 
 static void test(int i){
-    if(philosophers[i].state == HUNGRY && philosophers[left(i)].state != EATING && philosophers[right(i)].state != EATING){
-        philosophers[i].state = EATING;
+    if(philosophers[i].state == hungry && philosophers[left(i)].state != eating && philosophers[right(i)].state != eating){
+        philosophers[i].state = eating;
         sem_post(philo_sem(i));
 
     }
@@ -191,7 +191,7 @@ static void test(int i){
 
 static void print_state(){
     for(int i = 0; i < philosophers_count; i++){
-        printf("%s ", philosophers[i].state == EATING ? "E" : "."); 
+        printf("%s ", philosophers[i].state == eating ? "e" : "."); 
     }
     printf("\n");
 }
@@ -199,7 +199,7 @@ static void print_state(){
 static void think(){
     sleep(1000);
     //int seed = atoi(time());
-    //sleep(rand(seed, MAX_THINKING_TIME - MIN_THINKING_TIME) + MIN_THINKING_TIME);
+    //sleep(rand(seed, max_thinking_time - min_thinking_time) + min_thinking_time);
 }
 
 static void kill_philos(){

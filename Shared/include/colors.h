@@ -2,15 +2,15 @@
  *
  * @file    colors.h
  *
- * @brief   Colors!!
+ * @brief   colors!!
  *
- * @author  Luca Pugliese                           <lpugliese@itba.edu.ar>
- * @author  Felipes Venturino                        <fventurino@itba.edu.ar>
- * @author  Uriel Sosa Vazquez                      <usosavazquez@itba.edu.ar>
+ * @author  luca pugliese                           <lpugliese@itba.edu.ar>
+ * @author  felipes venturino                        <fventurino@itba.edu.ar>
+ * @author  uriel sosa vazquez                      <usosavazquez@itba.edu.ar>
  *
  ******************************************************************************/
-#ifndef COLORS_H
-#define COLORS_H
+#ifndef colors_h
+#define colors_h
 
 #include <stdint.h>
 
@@ -22,16 +22,16 @@ typedef struct {
 
 typedef uint32_t color_t;
 
-#define COLOR_BLACK color(0, 0, 0)
-#define COLOR_WHITE color(255, 255, 255)
-#define COLOR_RED color(255, 0, 0)
-#define COLOR_GREEN color(0, 255, 0)
-#define COLOR_BLUE color(0, 0, 255)
-#define COLOR_YELLOW color(255, 255, 0)
-#define COLOR_CYAN color(0, 255, 255)
-#define COLOR_MAGENTA color(255, 0, 255)
+#define color_black color(0, 0, 0)
+#define color_white color(255, 255, 255)
+#define color_red color(255, 0, 0)
+#define color_green color(0, 255, 0)
+#define color_blue color(0, 0, 255)
+#define color_yellow color(255, 255, 0)
+#define color_cyan color(0, 255, 255)
+#define color_magenta color(255, 0, 255)
 
-// Pass from r,g,b value to a color_t (hex value)
+// pass from r,g,b value to a color_t (hex value)
 uint32_t color(uint32_t r, uint32_t g, uint32_t b);
 
 #endif

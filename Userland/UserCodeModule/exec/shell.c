@@ -1,5 +1,5 @@
-// This is a personal academic project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+// this is a personal academic project. dear pvs-studio, please check it.
+// pvs-studio static code analyzer for c, c++ and c#: http://www.viva64.com
 #include <shell.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,13 +8,13 @@
 #include <tests.h>
 #include <philosophers.h>
 
-#define MAX_BUFFER_SIZE 1024
+#define max_buffer_size 1024
 
 static void infinite_loop_proc(int argc, char *argv[]) {
 
     while (1) {
         sleep(3000);
-        printf("Infinite loop from pid: %d\n", get_pid());
+        printf("infinite loop from pid: %d\n", get_pid());
     }
 }
 
@@ -24,34 +24,34 @@ static void read_pipe(int argc, char *argv[]) {
 }
 
 command_t commands[] = {
-    {"help", "Shows this help", (Function) print_help},
-    {"clear", "Clears the screen", (Function) print_clear},
-    {"time", "Shows the current time", (Function) print_time},
-    {"random", "Shows a random number", (Function) print_random},
-    {"screen", "Shows the screen size", (Function) screen},
-    {"font", "Change font size (1-5)", (Function) font},
-    {"exit", "Exits the shell", NULL},
-    {"amongus", "Prints Among Us", (Function) print_amongus},
-    {"snake", "Starts the snake game", (Function) snake},
-    {"regs", "printea los registros", (Function) print_regs},
-    {"zero", "testea la excepcion de division por cero", (Function) test_zero},
-    {"opcode", "testea la excepcion de opcode invalido", (Function) opcode},
-    {"test_mm", "testeo de memoria", (Function) test_mm_proc},
-    {"test_processes", "testeo de procesos", (Function) test_processes_proc},
-    {"test_prio", "testeo de prioridad", (Function) test_prio_proc},
-    {"test_synchro", "testeo de sincronizacion", (Function) test_synchro_proc},
-    {"kill", "Kill a process <pid>.", (Function) kill_proc},
-    {"nice", "Change the scheduling priority of a process <pid> to <priority>.", (Function) nice},
-    {"ps", "List all processes", (Function) ps},
-    {"mem", "Muestra la memoria total, usada y libre", (Function) print_mem_info},
-    {"infinite_loop", "Starts an infinite loop", (Function) infinite_loop_proc},
-    {"philos", "start the classic philosophers dilemma", (Function) philos_proc},
-    {"cat", "Imprime el stdin tal como lo recibe", (Function) cat},
-    {"wc", "Cuenta la cantidad de lineas del stdin", (Function) wc},
-    {"block","Bloquea un proceso", (Function) block_proc},
-    {"unblock", "Desbloquea un proceso", (Function) unblock_proc},
-    {"filter", "Filtra las vocales del stdin", (Function) filter},
-    {"read_pipe", "lee un pipe", (Function) read_pipe}
+    {"help", "shows this help", (function) print_help},
+    {"clear", "clears the screen", (function) print_clear},
+    {"time", "shows the current time", (function) print_time},
+    {"random", "shows a random number", (function) print_random},
+    {"screen", "shows the screen size", (function) screen},
+    {"font", "change font size (1-5)", (function) font},
+    {"exit", "exits the shell", NULL},
+    {"amongus", "prints among us", (function) print_amongus},
+    {"snake", "starts the snake game", (function) snake},
+    {"regs", "printea los registros", (function) print_regs},
+    {"zero", "testea la excepcion de division por cero", (function) test_zero},
+    {"opcode", "testea la excepcion de opcode invalido", (function) opcode},
+    {"test_mm", "testeo de memoria", (function) test_mm_proc},
+    {"test_processes", "testeo de procesos", (function) test_processes_proc},
+    {"test_prio", "testeo de prioridad", (function) test_prio_proc},
+    {"test_synchro", "testeo de sincronizacion", (function) test_synchro_proc},
+    {"kill", "kill a process <pid>.", (function) kill_proc},
+    {"nice", "change the scheduling priority of a process <pid> to <priority>.", (function) nice},
+    {"ps", "list all processes", (function) ps},
+    {"mem", "muestra la memoria total, usada y libre", (function) print_mem_info},
+    {"infinite_loop", "starts an infinite loop", (function) infinite_loop_proc},
+    {"philos", "start the classic philosophers dilemma", (function) philos_proc},
+    {"cat", "imprime el STDIN tal como lo recibe", (function) cat},
+    {"wc", "cuenta la cantidad de lineas del STDIN", (function) wc},
+    {"block","bloquea un proceso", (function) block_proc},
+    {"unblock", "desbloquea un proceso", (function) unblock_proc},
+    {"filter", "filtra las vocales del STDIN", (function) filter},
+    {"read_pipe", "lee un pipe", (function) read_pipe}
 };
 
 
@@ -66,12 +66,12 @@ void shell() {
     print_header();
     print_ps1("user", "~");
 
-    // SHELL LOOP
-    char buff[MAX_BUFFER_SIZE];
+    // shell loop
+    char buff[max_buffer_size];
     parsed_input_t parsed;
     memset(&parsed, 0, sizeof(parsed_input_t));
     while (1) {
-        gets(buff, MAX_BUFFER_SIZE);
+        gets(buff, max_buffer_size);
         parse_buffer(buff, &parsed);
         execute_command(&parsed);
         print_ps1("user", "~");
@@ -101,7 +101,7 @@ static void parse_buffer(char *buff, parsed_input_t *parsed) {
     char *cmd_str = buff;
     char *pipe_pos;
     
-    while (cmd_str && *cmd_str && parsed->cmd_count < MAX_CMDS) {
+    while (cmd_str && *cmd_str && parsed->cmd_count < max_cmds) {
         while (*cmd_str == ' ') cmd_str++;
         if (!*cmd_str) break;
         
@@ -126,7 +126,7 @@ static void parse_buffer(char *buff, parsed_input_t *parsed) {
         
         if (next_token) {
             token = next_token;
-            while (*token && arg_count < MAX_ARGS - 1) { 
+            while (*token && arg_count < max_args - 1) { 
                 while (*token == ' ') token++;
                 if (!*token) break;
                 
@@ -169,33 +169,33 @@ static int execute_command(parsed_input_t *parsed) {
                 
                 if (parsed->is_bg) {
                     pid = exec((void *)commands[i].cmd, current->argv, current->argc, 
-                             commands[i].name, DEFAULT_PRIORITY);
+                             commands[i].name, default_priority);
                 
                     block(pid);
                   
-                    change_process_fd(pid, STDIN, DEV_NULL);
-                    change_process_fd(pid, STDOUT, DEV_NULL);
-                    change_process_fd(pid, STDERR, DEV_NULL);
+                    change_process_fd(pid, STDIN, dev_NULL);
+                    change_process_fd(pid, STDOUT, dev_NULL);
+                    change_process_fd(pid, STDERR, dev_NULL);
                 
                     
                     unblock(pid);
                     //yield();
-                    printf("[%d] Running in background\n", pid);
+                    printf("[%d] running in background\n", pid);
                 } else {
                     pid = exec((void *)commands[i].cmd, current->argv, current->argc, 
-                             commands[i].name, DEFAULT_PRIORITY);
+                             commands[i].name, default_priority);
                     waitpid(pid);
                 }
                 return 0;
             }
         }
-        printf("SUShell: '%s' command not found", current->cmd);
+        printf("su_shell: '%s' command not found", current->cmd);
         return 0;
     }
 
     uint16_t pipe_id = create_pipe();
 
-    int pids[MAX_CMDS] = {0};
+    int pids[max_cmds] = {0};
     
     for (int i = 0; i < parsed->cmd_count; i++) {
         command_input_t *current = &parsed->cmds[i];
@@ -203,16 +203,16 @@ static int execute_command(parsed_input_t *parsed) {
         for (int j = 0; j < sizeof(commands) / sizeof(command_t); j++) {
             if (strcmp(commands[j].name, current->cmd) == 0) {
                 pids[i] = exec((void *)commands[j].cmd, current->argv, current->argc, 
-                             commands[j].name, DEFAULT_PRIORITY);
+                             commands[j].name, default_priority);
                 block(pids[i]);
                 
                 if (i == 0) {
-                    open_pipe(pids[i], pipe_id, WRITE_MODE);
+                    open_pipe(pids[i], pipe_id, write_mode);
                     change_process_fd(pids[i], STDOUT, pipe_id);
                 }
 
                 if (i == 1) {
-                    open_pipe(pids[i], pipe_id, READ_MODE);
+                    open_pipe(pids[i], pipe_id, read_mode);
                     change_process_fd(pids[i], STDIN, pipe_id);
                 }
 
@@ -221,7 +221,7 @@ static int execute_command(parsed_input_t *parsed) {
             }
         }
         if (!found) {
-            printf("SUShell: '%s' command not found", current->cmd);
+            printf("su_shell: '%s' command not found", current->cmd);
             return 0;
         }
     }
@@ -233,10 +233,10 @@ static int execute_command(parsed_input_t *parsed) {
     if (!parsed->is_bg) {
         waitpid(pids[parsed->cmd_count - 1]);
     } else {
-        uint16_t null_pipe = create_pipe();
-        if (null_pipe != -1) {
-            open_pipe(pids[0], null_pipe, READ_MODE);
-            printf("[%d] Pipe chain running in background\n", pids[0]);
+        uint16_t NULL_pipe = create_pipe();
+        if (NULL_pipe != -1) {
+            open_pipe(pids[0], NULL_pipe, read_mode);
+            printf("[%d] pipe chain running in background\n", pids[0]);
         }
     }
 
@@ -247,49 +247,49 @@ static int execute_command(parsed_input_t *parsed) {
 
 
 void ps() {
-    printf("PID\t\tPRIO\t\t\t\tSTATE\t\t\t\t\tNAME\t\t\tSP\t\t\t\t\tBP\n");
-    // TODO: MAke this more efficient sicne we are iterating over all the processes
-    for (int i = 0; i < MAX_PROCESSES; i++) {
+    printf("pid\t\t_prio\t\t\t\t_state\t\t\t\t\t_name\t\t\t_sp\t\t\t\t\t_bp\n");
+    // todo: m_ake this more efficient sicne we are iterating over all the processes
+    for (int i = 0; i < max_processes; i++) {
         process_snapshot_t *process = process_snapshot(i);
         if (process != NULL) {
             char *state = "";
             switch (process->state) {
-                case BLOCKED:
-                    state = "BLOCKED          ";
+                case blocked:
+                    state = "blocked          ";
                     break;
-                case READY:
-                    state = "READY            ";
+                case ready:
+                    state = "ready            ";
                     break;
-                case KILLED:
-                    state = "KILLED           ";
+                case killed:
+                    state = "killed           ";
                     break;
-                case RUNNING:
-                    state = "RUNNING          ";
+                case running:
+                    state = "running          ";
                     break;
-                case WAITING_FOR_CHILD:
-                    state = "WAITING FOR CHILD";
+                case waiting_for_child:
+                    state = "waiting for child";
                     break;
             }
             char *priority = "";
             switch (process->priority) {
-                case LOW:
-                    priority = "LOW        ";
+                case low:
+                    priority = "low        ";
                     break;
-                case LOW_MEDIUM:
-                    priority = "LOW MEDIUM ";
+                case low_medium:
+                    priority = "low medium ";
                     break;
-                case MEDIUM:
-                    priority = "MEDIUM     ";
+                case medium:
+                    priority = "medium     ";
                     break;
-                case HIGH_MEDIUM:
-                    priority = "HIGH MEDIUM";
+                case high_medium:
+                    priority = "high medium";
                     break;
-                case HIGH:
-                    priority = "HIGH       ";
+                case high:
+                    priority = "high       ";
                     break;
             }
             printf("%d\t\t%s\t\t%s\t\t%s %s\t\t%s\t%s", process->pid, priority, state, process->name, process->argv, process->stack_pointer, process->base_pointer);
-            if (i < MAX_PROCESSES - 1) {
+            if (i < max_processes - 1) {
                 printf("\n");
             }
         }
@@ -303,19 +303,19 @@ static int validate_pid(char *pid_str) {
 
 void nice(int argc, char *argv[]) {
     if (argc != 2) {
-        printf("Usage: nice <pid> <priority>\n");
+        printf("usage: nice <pid> <priority>\n");
         return;
     }
    
     int32_t pid = -1;
     if ((pid = validate_pid(argv[0])) < 0) {
-        printf("Error: invalid pid %d\n", argv[0]);
+        printf("error: invalid pid %d\n", argv[0]);
         return;
     }
 
     int prio = atoi(argv[1]);
-    if (prio < LOW || prio > HIGH) {
-        printf("Error: invalid priority %d\n", prio);
+    if (prio < low || prio > high) {
+        printf("error: invalid priority %d\n", prio);
         return;
     }
 
@@ -324,13 +324,13 @@ void nice(int argc, char *argv[]) {
 
 void kill_proc(int argc, char *argv[]) {
     if (argc != 1) {
-        printf("Usage: kill <pid>");
+        printf("usage: kill <pid>");
         return;
     }
    
     int32_t pid = -1;
     if ((pid = validate_pid(argv[0])) < 0) {
-        printf("Error: invalid pid %d", argv[0]);
+        printf("error: invalid pid %d", argv[0]);
         return;
     }
 
@@ -341,22 +341,22 @@ void kill_proc(int argc, char *argv[]) {
 inline void print_header()
 {
 
-    printf_color("Welcome to AmongOS Shell (SUShell) \n", COLOR_MAGENTA, COLOR_BLACK);
+    printf_color("welcome to among_os shell (su_shell) \n", color_magenta, color_black);
     putchar('\n');
-    printf("To see the list of available commands, type 'help'\n");
+    printf("to see the list of available commands, type 'help'\n");
     putchar('\n');
 }
 
 inline void print_ps1(char *user, char *pwd)
 {
 
-    printf_color("\n%s@AmongOS", COLOR_GREEN, COLOR_BLACK, user);
-    printf_color("%s$ ", COLOR_MAGENTA, COLOR_BLACK, pwd);
+    printf_color("\n%s@among_os", color_green, color_black, user);
+    printf_color("%s$ ", color_magenta, color_black, pwd);
 }
 
 int print_help() {
 
-    printf("command_t: Description\n");
+    printf("command_t: description\n");
     int size = sizeof(commands) / sizeof(command_t);
     for (int i = 1; i < size; i++) {
         printf("%s: %s", commands[i].name, commands[i].description);
@@ -372,31 +372,31 @@ int print_help() {
 int screen() {
     uint64_t width, height;
     screen_info(&width, &height);
-    printf("W:%d, H:%d\n", width, height);
+    printf("w:%d, h:%d\n", width, height);
     return 0;
 }
 
 int font() {
     int num;
-    scanf("New size: %d", &num);
+    scanf("new size: %d", &num);
     if (num <= 0 || num >= 6) {
-        printf("\nInvalid size\n");
+        printf("\n_invalid size\n");
     } else {
         font_size(num);
-        clear(COLOR_BLACK);
+        clear(color_black);
     }
     return 0;
 }
 
 int print_amongus() {
-    printf_color("........ooooooooo.......\n", COLOR_RED, COLOR_BLACK);
-    printf_color("......oo.....oooooo.....\n", COLOR_RED, COLOR_BLACK);
-    printf_color("......oo...oo......oo...\n", COLOR_RED, COLOR_BLACK);
-    printf_color("......oo.....oooooo.....\n", COLOR_RED, COLOR_BLACK);
-    printf_color("......oo.......oo.......\n", COLOR_RED, COLOR_BLACK);
-    printf_color("......oo...oo..oo.......\n", COLOR_RED, COLOR_BLACK);
-    printf_color("......oo...oo..oo.......\n", COLOR_RED, COLOR_BLACK);
-    printf_color("......ooo..oo.ooo.......", COLOR_RED, COLOR_BLACK);
+    printf_color("........ooooooooo.......\n", color_red, color_black);
+    printf_color("......oo.....oooooo.....\n", color_red, color_black);
+    printf_color("......oo...oo......oo...\n", color_red, color_black);
+    printf_color("......oo.....oooooo.....\n", color_red, color_black);
+    printf_color("......oo.......oo.......\n", color_red, color_black);
+    printf_color("......oo...oo..oo.......\n", color_red, color_black);
+    printf_color("......oo...oo..oo.......\n", color_red, color_black);
+    printf_color("......ooo..oo.ooo.......", color_red, color_black);
     return 0;
 }
 
@@ -411,7 +411,7 @@ int print_time() {
 }
 
 int print_clear() {
-    clear(COLOR_BLACK);
+    clear(color_black);
     return 0;
 }
 
@@ -461,14 +461,14 @@ void block_proc(int argc, char *argv[])
 {
     if (argc != 1)
     {
-        printf("Usage: block <pid>");
+        printf("usage: block <pid>");
         return;
     }
 
     int32_t pid = -1;
     if ((pid = validate_pid(argv[0])) < 0)
     {
-        printf("Error: invalid pid %d", argv[0]);
+        printf("error: invalid pid %d", argv[0]);
         return;
     }
 
@@ -480,14 +480,14 @@ void unblock_proc(int argc, char *argv[])
 {
     if (argc != 1)
     {
-        printf("Usage: unblock <pid>");
+        printf("usage: unblock <pid>");
         return;
     }
 
     int32_t pid = -1;
     if ((pid = validate_pid(argv[0])) < 0)
     {
-        printf("Error: invalid pid %d", argv[0]);
+        printf("error: invalid pid %d", argv[0]);
         return;
     }
 
@@ -518,7 +518,7 @@ int wc(int argc, char **argv) {
         buffer_count++;
     }
     // no es responsiva, pero bueno, esto ya tiene q ver con el tp anterior de arqui
-    printf("La cantidad de lineas es: %d\n", buffer_count/128+1);
+    printf("la cantidad de lineas es: %d\n", buffer_count/128+1);
 	return 0;
 }
 
@@ -526,16 +526,16 @@ int wc(int argc, char **argv) {
 int filter(int argc, char **argv) {
 
     if (argc < 1) {
-        printf("Usage: filter <text>\n");
+        printf("usage: filter <text>\n");
         return 0;
     }
     for (int i = 0; i < argc; i++) {
         for (int count_buffer = 0; argv[i][count_buffer] != '\0'; count_buffer++) {
-            if (toLower(argv[i][count_buffer]) != 'a' && 
-                toLower(argv[i][count_buffer]) != 'e' && 
-                toLower(argv[i][count_buffer]) != 'i' && 
-                toLower(argv[i][count_buffer]) != 'o' && 
-                toLower(argv[i][count_buffer]) != 'u') {
+            if (to_lower(argv[i][count_buffer]) != 'a' && 
+                to_lower(argv[i][count_buffer]) != 'e' && 
+                to_lower(argv[i][count_buffer]) != 'i' && 
+                to_lower(argv[i][count_buffer]) != 'o' && 
+                to_lower(argv[i][count_buffer]) != 'u') {
                 putchar(argv[i][count_buffer]);
             }
         }
@@ -546,6 +546,6 @@ int filter(int argc, char **argv) {
 
 size_t print_mem_info() {
     size_t *info = memory_info();
-    printf("\nTotal: %d, Used: %d, Free: %d\n", info[0], info[1], info[2]);
+    printf("\n_total: %d, used: %d, free: %d\n", info[0], info[1], info[2]);
     return 0;
 }

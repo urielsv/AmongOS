@@ -72,7 +72,7 @@ msg_novesa:		db 'VESA error', 0
 VBEModeInfoBlock.ModeAttributes		equ VBEModeInfoBlock + 0	; DW - mode attributes
 VBEModeInfoBlock.WinAAttributes		equ VBEModeInfoBlock + 2	; DB - window A attributes
 VBEModeInfoBlock.WinBAttributes		equ VBEModeInfoBlock + 3	; DB - window B attributes
-VBEModeInfoBlock.WinGranularity		equ VBEModeInfoBlock + 4	; DW - window granularity in KB
+VBEModeInfoBlock.WinGraNULLarity		equ VBEModeInfoBlock + 4	; DW - window graNULLarity in KB
 VBEModeInfoBlock.WinSize		equ VBEModeInfoBlock + 6	; DW - window size in KB
 VBEModeInfoBlock.WinASegment		equ VBEModeInfoBlock + 8	; DW - window A start segment
 VBEModeInfoBlock.WinBSegment		equ VBEModeInfoBlock + 10	; DW - window B start segment
@@ -113,7 +113,7 @@ GDTR64:					; Global Descriptors Table Register
 	dq 0x0000000000001000		; linear address of GDT
 
 gdt64:					; This structure is copied to 0x0000000000001000
-SYS64_NULL_SEL equ $-gdt64		; Null Segment
+SYS64_NULL_SEL equ $-gdt64		; NULL Segment
 	dq 0x0000000000000000
 SYS64_CODE_SEL equ $-gdt64		; Code segment, read/execute, nonconforming
 	dq 0x0020980000000000		; 0x00209A0000000000

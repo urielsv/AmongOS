@@ -1,12 +1,12 @@
-// This is a personal academic project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-#include <idtLoader.h>
+// this is a personal academic project. dear pvs-studio, please check it.
+// pvs-studio static code analyzer for c, c++ and c#: http://www.viva64.com
+#include <idt_loader.h>
 #include <io.h>
 // #include <stdio.h>
 #include <keyboard.h>
 #include <lib.h>
-#include <moduleLoader.h>
-#include <naiveConsole.h>
+#include <module_loader.h>
+#include <naive_console.h>
 #include <sound.h>
 #include <stdint.h>
 #include <string.h>
@@ -15,57 +15,57 @@
 #include <userland.h>
 #include <video.h>
 #include <exceptions.h>
-#include <memman.h>
+#include <buddy_memman.h>
 #include <scheduler.h>
 #include <stdlib.h>
 #include <pipes.h>
 
-#define STRING_SIZE "1000000"
+#define string_size "1000000"
 
 extern uint8_t text;
 extern uint8_t rodata;
 extern uint8_t data;
 extern uint8_t bss;
-extern uint8_t endOfKernelBinary;
-extern uint8_t endOfKernel;
+extern uint8_t end_of_kernel_binary;
+extern uint8_t end_of_kernel;
 
 
-static const uint64_t PageSize = 0x1000;
+static const uint64_t page_size = 0x1000;
 
-void clearBSS(void *bssAddress, uint64_t bssSize)
+void clear_bss(void *bss_address, uint64_t bss_size)
 {
-    memset(bssAddress, 0, bssSize);
+    memset(bss_address, 0, bss_size);
 }
 
-void *getStackBase()
+void *get_stack_base()
 {
-    return (void *)((uint64_t)&endOfKernel + PageSize * 8 // The size of the stack itself, 32KiB
-                    - sizeof(uint64_t)                    // Begin at the top of the stack
+    return (void *)((uint64_t)&end_of_kernel + page_size * 8 // the size of the stack itself, 32_ki_b
+                    - sizeof(uint64_t)                    // begin at the top of the stack
     );
 }
 
-void *initializeKernelBinary()
+void *initialize_kernel_binary()
 {
 
-    void *moduleAddresses[] = {
-        userlandCodeModuleAddress,
-        sampleDataModuleAddress};
+    void *module_addresses[] = {
+        userland_code_module_address,
+        sample_data_module_address};
 
-    loadModules(&endOfKernelBinary, moduleAddresses);
+    load_modules(&end_of_kernel_binary, module_addresses);
 
-    clearBSS(&bss, &endOfKernel - &bss);
+    clear_bss(&bss, &end_of_kernel - &bss);
 
-    uint64_t size = (uint64_t)heapEndAddress - (uint64_t)heapStartAddress;
-    mem_init(heapStartAddress, size);
+    uint64_t size = (uint64_t)heap_end_address - (uint64_t)heap_start_address;
+    b_init(heap_start_address, size);
     init_scheduler();
     init_pipe_manager();
-    return getStackBase();
+    return get_stack_base();
 }
 
 int main()
 {
 
-    create_process((Function)userlandCodeModuleAddress, NULL, 0, "shell", 4, 1);
+    create_process((function)userland_code_module_address, NULL, 0, "shell", 4, 1);
 
     idt_loader();
     

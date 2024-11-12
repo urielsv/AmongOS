@@ -1,43 +1,43 @@
-#include <queuePidADT.h>
-#include <memman.h>
+#include <queue_pid_adt.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <buddy_memman.h>
 
 typedef struct node_pid {
     int64_t pid;
     struct node_pid* next;
 } node_pid_t;
 
-typedef struct queuePIDCDT {
+typedef struct queue_pid_cdt {
     node_pid_t* front;    
     node_pid_t* rear;     
     uint64_t size;
-} queuePIDCDT_t;
+} queue_pid_cdt_t;
 
-queuePIDADT createQueue() {
-    queuePIDADT queue = mem_alloc(sizeof(queuePIDCDT_t));
+queue_pid_adt create_queue() {
+    queue_pid_adt queue = b_alloc(sizeof(queue_pid_cdt_t));
     queue->front = NULL;
     queue->rear = NULL;
     queue->size = 0;
     return queue;
 }
 
-void enqueue(queuePIDADT queue, int64_t pid) {
-    node_pid_t* newNode = mem_alloc(sizeof(node_pid_t));
-    newNode->pid = pid;
-    newNode->next = NULL;
+void enqueue(queue_pid_adt queue, int64_t pid) {
+    node_pid_t* new_node = b_alloc(sizeof(node_pid_t));
+    new_node->pid = pid;
+    new_node->next = NULL;
     
     if (queue->rear == NULL) {  
-        queue->front = newNode;
-        queue->rear = newNode;
+        queue->front = new_node;
+        queue->rear = new_node;
     } else {
-        queue->rear->next = newNode;
-        queue->rear = newNode;
+        queue->rear->next = new_node;
+        queue->rear = new_node;
     }
     queue->size++;
 }
 
-int64_t dequeue(queuePIDADT queue) {
+int64_t dequeue(queue_pid_adt queue) {
     if (queue->front == NULL) {
         return -1;  
     }
@@ -50,37 +50,37 @@ int64_t dequeue(queuePIDADT queue) {
         queue->rear = NULL;
     }
     
-    mem_free(temp);
+    b_free(temp);
     queue->size--;
     return pid;
 }
 
-int64_t peek(queuePIDADT queue) {
+int64_t peek(queue_pid_adt queue) {
     if (queue->front == NULL) {
         return -1;
     }
     return queue->front->pid;
 }
 
-bool isEmpty(queuePIDADT queue) {
+bool is_empty(queue_pid_adt queue) {
     return (queue->size == 0);
 }
 
-uint64_t getQueueSize(queuePIDADT queue) {
+uint64_t get_queue_size(queue_pid_adt queue) {
     return queue->size;
 }
 
-void clearQueue(queuePIDADT queue) {
+void clear_queue(queue_pid_adt queue) {
     while (queue->front != NULL) {
         node_pid_t* temp = queue->front;
         queue->front = queue->front->next;
-        mem_free(temp);
+        b_free(temp);
     }
     queue->rear = NULL;
     queue->size = 0;
 }
 
-bool containsPID(queuePIDADT queue, int64_t pid) {
+bool contains_pid(queue_pid_adt queue, int64_t pid) {
     node_pid_t* current = queue->front;
     while (current != NULL) {
         if (current->pid == pid) {
@@ -91,12 +91,12 @@ bool containsPID(queuePIDADT queue, int64_t pid) {
     return false;
 }
 
-void destroyQueue(queuePIDADT queue) {
-    clearQueue(queue);
-    mem_free(queue);
+void destroy_queue(queue_pid_adt queue) {
+    clear_queue(queue);
+    b_free(queue);
 }
 
-void dequeue_pid(queuePIDADT queue, int64_t pid) {
+void dequeue_pid(queue_pid_adt queue, int64_t pid) {
     if (queue->front == NULL) {
         return;
     }
@@ -114,7 +114,7 @@ void dequeue_pid(queuePIDADT queue, int64_t pid) {
             if (queue->rear == current) {
                 queue->rear = prev;
             }
-            mem_free(current);
+            b_free(current);
             queue->size--;
             return;
         }

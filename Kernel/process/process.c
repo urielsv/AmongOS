@@ -1,32 +1,26 @@
-// #include "../include/create_process.h"
-#include "../include/memman.h"
-// #include "../include/syscalls.h"
-// #include "../include/stdio.h"
-
 #include "../include/process.h"
-#include "../include/linkedListADT.h"
+#include "../include/linked_list_adt.h"
 #include "../include/lib.h"
 #include <string.h>
 #include <stdlib.h>
 #include <io.h>
 #include <scheduler.h>
-#include <memman.h>
-
+#include <buddy_memman.h>
 
 static char **alloc_args(char **args, uint64_t argc);
 
-void init_process(process_t* process, int32_t pid, Function code,
+void init_process(process_t* process, int32_t pid, function code,
                  char** args, uint64_t argc, char* name, priority_t priority, uint8_t unkilliable) {
     process->pid = pid;
     process->priority = priority;
-    process->state = READY;
-    process->stack_base = mem_alloc(STACK_SIZE);
+    process->state = ready;
+    process->stack_base = b_alloc(stack_size);
     process->argv = alloc_args(args, argc);
     process->argc = argc;
-    process->name = mem_alloc(strlen(name) + 1);
+    process->name = b_alloc(strlen(name) + 1);
     memcpy(process->name, name, strlen(name) + 1);
     
-    void* stack_end = (void*)((uint64_t)process->stack_base + STACK_SIZE);
+    void* stack_end = (void*)((uint64_t)process->stack_base + stack_size);
     process->stack_pointer = create_process_stack_frame(
         (void*)code,
         stack_end,
@@ -39,7 +33,7 @@ void init_process(process_t* process, int32_t pid, Function code,
 
     process->parent_pid = get_current_pid();
     process->exit_code = 0;
-    process->children = createLinkedList();
+    process->children = create_linked_list();
 
     process->fds[0] = STDIN;
     process->fds[1] = STDOUT;
@@ -51,16 +45,16 @@ void init_process(process_t* process, int32_t pid, Function code,
 
 static char **alloc_args(char **args, uint64_t argc)
 {
-    char **argv = mem_alloc(sizeof(char *) * argc);
+    char **argv = b_alloc(sizeof(char *) * argc);
     for (int i = 0; i < argc; i++)
     {
-        argv[i] = mem_alloc(strlen(args[i]) + 1);
+        argv[i] = b_alloc(strlen(args[i]) + 1);
         memcpy(argv[i], args[i], strlen(args[i]) + 1);
     }
     return argv;
 }
 
-void process_handler(Function code, char** argv, int argc) {
+void process_handler(function code, char** argv, int argc) {
     int64_t ret = code(argc, argv);
     
     process_t* current = get_current_process();
@@ -71,16 +65,16 @@ void process_handler(Function code, char** argv, int argc) {
 }
 
 void free_process(process_t* process) {
-    // Free arguments
+    // free arguments
     for (int i = 0; i < process->argc; i++) {
-        mem_free(process->argv[i]);
+        b_free(process->argv[i]);
     }
 
-    mem_free(process->argv);
+    b_free(process->argv);
     
-    mem_free(process->name);
+    b_free(process->name);
     
-    mem_free(process->stack_base);
+    b_free(process->stack_base);
     
     
     if (process->children != NULL && process->parent_pid != 0) {
@@ -92,10 +86,10 @@ void free_process(process_t* process) {
     }
     
  
-    destroyLinkedList(process->children);
+    destroy_linked_list(process->children);
     
   
-    mem_free(process);
+    b_free(process);
 }
 
 void remove_child_process(process_t* parent, int32_t child_pid) {
@@ -105,21 +99,21 @@ void remove_child_process(process_t* parent, int32_t child_pid) {
 process_snapshot_t *get_process_snapshot(uint32_t pid)
 {
     process_t *process = get_process_by_pid(pid);
-    if (process == NULL || process->pid < 0 || process->pid > MAX_PROCESSES) {
+    if (process == NULL || process->pid < 0 || process->pid > max_processes) {
         return NULL;
     }
 
-    process_snapshot_t *process_snapshot = (process_snapshot_t *)mem_alloc(sizeof(process_snapshot_t));
+    process_snapshot_t *process_snapshot = (process_snapshot_t *)b_alloc(sizeof(process_snapshot_t));
     process_snapshot->pid = process->pid;
     process_snapshot->priority = process->priority;
     process_snapshot->state = process->state;
     process_snapshot->argv = process->argv;
     process_snapshot->argc = process->argc;
-    process_snapshot->name = mem_alloc(strlen(process->name) + 1);
+    process_snapshot->name = b_alloc(strlen(process->name) + 1);
     memcpy(process_snapshot->name, process->name, strlen(process->name) + 1);
-    process_snapshot->stack_pointer = mem_alloc(20);
+    process_snapshot->stack_pointer = b_alloc(20);
     pointer_to_string(process->stack_pointer, process_snapshot->stack_pointer, 20);
-    process_snapshot->base_pointer = mem_alloc(20);
+    process_snapshot->base_pointer = b_alloc(20);
     pointer_to_string(process->stack_base, process_snapshot->base_pointer, 20);
     return process_snapshot;
 }

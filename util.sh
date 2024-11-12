@@ -48,7 +48,7 @@ show_usage() {
 
 # Function to check if port is available
 check_port() {
-    if lsof -Pi :$1 -sTCP:LISTEN -t >/dev/null ; then
+    if lsof -Pi :$1 -sTCP:LISTEN -t >/dev/NULL ; then
         echo -e "${RED}Error: Port $1 is already in use${NC}"
         exit 1
     fi
@@ -169,9 +169,9 @@ if [[ "$OS" == "Darwin" ]]; then
     echo -e "${BLUE}Running QEMU on macOS...${NC}"
 else 
     if [[ "$OS" == "Linux" ]]; then
-        if grep -qEi "(Microsoft|WSL)" /proc/version &> /dev/null ; then
+        if grep -qEi "(Microsoft|WSL)" /proc/version &> /dev/NULL ; then
             echo -e "${BLUE}Running on WSL2...${NC}"
-            if ! pgrep -x "pulseaudio" > /dev/null; then
+            if ! pgrep -x "pulseaudio" > /dev/NULL; then
                 echo -e "${YELLOW}PulseAudio is not running. Starting PulseAudio...${NC}"
                 pulseaudio --start
             fi

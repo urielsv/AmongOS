@@ -1,5 +1,5 @@
-// This is a personal academic project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+// this is a personal academic project. dear pvs-studio, please check it.
+// pvs-studio static code analyzer for c, c++ and c#: http://www.viva64.com
 #include "syscalls.h"
 #include "io.h"
 #include <stdlib.h>
@@ -9,7 +9,7 @@
 #include "video.h"
 #include <exceptions.h>
 #include "lib.h"
-#include <naiveConsole.h>
+#include <naive_console.h>
 #include <memman.h>
 #include <scheduler.h>
 #include <process.h>
@@ -17,15 +17,16 @@
 #include <stddef.h>
 #include <semaphore.h>
 #include <pipes.h>
-#define REGS_SIZE 19
+#include <buddy_memman.h>
+#define regs_size 19
 
 static uint8_t regs_flag = 0;
-static uint64_t regs[REGS_SIZE];
+static uint64_t regs[regs_size];
 
-// Cast to a function pointer
+// cast to a function pointer
 typedef uint64_t (*syscall_t)(uint64_t, uint64_t, uint64_t, uint64_t, uint64_t);
 
-// Array of function pointers
+// array of function pointers
 static syscall_t syscalls[] = {
     [0] = (syscall_t)&sys_read,
     [1] = (syscall_t)&sys_write,
@@ -80,29 +81,29 @@ uint64_t sys_write(uint8_t fd, const char *buffer, uint64_t count, uint64_t fgco
     if (buffer == NULL ) {
         return 0;
     }
-    //Si esto anda, refactor con un case. 
+    //si esto anda, refactor con un case. 
     //print_number(fd);
 
     int16_t current_fd = get_current_process_file_descriptor(fd);
     //print_number(current_fd);
 
-    if (current_fd == DEV_NULL){
+    if (current_fd == dev_NULL){
         return 0;
     }
 
-    // stdout
+    // STDOUT
     if (current_fd == 1) {
         return ker_write_color(buffer, fgcolor, bgcolor);
     }
 
-    // stderr
+    // STDERR
     else if (current_fd == 2) {
-        return ker_write_color(buffer, 0xFF, 0x40);
+        return ker_write_color(buffer, 0xff, 0x40);
     }
 
     else {
         //notar que fd es el mismo que pipe_id
-        if (current_fd >= BUILTIN_FDS){
+        if (current_fd >= builtin_fds){
             return write_pipe(get_current_pid(), current_fd, buffer, count);
         }
     }
@@ -115,15 +116,15 @@ char *sys_read(uint8_t fd, char *buffer, uint64_t count) {
     //     return NULL;
     // }
     int16_t current_fd = get_current_process_file_descriptor(fd);
-    if (current_fd == DEV_NULL){
-       buffer[0] = EOF;
+    if (current_fd == dev_NULL){
+       buffer[0] = eof;
 		return 0;
     }
-    else if (current_fd <DEV_NULL){
+    else if (current_fd <dev_NULL){
         return 0;
     }
 
-    if (current_fd >= BUILTIN_FDS){
+    if (current_fd >= builtin_fds){
         read_pipe(get_current_pid(), current_fd, buffer, count);
     }
     else{
@@ -163,16 +164,16 @@ void draw(uint32_t color, uint64_t posx, uint64_t posy) {
 char *sys_time() {
     // in format: hh:mm:ss
     static char time[9];
-    uint32_t hours = getHours();
-    uint32_t minutes = getMinutes();
-    uint32_t seconds = getSeconds();
+    uint32_t hours = get_hours();
+    uint32_t minutes = get_minutes();
+    uint32_t seconds = get_seconds();
 
     char hh[3], mm[3], ss[3];
     itoa(hours, hh);
     itoa(minutes, mm);
     itoa(seconds, ss);
 
-    // Format the time string as "hh:mm:ss"
+    // format the time string as "hh:mm:ss"
     time[0] = hh[0];
     time[1] = hh[1];
     time[2] = ':';
@@ -218,7 +219,7 @@ void sys_registers() {
 
 void save_registers(uint64_t *stack) {
     regs_flag = 1;
-    for (int i = 0; i < REGS_SIZE; i++){
+    for (int i = 0; i < regs_size; i++){
         regs[i] = stack[i];
     }
 }
@@ -233,16 +234,16 @@ void test_exc_invalid_opcode() {
     __asm__("ud2");
 }
 
-void sys_mem_alloc(size_t size) {
-    mem_alloc(size);
+void *sys_mem_alloc(size_t size) {
+    return b_alloc(size);
 }
 
 void sys_mem_free(void *ptr) {
-    mem_free(ptr);
+    b_free(ptr);
 }
 
-void sys_create_process(Function code, char **argv, int argc, char *name, uint8_t priority) {
-    // No other processes should be unkilleable.
+void sys_create_process(function code, char **argv, int argc, char *name, uint8_t priority) {
+    // no other processes should be unkilleable.
     create_process(code, argv, argc, name, priority, 0);
 }
 
@@ -275,8 +276,8 @@ uint8_t sys_process_exists(uint32_t pid) {
     return get_process_by_pid(pid) != NULL;
 }
 
-int sys_sem_open(int64_t id, int64_t initialValue) {
-    return sem_open(id, initialValue);
+int sys_sem_open(int64_t id, int64_t initial_value) {
+    return sem_open(id, initial_value);
 }
 
 void sys_sem_wait(int64_t id) {

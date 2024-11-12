@@ -1,12 +1,12 @@
-// This is a personal academic project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+// this is a personal academic project. dear pvs-studio, please check it.
+// pvs-studio static code analyzer for c, c++ and c#: http://www.viva64.com
 #include <tests.h>
 #include <syscalls.h>
 #include <string.h>
 
-#define MAX_BLOCKS 128
+#define max_blocks 128
 
-typedef struct MM_rq {
+typedef struct mm_rq {
   void *address;
   uint32_t size;
 } mm_rq;
@@ -14,7 +14,7 @@ typedef struct MM_rq {
 uint64_t test_mm(uint64_t argc, char *argv[]) {
 
   printf("test_mm\n");
-  mm_rq mm_rqs[MAX_BLOCKS];
+  mm_rq mm_rqs[max_blocks];
   uint8_t rq;
   uint32_t total;
   uint64_t max_memory;
@@ -30,9 +30,9 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
     rq = 0;
     total = 0;
 
-    // Request as many blocks as we can
-    while (rq < MAX_BLOCKS && total < max_memory) {
-      mm_rqs[rq].size = GetUniform(max_memory - total - 1) + 1;
+    // request as many blocks as we can
+    while (rq < max_blocks && total < max_memory) {
+      mm_rqs[rq].size = get_uniform(max_memory - total - 1) + 1;
       mm_rqs[rq].address = mem_alloc(mm_rqs[rq].size);
       printf("crazymem!");
       if (mm_rqs[rq].address) {
@@ -41,7 +41,7 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
       }
     }
 
-    // Set
+    // set
     uint32_t i;
     for (i = 0; i < rq; i++){
       if (mm_rqs[i].address) {
@@ -51,11 +51,11 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
 
     }
 
-    // Check
+    // check
     for (i = 0; i < rq; i++)
       if (mm_rqs[i].address) {
         if (!memcheck(mm_rqs[i].address, i, mm_rqs[i].size)) {
-          printf("test_mm ERROR\n");
+          printf("test_mm error\n");
           return -1;
         } 
       }

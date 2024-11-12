@@ -1,9 +1,9 @@
-  #ifndef PIPES_H
-  #define PIPES_H
+  #ifndef pipes_h
+  #define pipes_h
 
-#define MAX_PIPES 10
-#define PIPE_MANAGER_ADDRESS 0x2000000
-#define PIPE_BUFFER_SIZE 1024
+#define max_pipes 10
+#define pipe_manager_address 0x2000000
+#define pipe_buffer_size 1024
 
 typedef struct pipe_manager_cdt * pipe_manager_adt;
 

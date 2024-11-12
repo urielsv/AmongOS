@@ -1,5 +1,5 @@
-#ifndef PHILOSOPHERS_H
-#define PHILOSOPHERS_H
+#ifndef philosophers_h
+#define philosophers_h
 
 #include <stdio.h>
 #include <string.h>

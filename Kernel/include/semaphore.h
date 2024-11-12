@@ -1,17 +1,17 @@
-#ifndef SEMAPHORE_H
-#define SEMAPHORE_H
+#ifndef semaphore_h
+#define semaphore_h
 
 #include <stdint.h>
-#include <linkedListADT.h>
-#include <queuePidADT.h>
+#include <linked_list_adt.h>
+#include <queue_pid_adt.h>
 
-#define MAX_SEMAPHORES (1<<6)
+#define max_semaphores (1<<6)
 
 typedef struct {
     int64_t id;
     int64_t value;
     int8_t mutex;
-    queuePIDADT waiting_list;  
+    queue_pid_adt waiting_list;  
 } sem_t;
 
 int32_t sem_open(int64_t id, int64_t initial_value);

@@ -1,17 +1,17 @@
-#ifndef SCHEDULER_H
-#define SCHEDULER_H
+#ifndef scheduler_h
+#define scheduler_h
 
 #include <stdint.h>
 #include <stdio.h>
 #include <definitions.h>
 #include <process.h>
 
-typedef int (*Function)(int argc, char **args);
+typedef int (*function)(int argc, char **args);
 typedef struct scheduler_cdt* scheduler_adt;
 
 extern void asm_do_timer_tick();
 
-int32_t create_process(Function code, char **args, int argc, char *name, uint8_t priority, uint8_t unkillable);
+int32_t create_process(function code, char **args, int argc, char *name, uint8_t priority, uint8_t unkillable);
 int kill_process(uint32_t pid);
 int block_process(uint64_t pid);
 int unblock_process(uint64_t pid);
@@ -30,4 +30,4 @@ uint16_t change_process_fd(uint32_t pid, uint16_t fd_index, int16_t new_fd);
 void kill_current_ppid();
 void kill_fg_process();
 
-#endif // SCHEDULER_H
+#endif // scheduler_h

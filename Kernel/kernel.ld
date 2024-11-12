@@ -14,7 +14,7 @@ SECTIONS
 	{
 		data = .;
 		*(.data*)
-		endOfKernelBinary = .;
+		end_of_kernel_binary = .;
 	}
 	.bss ALIGN(0x1000) : AT(ADDR(.bss))
 	{
@@ -23,5 +23,5 @@ SECTIONS
 		*(EXCLUDE_FILE (*.o) COMMON)
 	}
 	. = ALIGN(0x1000);
-	endOfKernel = .;
+	end_of_kernel = .;
 }
