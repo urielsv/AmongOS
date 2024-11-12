@@ -130,7 +130,7 @@ uint16_t close_pipe(uint16_t pipe_id){
 	write_pipe(current_pid, pipe_id, eofString, 1);
     }
     else if (pipe->output_pid == current_pid){
-       free_pipe(pipe_id);
+        free_pipe(pipe_id);
     }
     else return -1;
 
@@ -185,13 +185,12 @@ uint16_t write_pipe(uint16_t pid, uint16_t pipe_id, const char * data, uint16_t 
 
 uint16_t read_pipe(uint16_t pid, uint16_t pipe_id, char * data, uint16_t size){
 
+
     pipe_t * pipe = get_pipe(pipe_id);
     
     if (  pipe == NULL || pipe->output_pid != pid){
         return -1;
     }
-
-    //ker_write("reading pipe ");
 
     uint8_t eof_read = 0;
 	uint64_t read_bytes = 0;
@@ -199,12 +198,11 @@ uint16_t read_pipe(uint16_t pid, uint16_t pipe_id, char * data, uint16_t size){
 		if (pipe->buffer_count == 0 && (int) pipe->buffer[pipe->start_position] != EOF) {
 			pipe->opened = CLOSED;
 			block_process(pipe->output_pid);
-			yield(); //ya se hace yield en block process
+			yield();
 		}
 		while ((pipe->buffer_count > 0 || (int) pipe->buffer[pipe->start_position] == EOF) && read_bytes < size) {
 			data[read_bytes] = pipe->buffer[pipe->start_position];
-            // putchar_k(data[read_bytes]);
-            // ker_write("\n");
+            putchar_k(data[read_bytes]);
 			if ((int) data[read_bytes++] == EOF) {
 				eof_read = 1;
 				break;
@@ -212,6 +210,8 @@ uint16_t read_pipe(uint16_t pid, uint16_t pipe_id, char * data, uint16_t size){
 			pipe->buffer_count--;
 			pipe->start_position = (pipe->start_position + 1) % PIPE_BUFFER_SIZE;
 		}
+        ker_write("\n");
+
 		if (pipe->opened == CLOSED) {
 			unblock_process(pipe->input_pid);
 			pipe->opened = OPENED;

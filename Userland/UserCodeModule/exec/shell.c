@@ -11,16 +11,16 @@
 #define MAX_BUFFER_SIZE 1024
 
 static void infinite_loop_proc(int argc, char *argv[]) {
-    printf("Argc: %d\n", argc);
-    for (int i = 0; i < argc; i++) {
-        printf("argv[%d]: %s\n", i, argv[i]);
-    }
 
     while (1) {
-        //para cumplir con la consigna
         sleep(3000);
         printf("Infinite loop from pid: %d\n", get_pid());
     }
+}
+
+static void read_pipe(int argc, char *argv[]) {
+    char buffer[128];
+    read(STDIN, buffer, 128);
 }
 
 command_t commands[] = {
@@ -50,7 +50,8 @@ command_t commands[] = {
     {"wc", "Cuenta la cantidad de lineas del stdin", (Function) wc},
     {"block","Bloquea un proceso", (Function) block_proc},
     {"unblock", "Desbloquea un proceso", (Function) unblock_proc},
-    {"filter", "Filtra las vocales del stdin", (Function) filter}
+    {"filter", "Filtra las vocales del stdin", (Function) filter},
+    {"read_pipe", "lee un pipe", (Function) read_pipe}
 };
 
 

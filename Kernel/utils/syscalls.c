@@ -114,9 +114,7 @@ char *sys_read(uint8_t fd, char *buffer, uint64_t count) {
     // if (buffer == NULL) {
     //     return NULL;
     // }
-
     int16_t current_fd = get_current_process_file_descriptor(fd);
-    // print_number(current_fd);
     if (current_fd == DEV_NULL){
        buffer[0] = EOF;
 		return 0;
@@ -126,7 +124,6 @@ char *sys_read(uint8_t fd, char *buffer, uint64_t count) {
     }
 
     if (current_fd >= BUILTIN_FDS){
-       // ker_write("reading pipe");
         read_pipe(get_current_pid(), current_fd, buffer, count);
     }
     else{

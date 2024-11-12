@@ -117,7 +117,7 @@ uint64_t test_sync(uint64_t argc, char *argv[]) {
         waitpid(pids[i + TOTAL_PAIR_PROCESSES]);
         printf("Done\n");
     }
-    //sleep(1000);
+    sleep(10000);
 
     //waitpid(pid); TODO: Handle waitpid(-1) to wpid any child
     printf("\n=== TEST END ===\n");
