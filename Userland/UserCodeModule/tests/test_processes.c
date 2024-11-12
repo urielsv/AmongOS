@@ -49,7 +49,6 @@ int64_t test_processes(uint64_t argc, char *argv[]) {
       }
     }
 
-     // randomly kills, blocks or unblocks processes until every one has been killed
     while (alive > 0) {
 
       for (rq = 0; rq < maxes; rq++) {
@@ -80,7 +79,7 @@ int64_t test_processes(uint64_t argc, char *argv[]) {
          }
       }
       
-      // randomly unblocks processes
+      
       for (rq = 0; rq < maxes; rq++)
         if (p_rqs[rq].state == blocked && get_uniform(100) % 2) {
           if (unblock(p_rqs[rq].pid) == -1) {

@@ -39,7 +39,6 @@ pipe_manager_adt init_pipe_manager() {
         pipe_manager->pipes[i] = NULL;
     }
 
-    //salteo los primero 3 casos, no lo inicilizo en NULL para que no lo tome como next_pipe_id
     pipe_manager->pipes[STDIN] = (pipe_t *) b_alloc(sizeof(pipe_t));
     pipe_manager->pipes[STDOUT] = (pipe_t *) b_alloc(sizeof(pipe_t));
     pipe_manager->pipes[STDERR] = (pipe_t *) b_alloc(sizeof(pipe_t));

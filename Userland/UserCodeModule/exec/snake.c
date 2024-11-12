@@ -118,9 +118,6 @@ void game(player_t player1, player_t player2) {
     draw_board(color_white, board_size * pixel, draw_start_x, draw_start_y);
     hud(player1, player2);
 
-    // initialize player
-
-    // spawn a starting fruit.
     food();
 
     do {
@@ -154,7 +151,6 @@ void gameover_menu() {
     writing_pos(width / 2 - 5 * pixel + 8, height / 2 - 4 * pixel);
     printf("press 'r' to restart");
     uint8_t ch;
-    // ask for a character until it is 'q' or 'r' with getchar
     do {
         ch = getchar();
     } while (ch != 'q' && ch != 'r');
@@ -202,15 +198,12 @@ void draw_game(player_t player1, player_t player2) {
     for (int i = 0; i < board_size; i++) {
         for (int j = 0; j < board_size; j++) {
             switch (collision_board[i][j].uid) {
-            // fruit
             case fruit:
                 draw_pixel(color_magenta, pixel / 2, draw_start_x + i * pixel, draw_start_y + j * pixel);
                 break;
-            // nothing
             case 0:
                 draw_pixel(color_black, pixel, draw_start_x + i * pixel, draw_start_y + j * pixel);
                 break;
-            // player
             case 1:
                 if (player1->alive)
                     draw_pixel(player1->color, pixel, draw_start_x + i * pixel, draw_start_y + j * pixel);
@@ -256,7 +249,6 @@ void move_player(player_t player1, player_t player2) {
 
 void update_position(player_t player, uint8_t dir) {
 
-    // if no input or oposite direction, move in the same direction as the previous head
     if ((dir == 0) || (dir == player->controller.up && player->snake.head.dir == player->controller.down) ||
         (dir == player->controller.down && player->snake.head.dir == player->controller.up) ||
         (dir == player->controller.left && player->snake.head.dir == player->controller.right) ||
@@ -266,7 +258,6 @@ void update_position(player_t player, uint8_t dir) {
         player->snake.head.dir = dir;
     }
 
-    // move the head to the new position (based on the direction of the previous head or the new input)
     if (dir == player->controller.up) {
         player->snake.head = (snake_body_t){player->snake.head.x, player->snake.head.y - 1,
             player->snake.head.dir};
@@ -281,14 +272,9 @@ void update_position(player_t player, uint8_t dir) {
             player->snake.head.dir};
     }
 
-    // debug player position
-    // writing_pos(0, 30);
-    // printf("x: %d, y: %d\n", player->snake.head.x, player->snake.head.y);
-
     check_collision(player);
     collision_board[player->snake.head.x][player->snake.head.y].count = player->snake.len;
     collision_board[player->snake.head.x][player->snake.head.y].uid = player->uid;
-    // set the new head position to the player id
 }
 
 void food() {

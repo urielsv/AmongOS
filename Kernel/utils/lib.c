@@ -7,7 +7,7 @@
 
 #define timezone -3 // argentina
 
-static unsigned int rand_seed = 12345; // initial seed for the random number generator
+static unsigned int rand_seed = 12345; 
 
 
 static uint32_t format(uint8_t num) {

@@ -30,7 +30,6 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
     rq = 0;
     total = 0;
 
-    // request as many blocks as we can
     while (rq < max_blocks && total < max_memory) {
       mm_rqs[rq].size = get_uniform(max_memory - total - 1) + 1;
       mm_rqs[rq].address = mem_alloc(mm_rqs[rq].size);
@@ -41,7 +40,6 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
       }
     }
 
-    // set
     uint32_t i;
     for (i = 0; i < rq; i++){
       if (mm_rqs[i].address) {
@@ -51,7 +49,6 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
 
     }
 
-    // check
     for (i = 0; i < rq; i++)
       if (mm_rqs[i].address) {
         if (!memcheck(mm_rqs[i].address, i, mm_rqs[i].size)) {
@@ -60,7 +57,6 @@ uint64_t test_mm(uint64_t argc, char *argv[]) {
         } 
       }
 
-    // mem_free
     for (i = 0; i < rq; i++)
       if (mm_rqs[i].address){
         mem_free(mm_rqs[i].address);

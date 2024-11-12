@@ -28,7 +28,6 @@ uint8_t sig_fg_kill = 0;
 
 void print_process_lists();
 
-// inicializa el scheduler
 scheduler_adt init_scheduler() {
     scheduler_adt scheduler = (scheduler_adt)SCHEDULER_ADDRESS;
 
@@ -54,7 +53,6 @@ scheduler_adt get_scheduler_adt() {
 }
 
 
-// selecciona el siguiente proceso listo para ejecutar
 int32_t get_next_ready_pid() {
     
     scheduler_adt scheduler = get_scheduler_adt();
@@ -89,7 +87,6 @@ void* scheduler(void* stack_pointer) {
     }
 
    
-    //int32_t next_pid = get_next_ready_pid();
     
         switch (current_process->state) {
             case running:
@@ -144,7 +141,6 @@ static uint32_t get_next_unused_pid(){
 }
 
 
-// crear un nuevo proceso
 int32_t create_process(function code, char **args, int argc, char *name, uint8_t priority, uint8_t unkilliable) {
 
     priority = capped_priority(priority);
@@ -310,7 +306,6 @@ void yield() {
     asm_do_timer_tick();
 }
 
-// bloquear un proceso
 int block_process(uint64_t pid) {
     scheduler_adt scheduler = get_scheduler_adt();
     if (scheduler->processes[pid] == NULL || pid == idle_pid) {
@@ -323,7 +318,6 @@ int block_process(uint64_t pid) {
     add_node(scheduler->blocked_process_list, process_to_block);
     remove_all_nodes(scheduler->process_list, process_to_block);
      
-    //yield();
     return 0;
 }
 
@@ -340,8 +334,6 @@ int unblock_process(uint64_t pid) {
     for (int i =0 ; i < process_to_unblock->priority;i++){
         add_node(scheduler->process_list,process_to_unblock);
     }
-    //yield();
-
     return 0;
 }
 
@@ -365,7 +357,6 @@ int16_t get_current_process_file_descriptor(uint8_t fd_index) {
 	return process->fds[fd_index];
 }
 
-//simulating dup2().
 uint16_t change_process_fd(uint32_t pid, uint16_t fd_index, int16_t new_fd){
     scheduler_adt scheduler = get_scheduler_adt();
     process_t* process = (process_t *) scheduler->processes[pid]->process;
@@ -407,7 +398,6 @@ void kill_fg_process() {
 void print_process_lists() {
     scheduler_adt scheduler = get_scheduler_adt();
     
-    // print processes in the process list
     node_t *process_node = get_first_node(scheduler->process_list);
     ker_write("processes in the process list:\n");
     while (process_node != NULL) {
@@ -422,7 +412,6 @@ void print_process_lists() {
         process_node = (node_t *) (process_node->next);
     }
 
-    // print blocked processes
     node_t *blocked_node = get_first_node(scheduler->blocked_process_list);
     ker_write("blocked processes:\n");
     while (blocked_node != NULL) {

@@ -248,7 +248,6 @@ static int execute_command(parsed_input_t *parsed) {
 
 void ps() {
     printf("PID\t\tPRIO\t\t\t\tSTATE\t\t\t\t\tNAME\t\n");
-    // todo: m_ake this more efficient sicne we are iterating over all the processes
     for (int i = 0; i <MAX_PROCESSES; i++) {
         process_snapshot_t *process = process_snapshot(i);
         if (process != NULL) {
@@ -522,7 +521,6 @@ int wc(int argc, char **argv) {
         }
         buffer_count++;
     }
-    // no es responsiva, pero bueno, esto ya tiene q ver con el tp anterior de arqui
     printf("la cantidad de lineas es: %d\n", buffer_count/128+1);
 	return 0;
 }

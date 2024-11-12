@@ -26,7 +26,6 @@ static char * regs[] = {
          "rdi = 0x", "rbp = 0x", "rdx = 0x", "rcx = 0x", "rbx = 0x", "rax = 0x", "ip = 0x", "rsp = 0x",  
 };
 
-//static char buffer[buff_size];
 
 static uint32_t registers_len = sizeof(regs)/sizeof(regs[0]);
 
@@ -34,10 +33,8 @@ static uint32_t registers_len = sizeof(regs)/sizeof(regs[0]);
 void exception_dispatcher(uint32_t exception, uint64_t* stack){
     switch(exception){
         case zero_division:
-                //printf_color("\n_zero division error exception\n",error_fgcolor, error_bgcolor);
         break;
         case invalid_opcode:
-                //printf_color("\n_invadid opcode exception\n", error_fgcolor,error_bgcolor);
         break;
     }
     flag = 1;
