@@ -43,7 +43,7 @@ char *strchr(char* str, char c)
 }
 
 char to_lower(char c) {
-    if (c >= 'a' && c <= 'z')
+    if (c >= 'A' && c <= 'Z')
         return c + 32;
     return c;
 }

@@ -50,7 +50,7 @@ $(KERNEL): $(LOADEROBJ) $(STATICLIBS) $(ALL_OBJECTS)
 	$(LD) $(LDFLAGS) -T kernel.ld --oformat=elf64-x86-64 -o ./kernel.elf $^
 
 %.o: %.c
-	$(GCC) $(GCCFLAGS) -I./include -I../Shared/include -c $< -o $@
+	$(GCC) $(GCCFLAGS) -I./include $(MM) -I../Shared/include -c $< -o $@
 
 %.o : %.asm
 	$(ASM) $(ASMFLAGS) $< -o $@
@@ -59,6 +59,6 @@ $(LOADEROBJ):
 	$(ASM) $(ASMFLAGS) $(LOADERSRC) -o $(LOADEROBJ)
 
 clean:
-	rm -rf *.bin *.elf *.o drivers/*.o idt/*.o libasm/*.o libc/*.o test/*.o utils/*.o asm/*.o ../Shared/*.o 
+	rm -rf *.bin *.elf *.o drivers/*.o idt/*.o libasm/*.o libc/*.o test/*.o utils/*.o utils/data_structures/*.o asm/*.o ../Shared/*.o device/*.o interrupt/*.o memory/*.o process/*.o pipes/*.o sync/*.o device/display/*.o
 
 .PHONY: all clean

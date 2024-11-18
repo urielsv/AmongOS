@@ -3,10 +3,8 @@
 #include <queue_pid_adt.h>
 #include <syscalls.h>
 #include <io.h>
-
+#include <memman.h>
 static sem_t *semaphores[max_semaphores] = {NULL};
-
-void print_number(int number);
 
 static int find_semaphore(int64_t id) {
     for (int i = 0; i < max_semaphores; i++) {

@@ -1,14 +1,3 @@
-/******************************************************************************
- *
- * @file    shell.h
- *
- * @brief   shell.
- *
- * @author  luca pugliese                           <lpugliese@itba.edu.ar>
- * @author  felipes venturino                        <fventurino@itba.edu.ar>
- * @author  uriel sosa vazquez                      <usosavazquez@itba.edu.ar>
- *
- ******************************************************************************/
 #ifndef shell_h
 #define shell_h
 
@@ -39,14 +28,8 @@ typedef struct {
     uint8_t is_bg;
 } parsed_input_t;
 
-/*
- * @name shell
- * @brief shell :).
- */
+
 void shell();
-
-
-
 int print_help();
 int screen();
 int print_clear();
@@ -70,7 +53,7 @@ void unblock_proc(int argc, char *argv[]);
 void kill_proc(int argc, char *argv[]);
 void nice(int argc, char *argv[]);
 void ps();
-int cat(int argc, char **argv);
+int cat(int argc, char *argv[]);
 int wc(int argc, char **argv);
 int filter(int argc, char **argv);
 size_t print_mem_info();

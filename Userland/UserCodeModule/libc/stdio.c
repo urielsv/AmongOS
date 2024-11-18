@@ -18,7 +18,7 @@ void putchar(char c) {
 }
 
 
-uint8_t getchar() {
+int64_t getchar() {
     return read_char();
 }
 
@@ -42,6 +42,10 @@ int64_t gets(char *buff, uint64_t length) {
                 putchar('\b');
             }
         }
+        if (c == EOF) {
+            return i;
+        }
+
     } while (i < length && c != '\n');
 
     return i;

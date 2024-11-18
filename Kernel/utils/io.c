@@ -49,8 +49,9 @@ void putchar_color_k(char c, uint64_t fgcolor, uint64_t bgcolor) {
         for (int i = 0; i < 4; i++)
            put_char_at(' ', &x, &y, fgcolor, bgcolor);
         break;
-    case eof:
+    case EOF:
         // handling of eof
+        put_char_at('\n', &x, &y, fgcolor, bgcolor);
         break;
     default:
         if (c >= 0x20 && c <= 0x7f)

@@ -1,5 +1,28 @@
-#include <buddy_memman.h>
+#ifdef BUDDY_MEMMAN
+
+#include <memman.h>
 #include <stddef.h>
+
+
+#define MAX_ORDER 32
+#define MIN 4
+#define taken 0
+#define free 1
+
+typedef struct block_t {
+    uint8_t order;
+    uint8_t state;
+    struct block_t *prev;
+    struct block_t *next;
+} block_t;
+
+typedef struct {
+    void *base;
+    uint8_t max;
+    block_t *free_lists[MAX_ORDER];
+    uint64_t total_mem;
+    uint64_t used_mem;
+} buddy_t;
 
 static buddy_t *buddy_addr = NULL;
 
@@ -153,3 +176,17 @@ static inline block_t *buddy_of(block_t *block) {
     uintptr_t buddy_relative_addr = relative_addr ^ (1ULL << block->order);
     return (block_t *)((uintptr_t)buddy->base + buddy_relative_addr);
 }
+
+size_t * mem_info() {
+    buddy_t *buddy = getBuddy();
+    size_t *info = (size_t *)b_alloc(3 * sizeof(size_t)); 
+    if (info == NULL) {
+        return NULL; 
+    }
+    info[0] = buddy->total_mem;
+    info[1] = buddy->used_mem;
+    info[2] = buddy->total_mem - buddy->used_mem;
+    return info; 
+}
+
+#endif

@@ -33,25 +33,25 @@ command_t commands[] = {
     {"exit", "exits the shell", NULL},
     {"amongus", "prints among us", (function) print_amongus},
     {"snake", "starts the snake game", (function) snake},
-    {"regs", "printea los registros", (function) print_regs},
-    {"zero", "testea la excepcion de division por cero", (function) test_zero},
-    {"opcode", "testea la excepcion de opcode invalido", (function) opcode},
-    {"test_mm", "testeo de memoria", (function) test_mm_proc},
-    {"test_processes", "testeo de procesos", (function) test_processes_proc},
-    {"test_prio", "testeo de prioridad", (function) test_prio_proc},
-    {"test_synchro", "testeo de sincronizacion", (function) test_synchro_proc},
+    {"regs", "print registers", (function) print_regs},
+    {"zero", "test zero exception", (function) test_zero},
+    {"opcode", "test invalid opcode exception", (function) opcode},
+    {"test_mm", "test memory manager", (function) test_mm_proc},
+    {"test_processes", "test processes", (function) test_processes_proc},
+    {"test_prio", "test priority", (function) test_prio_proc},
+    {"test_synchro", "test synchronization", (function) test_synchro_proc},
     {"kill", "kill a process <pid>.", (function) kill_proc},
     {"nice", "change the scheduling priority of a process <pid> to <priority>.", (function) nice},
     {"ps", "list all processes", (function) ps},
-    {"mem", "muestra la memoria total, usada y libre", (function) print_mem_info},
+    {"mem", "show total, used and free memory", (function) print_mem_info},
     {"infinite_loop", "starts an infinite loop", (function) infinite_loop_proc},
     {"philos", "start the classic philosophers dilemma", (function) philos_proc},
-    {"cat", "imprime el STDIN tal como lo recibe", (function) cat},
-    {"wc", "cuenta la cantidad de lineas del STDIN", (function) wc},
-    {"block","bloquea un proceso", (function) block_proc},
-    {"unblock", "desbloquea un proceso", (function) unblock_proc},
-    {"filter", "filtra las vocales del STDIN", (function) filter},
-    {"read_pipe", "lee un pipe", (function) read_pipe}
+    {"cat", "prints the STDIN as received", (function) cat},
+    {"wc", "counts the number of lines of the STDIN", (function) wc},
+    {"block","block a process", (function) block_proc},
+    {"unblock", "unblock a process", (function) unblock_proc},
+    {"filter", "filter the vowels of the STDIN", (function) filter},
+    {"read_pipe", "read a pipe", (function) read_pipe}
 };
 
 
@@ -172,14 +172,8 @@ static int execute_command(parsed_input_t *parsed) {
                              commands[i].name, DEFAULT_PRIORITY);
                 
                     block(pid);
-                  
                     change_process_fd(pid, STDIN, DEV_NULL);
-                    change_process_fd(pid, STDOUT, DEV_NULL);
-                    change_process_fd(pid, STDERR, DEV_NULL);
-                
-                    
-                    yield();
-                    //unblock(pid);
+                    unblock(pid);
                     printf("[%d] running in background\n", pid);
                 } else {
                     pid = exec((void *)commands[i].cmd, current->argv, current->argc, 
@@ -232,6 +226,7 @@ static int execute_command(parsed_input_t *parsed) {
     
     if (!parsed->is_bg) {
         waitpid(pids[parsed->cmd_count - 1]);
+        close_pipe(pipe_id);
     } else {
         uint16_t NULL_pipe = create_pipe();
         if (NULL_pipe != -1) {
@@ -247,7 +242,7 @@ static int execute_command(parsed_input_t *parsed) {
 
 
 void ps() {
-    printf("PID\t\tPRIO\t\t\t\tSTATE\t\t\t\t\tNAME\t\n");
+    printf("PID\t\tPRIO\t\t\t\tSTATE\t\t\t\t\tNAME\t\t\t\tSP\t\t\t\tBP\t\n");
     for (int i = 0; i <MAX_PROCESSES; i++) {
         process_snapshot_t *process = process_snapshot(i);
         if (process != NULL) {
@@ -287,7 +282,8 @@ void ps() {
                     priority = "high       ";
                     break;
             }
-            printf("%d\t\t%s\t\t%s\t\t%s %s\t\t", process->pid, priority, state, process->name, process->argv);
+            printf("%d\t\t%s\t\t%s\t\t%s %s\t\t%s\t%s", process->pid, priority, state, process->name, process->argv, 
+            process->stack_pointer, process->base_pointer);
             if (i <MAX_PROCESSES - 1) {
                 printf("\n");
             }
@@ -521,7 +517,7 @@ int wc(int argc, char **argv) {
         }
         buffer_count++;
     }
-    printf("la cantidad de lineas es: %d\n", buffer_count/128+1);
+    printf("Number of lines: %d", buffer_count/128+1);
 	return 0;
 }
 
@@ -549,6 +545,6 @@ int filter(int argc, char **argv) {
 
 size_t print_mem_info() {
     size_t *info = memory_info();
-    printf("\n_total: %d, used: %d, free: %d\n", info[0], info[1], info[2]);
+    printf("Total: %d, Used: %d, Free: %d", info[0], info[1], info[2]);
     return 0;
 }

@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <io.h>
 #include <scheduler.h>
-#include <buddy_memman.h>
+#include <memman.h>
 
 static char **alloc_args(char **args, uint64_t argc);
 

@@ -5,7 +5,7 @@
 #define stack_size (1<<12)
 #define SCHEDULER_ADDRESS 0x600000
 #define MAX_PRIORITY 5
-#define eof (-1)
+#define EOF (-1)
 #define BUILTIN_FDS 3
 #define DEV_NULL -1
 

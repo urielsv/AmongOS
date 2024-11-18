@@ -1,5 +1,7 @@
 // this is a personal academic project. dear pvs-studio, please check it.
 // pvs-studio static code analyzer for c, c++ and c#: http://www.viva64.com
+#if defined MEMMAN
+
 #include <stddef.h>
 #include <stdint.h>
 #include "memman.h"
@@ -28,7 +30,7 @@ typedef struct mem_manager {
 
 mem_manager *memory_manager;
 
-void mem_init(void *start_addr, size_t size) {
+void b_init(void *start_addr, size_t size) {
     mem_size = size;
     memory_manager = (mem_manager *)start_addr;
     memory_manager->heap_start_addr = start_addr + sizeof(mem_manager);
@@ -48,7 +50,7 @@ static mem_node create_block(void *start_addr, size_t size) {
     return new_node;
 }
 
-void *mem_alloc(size_t size) {
+void *b_alloc(size_t size) {
     if (size == 0)
         return NULL;
 
@@ -96,7 +98,7 @@ void *mem_alloc(size_t size) {
     return node.start_addr;
 }
 
-void mem_free(void *ptr) {
+void b_free(void *ptr) {
     mem_node *current_node = memory_manager->mem_list;
     while (current_node != NULL) {
         if (current_node->start_addr == ptr) {
@@ -111,7 +113,7 @@ void mem_free(void *ptr) {
 }
 
 size_t * mem_info() {
-    size_t *info = (size_t *)mem_alloc(3 * sizeof(size_t)); 
+    size_t *info = (size_t *)b_alloc(3 * sizeof(size_t)); 
     if (info == NULL) {
         return NULL; 
     }
@@ -121,3 +123,4 @@ size_t * mem_info() {
     return info; 
 }
 
+#endif

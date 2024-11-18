@@ -3,7 +3,7 @@
 #include <scheduler.h>
 #include <definitions.h>
 #include <lib.h>
-#include <buddy_memman.h>
+#include <memman.h>
 
 typedef struct pipe_t
 {
@@ -125,7 +125,7 @@ uint16_t close_pipe(uint16_t pipe_id){
     uint16_t current_pid = get_current_pid();
 
     if (pipe->input_pid == current_pid){
-        char eof_string[1] = {eof};
+        char eof_string[1] = {EOF};
 	write_pipe(current_pid, pipe_id, eof_string, 1);
     }
     else if (pipe->output_pid == current_pid){
@@ -157,7 +157,7 @@ uint16_t write_pipe(uint16_t pid, uint16_t pipe_id, const char * data, uint16_t 
     }
 
     uint64_t written_bytes = 0;
-	while (written_bytes < size && (int) pipe->buffer[buffer_position(pipe)] != eof) {
+	while (written_bytes < size && (int) pipe->buffer[buffer_position(pipe)] != EOF) {
 		if (pipe->buffer_count >= pipe_buffer_size) {
 			pipe->opened = closed;
 			block_process(pipe->input_pid);
@@ -166,7 +166,7 @@ uint16_t write_pipe(uint16_t pid, uint16_t pipe_id, const char * data, uint16_t 
 
 		while (pipe->buffer_count < pipe_buffer_size && written_bytes < size) {
 			pipe->buffer[buffer_position(pipe)] = data[written_bytes];
-			if ((int) data[written_bytes++] == eof){
+			if ((int) data[written_bytes++] == EOF){
                 break;
             }
 			pipe->buffer_count++;
@@ -194,15 +194,15 @@ uint16_t read_pipe(uint16_t pid, uint16_t pipe_id, char * data, uint16_t size){
     uint8_t eof_read = 0;
 	uint64_t read_bytes = 0;
 	while (read_bytes < size && !eof_read) {
-		if (pipe->buffer_count == 0 && (int) pipe->buffer[pipe->start_position] != eof) {
+		if (pipe->buffer_count == 0 && (int) pipe->buffer[pipe->start_position] != EOF) {
 			pipe->opened = closed;
 			block_process(pipe->output_pid);
 			yield();
 		}
-		while ((pipe->buffer_count > 0 || (int) pipe->buffer[pipe->start_position] == eof) && read_bytes < size) {
+		while ((pipe->buffer_count > 0 || (int) pipe->buffer[pipe->start_position] == EOF) && read_bytes < size) {
 			data[read_bytes] = pipe->buffer[pipe->start_position];
             putchar_k(data[read_bytes]);
-			if ((int) data[read_bytes++] == eof) {
+			if ((int) data[read_bytes++] == EOF) {
 				eof_read = 1;
 				break;
 			}

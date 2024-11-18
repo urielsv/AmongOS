@@ -17,6 +17,7 @@
 #include <stddef.h>
 #include <process.h>
 #include <stdlib.h>
+#include <memman.h>
 
 /*
  * @name sys_write
@@ -30,7 +31,7 @@
  * @param bgcolor background color.
  * 
  */
-uint64_t sys_write(uint8_t fd, const char *buffer, uint64_t count, uint64_t fgcolor, uint64_t bgcolor);
+int64_t sys_write(uint8_t fd, const char *buffer, uint64_t count, uint64_t fgcolor, uint64_t bgcolor);
 
 /*
  * @name sys_read

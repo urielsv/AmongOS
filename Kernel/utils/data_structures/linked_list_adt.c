@@ -1,7 +1,7 @@
 #include "../include/linked_list_adt.h"
 #include <stddef.h>
 #include <io.h>
-#include <buddy_memman.h>
+#include <memman.h>
 
     typedef struct linked_list_cdt_t {
         node_t * head;

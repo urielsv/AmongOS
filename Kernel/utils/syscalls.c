@@ -17,7 +17,6 @@
 #include <stddef.h>
 #include <semaphore.h>
 #include <pipes.h>
-#include <buddy_memman.h>
 #define regs_size 19
 
 static uint8_t regs_flag = 0;
@@ -77,17 +76,16 @@ uint64_t syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r
     return 0;
 }
 
-uint64_t sys_write(uint8_t fd, const char *buffer, uint64_t count, uint64_t fgcolor, uint64_t bgcolor) {
+int64_t sys_write(uint8_t fd, const char *buffer, uint64_t count, uint64_t fgcolor, uint64_t bgcolor) {
     if (buffer == NULL ) {
         return 0;
     }
-    //si esto anda, refactor con un case. 
-    //print_number(fd);
 
     int16_t current_fd = get_current_process_file_descriptor(fd);
     //print_number(current_fd);
 
     if (current_fd == DEV_NULL){
+        ker_write("DEV_NULL\n");
         return 0;
     }
 
@@ -102,7 +100,6 @@ uint64_t sys_write(uint8_t fd, const char *buffer, uint64_t count, uint64_t fgco
     }
 
     else {
-        //notar que fd es el mismo que pipe_id
         if (current_fd >= BUILTIN_FDS){
             return write_pipe(get_current_pid(), current_fd, buffer, count);
         }
@@ -116,9 +113,13 @@ char *sys_read(uint8_t fd, char *buffer, uint64_t count) {
     //     return NULL;
     // }
     int16_t current_fd = get_current_process_file_descriptor(fd);
+
     if (current_fd == DEV_NULL){
-       buffer[0] = eof;
-		return 0;
+        // ker_write("DEV_NULL\n");
+        // buffer[0] = '\0';
+        // buffer[1] = '\n';
+        buffer[0] = EOF;
+		return NULL;
     }
     else if (current_fd <DEV_NULL){
         return 0;
@@ -135,8 +136,11 @@ char *sys_read(uint8_t fd, char *buffer, uint64_t count) {
 }
 
 char sys_read_char() {
-    hlt();
-    return get_last_input();
+    char c;
+    sys_read(STDIN, &c, 1);
+    return c;
+    //hlt(); //esto inhabilita la shell cuando un proceso esta en bg.
+    //return get_last_input();
 }
 
 

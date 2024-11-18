@@ -7,7 +7,7 @@
 #include <idt_loader.h>
 #include <lib.h>
 #include <semaphore.h>
-#include <buddy_memman.h>
+#include <memman.h>
 
 #define idle_pid 0
 #define default_quantum 5

@@ -32,7 +32,7 @@ void scanf(const char* format, ...);
 // read from keyboard a string of length characters
 int64_t gets(char *buff, uint64_t length);
 // read a character
-uint8_t getchar();
+int64_t getchar();
 
 #define printf(fmt, ...) printf_color(fmt, color_white, color_black, ##__VA_ARGS__)
 

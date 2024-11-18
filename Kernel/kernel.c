@@ -15,7 +15,7 @@
 #include <userland.h>
 #include <video.h>
 #include <exceptions.h>
-#include <buddy_memman.h>
+#include <memman.h>
 #include <scheduler.h>
 #include <stdlib.h>
 #include <pipes.h>

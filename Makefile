@@ -1,11 +1,13 @@
+MM=BUDDY_MEMMAN
 
 all:  bootloader kernel userland image
+	@echo "Building with $(MM)"
 
 bootloader:
 	cd Bootloader; make all
 
 kernel:
-	cd Kernel; make all
+	cd Kernel; make all MM=-D$(MM)
 
 userland:
 	cd Userland; make all

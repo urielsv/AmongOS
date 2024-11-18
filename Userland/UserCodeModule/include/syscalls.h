@@ -28,7 +28,7 @@
  * @param bgcolor background color.
  * 
  */
-extern uint64_t write(uint8_t fd, const char *buffer, uint64_t count, uint64_t fgcolor, uint64_t bgcolor);
+extern int64_t write(uint8_t fd, const char *buffer, uint64_t count, uint64_t fgcolor, uint64_t bgcolor);
 
 /*
  * @name read
@@ -38,14 +38,14 @@ extern uint64_t write(uint8_t fd, const char *buffer, uint64_t count, uint64_t f
  * @param buffer buffer to be modified.
  * @param count amount of bytes to be read.
  */
-extern uint8_t * read(uint8_t fd, char *buffer, uint64_t count);
+extern int8_t * read(uint8_t fd, char *buffer, uint64_t count);
 
 
 /*
  * @name read_char
  * @brief returns the last character read from the keyboard.
  */
-extern uint8_t read_char();
+extern int8_t read_char();
 
 
 /*
