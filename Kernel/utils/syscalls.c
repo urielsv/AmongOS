@@ -129,7 +129,7 @@ int64_t sys_read(int8_t fd, char *buffer, uint64_t count) {
     }
     else{
         for (uint64_t i = 0; i < count; i++) {
-			buffer[i] = getAscii();
+			buffer[i] = get_ascii();
 			if ((int) buffer[i] == EOF)
 				return i + 1;
 		}

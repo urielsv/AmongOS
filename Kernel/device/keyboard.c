@@ -38,17 +38,17 @@ static const char charHexMapShift[] = /* Mapa de scancode con shift a ASCII */
 	 ';', '"', 0, 0, '|', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '<',
 	 '>', '?', 0, '*', 0, ' '};
 
-static void writeKey(int8_t key);
+static void write_key(int8_t key);
 
-static int getBufferIndex(int offset) {
+static int get_buffer_index(int offset) {
 	return (_bufferStart + offset) % (BUFFER_CAPACITY);
 }
 
-void initializeKeyboardDriver() {
-    sem_open(1, 0);
+void initialize_keyboard_driver() {
+    sem_open(30, 0);
 }
 
-void keyboardHandler() {
+void keyboard_handler() {
 	uint8_t key = asm_get_key();
 	if (!(key & RELEASED)) {
 		if (key == LCTRL)
@@ -61,12 +61,12 @@ void keyboardHandler() {
 				kill_fg_process();
 			}
 			else if (key == D_HEX && _bufferSize < BUFFER_CAPACITY - 1)
-				writeKey(EOF);
+				write_key(EOF);
 		}
 		else if (_bufferSize < BUFFER_CAPACITY - 1) {
 			if (_shift)
 				key = SHIFTED | key;
-			writeKey(key);
+			write_key(key);
 		}
 	}
 	else {
@@ -77,27 +77,27 @@ void keyboardHandler() {
 	}
 }
 
-static void writeKey(int8_t key) {
+static void write_key(int8_t key) {
 	if (((key & 0x7F) < sizeof(charHexMap) && charHexMap[key & 0x7F] != 0) || (int) key == EOF) {
-		_buffer[getBufferIndex(_bufferSize)] = key;
+		_buffer[get_buffer_index(_bufferSize)] = key;
 		_bufferSize++;
 		sem_post(1);
 	}
 }
 
-int8_t getScancode() {
+int8_t get_scancode() {
 	if (_bufferSize > 0) {
-		int8_t c = _buffer[getBufferIndex(0)];
-		_bufferStart = getBufferIndex(1);
+		int8_t c = _buffer[get_buffer_index(0)];
+		_bufferStart = get_buffer_index(1);
 		_bufferSize--;
 		return c;
 	}
 	return 0;
 }
 
-int8_t getAscii() {
+int8_t get_ascii() {
 	sem_wait(1);
-	int scanCode = getScancode();
+	int scanCode = get_scancode();
 	if (scanCode == EOF)
 		return EOF;
 	if (SHIFTED & scanCode) {

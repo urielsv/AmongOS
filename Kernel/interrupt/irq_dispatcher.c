@@ -16,7 +16,7 @@ void irq_dispatcher(uint64_t irq) {
                 break;
         } 
         case keyboard: {
-            keyboardHandler();
+            keyboard_handler();
                 break;
         }
     }

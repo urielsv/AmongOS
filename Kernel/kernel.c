@@ -2,7 +2,6 @@
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <idt_loader.h>
 #include <io.h>
-// #include <stdio.h>
 #include <keyboard.h>
 #include <lib.h>
 #include <module_loader.h>
@@ -59,6 +58,7 @@ void *initialize_kernel_binary()
     b_init(heap_start_address, size);
     init_scheduler();
     init_pipe_manager();
+    initialize_keyboard_driver();
     return get_stack_base();
 }
 
