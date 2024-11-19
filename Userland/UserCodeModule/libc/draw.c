@@ -38,7 +38,7 @@ void draw_line(color_t color, uint64_t startx, uint64_t starty, uint64_t endx, u
     int sy = (dy >= 0) ? 1 : -1;
     dx = abs(dx);
     dy = abs(dy);
-    int err = (dx > dy ? dx : -dy) / 2, e2;
+    int64_t err = (dx > dy ? dx : -dy) / 2, e2;
 
     while (startx != endx || starty != endy) {
         draw(color, startx, starty);

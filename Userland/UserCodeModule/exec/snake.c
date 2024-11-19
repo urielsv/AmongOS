@@ -13,8 +13,8 @@
 #define board_size 32
 #define fruit -1
 
-#define draw_start_x 10 * pixel
-#define draw_start_y 5 * pixel
+#define draw_start_x 10 * (pixel)
+#define draw_start_y 5 * (pixel)
 #define snake_length 5
 
 struct controller {
@@ -165,7 +165,8 @@ void gameover_menu() {
         sleep(500);
         clear(color_black);
         return;
-    } else if (ch == 'r') {
+    } else //if (ch == 'r') 
+    {
         clear(color_black);
         snake();
     }
@@ -291,7 +292,7 @@ void food() {
 void check_collision(player_t player) {
 
     // check player in bound of playing area
-    if (player->snake.head.x < 0 || player->snake.head.x >= board_size || player->snake.head.y < 0 || player->snake.head.y >= board_size) {
+    if ( player->snake.head.x >= board_size|| player->snake.head.y >= board_size) {
         player->alive = 0;
         delete_snake(player);
         kill_snake(player);

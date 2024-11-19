@@ -15,7 +15,7 @@
 #define idle_pid 0
 #define default_quantum 5
 
-#define capped_priority(prio) (prio >= MAX_PRIORITY ? MAX_PRIORITY : prio)
+#define capped_priority(prio) ((prio) >= MAX_PRIORITY ? MAX_PRIORITY : (prio))
 
 typedef struct scheduler_cdt {
     node_t * processes[MAX_PROCESSES];
@@ -31,8 +31,6 @@ typedef struct scheduler_cdt {
 
 uint8_t sig_fg_kill = 0;
 uint8_t idle_rotation = 0;
-
-// void print_process_lists();
 
 scheduler_adt init_scheduler() {
     scheduler_adt scheduler = (scheduler_adt)SCHEDULER_ADDRESS;
@@ -94,8 +92,6 @@ void* scheduler(void* stack_pointer) {
     }
 
     scheduler->current_quantum--;
-
-    // print_number(((process_t *)((node_t *)scheduler->processes[0])->process)->state);
     
     if (scheduler->current_quantum > 0 && 
         current_process != NULL && 
@@ -148,7 +144,6 @@ void* scheduler(void* stack_pointer) {
     return next_process->stack_pointer;
 }
 
-  //TODO: fix it.
 static uint32_t get_next_unused_pid(){
     scheduler_adt scheduler = get_scheduler_adt();
 
@@ -421,32 +416,6 @@ void kill_fg_process() {
             print_number(current->pid);
             kill_process(current->pid);
         }
-    }
-}
-
-void print_process_lists() {
-    scheduler_adt scheduler = get_scheduler_adt();
-    
-    node_t *process_node = get_first_node(scheduler->process_list);
-    ker_write("processes in the process list:\n");
-    while (process_node != NULL) {
-        process_t *process = (process_t *)process_node->process;
-        ker_write("pid: ");
-        print_number(process->pid);
-        ker_write(" parent_pid: ");
-        print_number(process->parent_pid);
-        ker_write(" state: ");
-        print_number(process->state);
-        ker_write("\n");
-        process_node = (node_t *) (process_node->next);
-    }
-
-    node_t *blocked_node = get_first_node(scheduler->blocked_process_list);
-    ker_write("blocked processes:\n");
-    while (blocked_node != NULL) {
-        process_t *blocked_process = (process_t *)blocked_node->process;
-        print_number(blocked_process->pid);
-        blocked_node = (node_t *) (process_node->next);
     }
 }
 

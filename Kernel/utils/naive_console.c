@@ -3,8 +3,8 @@
 #include <naive_console.h>
 
 static char buffer[64] = {'0'};
-static uint8_t *const video = (uint8_t *)0xb8000;
-static uint8_t *current_video = (uint8_t *)0xb8000;
+static uint8_t *const video = (uint8_t *)(uintptr_t)0xb8000;
+static uint8_t *current_video = (uint8_t *)(uintptr_t)0xb8000;
 static const uint32_t width = 80;
 static const uint32_t height = 25;
 static uint8_t default_fg_color = 0xff;

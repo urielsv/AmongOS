@@ -13,11 +13,11 @@
 #define userland_h
 
 // todo: refactor file name
-static void *const userland_code_module_address = (void*)0x400000;
-static void *const sample_data_module_address = (void*)0x500000;
+static void *const userland_code_module_address = (void*)(uintptr_t)0x400000;
+static void *const sample_data_module_address = (void*)(uintptr_t)0x500000;
 
-static void *const heap_start_address = (void*)0x1000000; 
-static void *const heap_end_address = (void *)0x2000000;
+static void *const heap_start_address = (void*)(uintptr_t)0x1000000; 
+static void *const heap_end_address = (void *)(uintptr_t)0x2000000;
 
 typedef int (*entry_point)();
 

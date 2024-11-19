@@ -15,9 +15,7 @@ void clear(uint32_t hex) {
 }
 
 void set_position(uint64_t new_x, uint64_t new_y) {
-    if (new_x >= 0)
         x = new_x;
-    if (new_y >= 0)
         y = new_y;
 }
 
@@ -53,7 +51,7 @@ void putchar_color_k(char c, uint64_t fgcolor, uint64_t bgcolor) {
         put_char_at('\n', &x, &y, fgcolor, bgcolor);
         break;
     default:
-        if (c >= 0x20 && c <= 0x7f)
+        if (c >= 0x20)// && c <= 0x7f)
             put_char_at(c, &x, &y, fgcolor, bgcolor);
         break;
     }

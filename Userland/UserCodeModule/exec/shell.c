@@ -222,13 +222,14 @@ static int execute_command(parsed_input_t *parsed) {
     if (!parsed->is_bg) {
         waitpid(pids[parsed->cmd_count - 1]);
         // close_pipe(pipe_id);
-    } else {
-        uint16_t NULL_pipe = create_pipe();
-        if (NULL_pipe != -1) {
-            open_pipe(pids[0], NULL_pipe, read_mode);
-            printf("[%d] pipe chain running in background\n", pids[0]);
-        }
-    }
+    } 
+    // else {
+    //     uint16_t NULL_pipe = create_pipe();
+    //     if (NULL_pipe != -1) {
+    //         open_pipe(pids[0], NULL_pipe, read_mode);
+    //         printf("[%d] pipe chain running in background\n", pids[0]);
+    //     }
+    // }
 
     close_pipe(pipe_id);
     

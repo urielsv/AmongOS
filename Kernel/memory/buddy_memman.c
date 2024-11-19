@@ -9,7 +9,7 @@
 #define MAX_ORDER 32
 #define MIN 4
 #define taken 0
-#define free 1
+#define freed 1
 
 typedef struct block_t {
     uint8_t order;
@@ -101,11 +101,11 @@ void b_free(void *ptr) {
     
     buddy_t *buddy = getBuddy();
     block_t *block = show_block_t(ptr);
-    block->state = free;
+    block->state = freed;
     buddy->used_mem -= block_size(block->order);
 
     for (block_t *buddy_block = buddy_of(block); 
-         buddy_block->state == free && buddy_block->order == block->order && block->order < buddy->max; 
+         buddy_block->state == freed && buddy_block->order == block->order && block->order < buddy->max; 
          buddy_block = buddy_of(block)) {
         block = merge_block(buddy, block, buddy_block);
     }
@@ -124,7 +124,7 @@ static uint8_t get_order(uint64_t size) {
 static block_t *new_block_t(void *address, uint8_t order, block_t *next) {
     block_t *header = (block_t *)address;
     header->order = order;
-    header->state = free;
+    header->state = freed;
     header->prev = NULL;
     header->next = next;
     if (next != NULL) {

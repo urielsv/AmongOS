@@ -42,7 +42,7 @@ int64_t gets(char *buff, uint64_t length) {
                 putchar('\b');
             }
         }
-          if (c >= 0x20 && c <= 0x7f) {
+          if (c >= 0x20){// && c <= 0x7f) {
             buff[i] = c;
             putchar(buff[i++]);
         }
