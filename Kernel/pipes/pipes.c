@@ -77,6 +77,7 @@ uint16_t create_pipe() {
     pipe_t * pipe = b_alloc(sizeof(struct pipe_t));
     pipe->pipe_id = get_next_pipe_id();
     pipe->buffer_count = 0;
+    pipe->start_position = 0;
     pipe_manager->pipes[pipe->pipe_id] = pipe;
     pipe->opened = closed;
     pipe->input_pid = -1;
@@ -144,7 +145,7 @@ uint16_t close_pipe_by_pid(uint16_t pid, uint16_t pipe_id){
 }
 
 
-static void free_pipe(uint16_t pipe_id){
+static void free_pipe(uint16_t pipe_id) {
 
     pipe_manager_adt pipe_manager = get_pipe_manager();
     pipe_t * pipe = pipe_manager->pipes[pipe_id];
@@ -172,7 +173,7 @@ uint16_t write_pipe(uint16_t pid, uint16_t pipe_id, const char * data, uint16_t 
 
 		while (pipe->buffer_count < pipe_buffer_size && written_bytes < size) {
 			pipe->buffer[buffer_position(pipe)] = data[written_bytes];
-			if ((int) data[written_bytes++] == EOF){
+			if ((int) data[written_bytes++] == EOF) {
                 break;
             }
 			pipe->buffer_count++;
@@ -193,7 +194,7 @@ uint16_t read_pipe(uint16_t pid, uint16_t pipe_id, char * data, uint16_t size){
 
     pipe_t * pipe = get_pipe(pipe_id);
     
-    if (  pipe == NULL || pipe->output_pid != pid){
+    if (pipe == NULL || pipe->output_pid != pid){
         return -1;
     }
 
