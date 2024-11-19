@@ -118,19 +118,23 @@ uint16_t open_pipe(uint16_t pid, uint16_t pipe_id, uint8_t mode){
 
 uint16_t close_pipe(uint16_t pipe_id){
 
+    return close_pipe_by_pid(get_current_pid(), pipe_id);
+}
+
+uint16_t close_pipe_by_pid(uint16_t pid, uint16_t pipe_id){
+
     pipe_t * pipe = get_pipe(pipe_id);
     if (pipe == NULL){
         ker_write("pipe not found\n");
         return -1;
     }
     pipe->opened = closed;
-    uint16_t current_pid = get_current_pid();
 
-    if (pipe->input_pid == current_pid){
+    if (pipe->input_pid == pid){
         char eof_string[1] = {EOF};
-	write_pipe(current_pid, pipe_id, eof_string, 1);
+        write_pipe(pid, pipe_id, eof_string, 1);
     }
-    else if (pipe->output_pid == current_pid){
+    else if (pipe->output_pid == pid){
         free_pipe(pipe_id);
     }
     else return -1;

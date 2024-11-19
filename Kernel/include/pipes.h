@@ -15,6 +15,7 @@ uint16_t open_pipe(uint16_t pid, uint16_t pipe_id, uint8_t mode);
 uint16_t close_pipe(uint16_t pipe_id);
 uint16_t write_pipe(uint16_t pid, uint16_t pipe_id, const char * data, uint16_t size);
 uint16_t read_pipe(uint16_t pid, uint16_t pipe_id, char * data, uint16_t size);
+uint16_t close_pipe_by_pid(uint16_t pid, uint16_t pipe_id);
 
 
 #endif

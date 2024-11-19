@@ -236,4 +236,6 @@ size_t *sys_mem_info();
 
 void sys_set_bg(uint32_t pid);
 
+uint16_t sys_close_pipe_by_pid(uint16_t pid, uint16_t pipe_id);
+
 #endif

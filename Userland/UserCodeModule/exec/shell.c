@@ -220,8 +220,10 @@ static int execute_command(parsed_input_t *parsed) {
     }
     
     if (!parsed->is_bg) {
-        waitpid(pids[parsed->cmd_count - 1]);
-        // close_pipe(pipe_id);
+        waitpid(pids[0]);
+        close_pipe_by_pid(pids[0], pipe_id);
+        waitpid(pids[1]);
+        close_pipe_by_pid(pids[1], pipe_id);
     } 
     // else {
     //     uint16_t NULL_pipe = create_pipe();
@@ -231,7 +233,6 @@ static int execute_command(parsed_input_t *parsed) {
     //     }
     // }
 
-    close_pipe(pipe_id);
     
     return 0;
 }
@@ -511,8 +512,11 @@ int wc(int argc, char **argv) {
 
    char c;
 	int lineCounter = 0;
-	while ((int) (c = getchar()) != EOF)
-		lineCounter += (c == '\n');
+	while ((int) (c = getchar()) != EOF){
+        if (c == '\n') {
+            lineCounter++;
+        }
+    }
     printf("Number of lines: %d", lineCounter);
 	return 0;
 }
@@ -522,7 +526,7 @@ int filter(int argc, char **argv) {
 
    char c;
 	while ((int) (c = getchar()) != EOF) {
-		if (to_lower(c) == 'a' || to_lower(c) == 'e' || to_lower(c) == 'i' || to_lower(c) == 'o' || to_lower(c) == 'u')
+		if (to_lower(c) == 'a' || to_lower(c) == 'e' || to_lower(c) == 'i' || to_lower(c) == 'o' || to_lower(c) == 'u' || c == '\n')
 			putchar(c);
 	}
 	putchar('\n');

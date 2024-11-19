@@ -66,6 +66,7 @@ static syscall_t syscalls[] = {
     [36] = (syscall_t)&sys_change_process_fd,
     [37] = (syscall_t)&sys_mem_info,
     [38] = (syscall_t)&sys_set_bg,
+    [39] = (syscall_t)&sys_close_pipe_by_pid,
 };
 
 uint64_t syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9) {
@@ -327,4 +328,8 @@ size_t * sys_mem_info() {
 
 void sys_set_bg(uint32_t pid) {
     set_bg_process(pid);
+}
+
+uint16_t sys_close_pipe_by_pid(uint16_t pid, uint16_t pipe_id) {
+    return close_pipe_by_pid(pid, pipe_id);
 }

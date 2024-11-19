@@ -80,7 +80,7 @@ int32_t get_next_ready_pid() {
 }
 
 
-void* scheduler(void* stack_pointer) {
+void* scheduler(void* stack_pointer) {    
     scheduler_adt scheduler = get_scheduler_adt();
 
     process_t *current_process = NULL;
