@@ -31,7 +31,7 @@
  * @param bgcolor background color.
  * 
  */
-int64_t sys_write(uint8_t fd, const char *buffer, uint64_t count, uint64_t fgcolor, uint64_t bgcolor);
+int64_t sys_write(int8_t fd, const char *buffer, uint64_t count, uint64_t fgcolor, uint64_t bgcolor);
 
 /*
  * @name sys_read
@@ -41,7 +41,7 @@ int64_t sys_write(uint8_t fd, const char *buffer, uint64_t count, uint64_t fgcol
  * @param buffer buffer to be modified.
  * @param count amount of bytes to be read.
  */
-char *sys_read(uint8_t fd, char *buffer, uint64_t count);
+int64_t sys_read(int8_t fd, char *buffer, uint64_t count);
 
 
 /* 
@@ -68,7 +68,7 @@ uint64_t sys_ticks();
  * @name sys_read_char
  * @brief returns the last character read from the keyboard.
  */
-char sys_read_char();
+// char sys_read_char();
 
 /*
  * @name sys_seconds
@@ -230,8 +230,10 @@ uint16_t sys_change_process_fd(uint32_t pid, uint16_t fd_index, int16_t new_fd);
 
 size_t *sys_mem_info();
 
-int sys_get_line_count();
+// int sys_get_line_count();
 
-void sys_reset_line_count();
+// void sys_reset_line_count();
+
+void sys_set_bg(uint32_t pid);
 
 #endif

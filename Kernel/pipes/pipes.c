@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <pipes.h>
 #include <io.h>
 #include <scheduler.h>
@@ -201,7 +203,6 @@ uint16_t read_pipe(uint16_t pid, uint16_t pipe_id, char * data, uint16_t size){
 		}
 		while ((pipe->buffer_count > 0 || (int) pipe->buffer[pipe->start_position] == EOF) && read_bytes < size) {
 			data[read_bytes] = pipe->buffer[pipe->start_position];
-            putchar_k(data[read_bytes]);
 			if ((int) data[read_bytes++] == EOF) {
 				eof_read = 1;
 				break;
@@ -209,8 +210,6 @@ uint16_t read_pipe(uint16_t pid, uint16_t pipe_id, char * data, uint16_t size){
 			pipe->buffer_count--;
 			pipe->start_position = (pipe->start_position + 1) % pipe_buffer_size;
 		}
-        ker_write("\n");
-
 		if (pipe->opened == closed) {
 			unblock_process(pipe->input_pid);
 			pipe->opened = opened;

@@ -1,9 +1,11 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 // this is a personal academic project. dear pvs-studio, please check it.
 // pvs-studio static code analyzer for c, c++ and c#: http://www.viva64.com
 #include "syscalls.h"
 #include "io.h"
 #include <stdlib.h>
-#include "keyboard.h"
+ #include "keyboard.h"
 #include "sound.h"
 #include "time.h"
 #include "video.h"
@@ -34,7 +36,7 @@ static syscall_t syscalls[] = {
     [4] = (syscall_t)&sys_ticks,
     [5] = (syscall_t)&sys_seconds,
     [6] = (syscall_t)&sys_random_number,
-    [7] = (syscall_t)&sys_read_char,
+    // [7] = (syscall_t)&sys_read_char,
     [8] = (syscall_t)&draw,
     [9] = (syscall_t)&sys_sleep,
     [10] = (syscall_t)&sys_time,
@@ -65,6 +67,7 @@ static syscall_t syscalls[] = {
     [35] = (syscall_t)&sys_close_pipe,
     [36] = (syscall_t)&sys_change_process_fd,
     [37] = (syscall_t)&sys_mem_info,
+    [38] = (syscall_t)&sys_set_bg,
 };
 
 uint64_t syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t rcx, uint64_t r8, uint64_t r9) {
@@ -76,8 +79,11 @@ uint64_t syscall_dispatcher(uint64_t rdi, uint64_t rsi, uint64_t rdx, uint64_t r
     return 0;
 }
 
-int64_t sys_write(uint8_t fd, const char *buffer, uint64_t count, uint64_t fgcolor, uint64_t bgcolor) {
-    if (buffer == NULL ) {
+int64_t sys_write(int8_t fd, const char *buffer, uint64_t count, uint64_t fgcolor, uint64_t bgcolor) {
+    // if (buffer == NULL ) {
+    //     return 0;
+    // }
+    if (fd==DEV_NULL){
         return 0;
     }
 
@@ -105,43 +111,40 @@ int64_t sys_write(uint8_t fd, const char *buffer, uint64_t count, uint64_t fgcol
         }
     }
 
-    return 0;
+    return -1;
 }
 
-char *sys_read(uint8_t fd, char *buffer, uint64_t count) {
-    // if (buffer == NULL) {
-    //     return NULL;
-    // }
+int64_t sys_read(int8_t fd, char *buffer, uint64_t count) {
+
     int16_t current_fd = get_current_process_file_descriptor(fd);
 
     if (current_fd == DEV_NULL){
-        // ker_write("DEV_NULL\n");
-        // buffer[0] = '\0';
-        // buffer[1] = '\n';
         buffer[0] = EOF;
-		return NULL;
+		return 0;
     }
     else if (current_fd <DEV_NULL){
-        return 0;
+        return -1;
     }
 
     if (current_fd >= BUILTIN_FDS){
         read_pipe(get_current_pid(), current_fd, buffer, count);
     }
     else{
-        get_buffer(buffer, count);
+        for (uint64_t i = 0; i < count; i++) {
+			buffer[i] = getAscii();
+			if ((int) buffer[i] == EOF)
+				return i + 1;
+		}
+		return count;
     }
 
     return 0;
 }
 
-char sys_read_char() {
-    char c;
-    sys_read(STDIN, &c, 1);
-    return c;
-    //hlt(); //esto inhabilita la shell cuando un proceso esta en bg.
-    //return get_last_input();
-}
+// char sys_read_char() {
+//     hlt(); //esto inhabilita la shell cuando un proceso esta en bg.
+//     return getAscii();
+// }
 
 
 uint64_t sys_ticks() {
@@ -322,4 +325,8 @@ uint16_t sys_change_process_fd(uint32_t pid, uint16_t fd_index, int16_t new_fd) 
 
 size_t * sys_mem_info() {
     return mem_info();
+}
+
+void sys_set_bg(uint32_t pid) {
+    set_bg_process(pid);
 }

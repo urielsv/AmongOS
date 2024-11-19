@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 // this is a personal academic project. dear pvs-studio, please check it.
 // pvs-studio static code analyzer for c, c++ and c#: http://www.viva64.com
 #include <stdio.h>
@@ -19,7 +21,9 @@ void putchar(char c) {
 
 
 int64_t getchar() {
-    return read_char();
+    char c;
+    read(STDIN,&c,1);
+    return c;
 }
 
 int64_t gets(char *buff, uint64_t length) {
@@ -27,10 +31,6 @@ int64_t gets(char *buff, uint64_t length) {
     char c;
     do {
         c = getchar();
-        if (c >= 0x20 && c <= 0x7f) {
-            buff[i] = c;
-            putchar(buff[i++]);
-        }
 
         if (c == '\n') {
             putchar('\n');
@@ -42,8 +42,9 @@ int64_t gets(char *buff, uint64_t length) {
                 putchar('\b');
             }
         }
-        if (c == EOF) {
-            return i;
+          if (c >= 0x20 && c <= 0x7f) {
+            buff[i] = c;
+            putchar(buff[i++]);
         }
 
     } while (i < length && c != '\n');

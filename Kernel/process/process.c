@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "../include/process.h"
 #include "../include/linked_list_adt.h"
 #include "../include/lib.h"
@@ -39,6 +41,7 @@ void init_process(process_t* process, int32_t pid, function code,
     process->fds[1] = STDOUT;
     process->fds[2] = STDERR;
 
+    process->fg = foreground;
 }
 
 
@@ -109,6 +112,7 @@ process_snapshot_t *get_process_snapshot(uint32_t pid)
     process_snapshot->state = process->state;
     process_snapshot->argv = process->argv;
     process_snapshot->argc = process->argc;
+    process_snapshot->fg = process->fg;
     process_snapshot->name = b_alloc(strlen(process->name) + 1);
     memcpy(process_snapshot->name, process->name, strlen(process->name) + 1);
     process_snapshot->stack_pointer = b_alloc(20);

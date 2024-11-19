@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 // this is a personal academic project. dear pvs-studio, please check it.
 // pvs-studio static code analyzer for c, c++ and c#: http://www.viva64.com
 #include <shell.h>
@@ -13,14 +15,9 @@
 static void infinite_loop_proc(int argc, char *argv[]) {
 
     while (1) {
-        sleep(3000);
+        sleep(5000);
         printf("infinite loop from pid: %d\n", get_pid());
     }
-}
-
-static void read_pipe(int argc, char *argv[]) {
-    char buffer[128];
-    read(STDIN, buffer, 128);
 }
 
 command_t commands[] = {
@@ -41,6 +38,8 @@ command_t commands[] = {
     {"test_prio", "test priority", (function) test_prio_proc},
     {"test_synchro", "test synchronization", (function) test_synchro_proc},
     {"kill", "kill a process <pid>.", (function) kill_proc},
+    {"block","block a process", (function) block_proc},
+    {"unblock", "unblock a process", (function) unblock_proc},
     {"nice", "change the scheduling priority of a process <pid> to <priority>.", (function) nice},
     {"ps", "list all processes", (function) ps},
     {"mem", "show total, used and free memory", (function) print_mem_info},
@@ -48,10 +47,7 @@ command_t commands[] = {
     {"philos", "start the classic philosophers dilemma", (function) philos_proc},
     {"cat", "prints the STDIN as received", (function) cat},
     {"wc", "counts the number of lines of the STDIN", (function) wc},
-    {"block","block a process", (function) block_proc},
-    {"unblock", "unblock a process", (function) unblock_proc},
     {"filter", "filter the vowels of the STDIN", (function) filter},
-    {"read_pipe", "read a pipe", (function) read_pipe}
 };
 
 
@@ -67,7 +63,7 @@ void shell() {
     print_ps1("user", "~");
 
     // shell loop
-    char buff[MAX_BUFFER_SIZE];
+    char buff[MAX_BUFFER_SIZE]={0};
     parsed_input_t parsed;
     memset(&parsed, 0, sizeof(parsed_input_t));
     while (1) {
@@ -173,6 +169,7 @@ static int execute_command(parsed_input_t *parsed) {
                 
                     block(pid);
                     change_process_fd(pid, STDIN, DEV_NULL);
+                    set_bg(pid);
                     unblock(pid);
                     printf("[%d] running in background\n", pid);
                 } else {
@@ -226,7 +223,7 @@ static int execute_command(parsed_input_t *parsed) {
     
     if (!parsed->is_bg) {
         waitpid(pids[parsed->cmd_count - 1]);
-        close_pipe(pipe_id);
+        // close_pipe(pipe_id);
     } else {
         uint16_t NULL_pipe = create_pipe();
         if (NULL_pipe != -1) {
@@ -242,7 +239,7 @@ static int execute_command(parsed_input_t *parsed) {
 
 
 void ps() {
-    printf("PID\t\tPRIO\t\t\t\tSTATE\t\t\t\t\tNAME\t\t\t\tSP\t\t\t\tBP\t\n");
+    printf("PID\t\tPRIO\t\t\t\tSTATE\t\t\t\t\tNAME\t\t\t\tSP\t\t\t\tBP\t\tFG\n");
     for (int i = 0; i <MAX_PROCESSES; i++) {
         process_snapshot_t *process = process_snapshot(i);
         if (process != NULL) {
@@ -282,8 +279,14 @@ void ps() {
                     priority = "high       ";
                     break;
             }
-            printf("%d\t\t%s\t\t%s\t\t%s %s\t\t%s\t%s", process->pid, priority, state, process->name, process->argv, 
-            process->stack_pointer, process->base_pointer);
+            char *fg = "";
+            if (process->fg == background) {
+                fg = "bg";
+            } else {
+                fg = "fg";
+            }
+            printf("%d\t\t%s\t\t%s\t\t%s %s\t\t\t%s\t%s\t\t%s", process->pid, priority, state, process->name, process->argv, 
+            process->stack_pointer, process->base_pointer, fg);
             if (i <MAX_PROCESSES - 1) {
                 printf("\n");
             }
@@ -498,49 +501,33 @@ void unblock_proc(int argc, char *argv[])
 
 int cat(int argc, char *argv[]) {
 
-    for (int i = 0; i < argc; i++) {
-        printf("%s ", argv[i]);
-    }
+   char c;
+   while((int)(c = getchar()) != EOF){
+        putchar(c);    
+   }
 	return 0;
 }
 
 int wc(int argc, char **argv) {
 
-    int buffer_count = 0;
-    uint64_t width, height;
-    screen_info(&width, &height);
-
-    for (int i = 0; i < argc; i++) {
-        int index = 0;
-        while(argv[i][index++] != '\0') {
-            buffer_count++;
-        }
-        buffer_count++;
-    }
-    printf("Number of lines: %d", buffer_count/128+1);
+   char c;
+	int lineCounter = 0;
+	while ((int) (c = getchar()) != EOF)
+		lineCounter += (c == '\n');
+    printf("Number of lines: %d", lineCounter);
 	return 0;
 }
 
 
 int filter(int argc, char **argv) {
 
-    if (argc < 1) {
-        printf("usage: filter <text>\n");
-        return 0;
-    }
-    for (int i = 0; i < argc; i++) {
-        for (int count_buffer = 0; argv[i][count_buffer] != '\0'; count_buffer++) {
-            if (to_lower(argv[i][count_buffer]) != 'a' && 
-                to_lower(argv[i][count_buffer]) != 'e' && 
-                to_lower(argv[i][count_buffer]) != 'i' && 
-                to_lower(argv[i][count_buffer]) != 'o' && 
-                to_lower(argv[i][count_buffer]) != 'u') {
-                putchar(argv[i][count_buffer]);
-            }
-        }
-        putchar(' ');
-    }
-    return 0;
+   char c;
+	while ((int) (c = getchar()) != EOF) {
+		if (to_lower(c) == 'a' || to_lower(c) == 'e' || to_lower(c) == 'i' || to_lower(c) == 'o' || to_lower(c) == 'u')
+			putchar(c);
+	}
+	putchar('\n');
+	return 0;
 }
 
 size_t print_mem_info() {

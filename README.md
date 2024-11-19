@@ -19,6 +19,14 @@ make all
 ```
 make clean
 ```
+> Instruccion de atajo (hace clean, all) para compilar con memoria buddy:
+```
+./compile.sh BUDDY
+```
+> Instruccion de atajo (hace clean, all) para compilar sin memoria buddy:
+```
+./compile.sh
+```
 > Instruccion para ejecutar la shell. Pararse sobre el directorio del proyecto (fuera del contenedor) y ejecutar:
 ```
 ./run.sh

@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <stdint.h>
 #include <stdio.h>
 #include <tests.h>
@@ -109,15 +111,15 @@ uint64_t test_sync(uint64_t argc, char *argv[]) {
     printf("\n_waiting for processes\n");
 
     for (i = 0; i < total_pair_processes; i++) {
-        printf("wait dec %d: ", pids[i]);
+        printf("wait dec : %d\n", pids[i]);
         waitpid(pids[i]);
         printf("done\n");
 
-        printf("wait inc %d: ", pids[i + total_pair_processes]);
+        printf("wait inc : %d\n", pids[i + total_pair_processes]);
         waitpid(pids[i + total_pair_processes]);
         printf("done\n");
     }
-    sleep(10000);
+    sleep(5000);
 
     //waitpid(pid); todo: handle waitpid(-1) to wpid any child
     printf("\n=== test end ===\n");

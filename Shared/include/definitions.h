@@ -15,7 +15,7 @@ typedef enum { blocked = 0, ready, killed, running, waiting_for_child} state_t;
 typedef enum { low = 1, low_medium, medium, high_medium, high } priority_t;
 typedef enum { STDIN=0, STDOUT, STDERR } basic_fd_t;
 typedef enum pipe_state { closed=0, opened } pipe_state;
-
+typedef enum { foreground=0, background } fg_bg_t;
 typedef enum pipe_mode { read_mode=0, write_mode } pipe_mode;
 
 
@@ -30,6 +30,7 @@ typedef struct {
     char** argv;
     char * stack_pointer;
     char * base_pointer;
+    fg_bg_t fg;
 } process_snapshot_t;
 
 #endif

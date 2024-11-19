@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 // this is a personal academic project. dear pvs-studio, please check it.
 // pvs-studio static code analyzer for c, c++ and c#: http://www.viva64.com
 #include <naive_console.h>
@@ -95,7 +97,7 @@ void pointer_to_string(void *ptr, char *buffer, size_t buffer_size) {
     buffer[index++] = '0';   
     buffer[index++] = 'x';   
 
-    for (int i = 15; i >= 0; i--) {
+    for (int i = 8; i >= 0; i--) {
         int digit = (address >> (i * 4)) & 0xf; 
         if (digit < 10) {
             buffer[index++] = '0' + digit; 

@@ -20,6 +20,8 @@ typedef struct process_t {
     uint8_t unkilliable;
     int32_t parent_pid;
     int32_t exit_code;
+
+    fg_bg_t fg;
    
     // children management
     linked_list_adt children;

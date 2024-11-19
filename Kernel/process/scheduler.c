@@ -1,5 +1,8 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include "../include/scheduler.h"
 #include "../include/linked_list_adt.h"
+#include "../include/queue_pid_adt.h"
 #include <io.h>
 #include <stdlib.h>
 #include <process.h>
@@ -18,24 +21,28 @@ typedef struct scheduler_cdt {
     node_t * processes[MAX_PROCESSES];
     linked_list_adt blocked_process_list;
     linked_list_adt process_list;
-    int32_t current_pid;
+    uint16_t bg_process_list[MAX_PROCESSES];
+    int current_pid;
     uint16_t next_unused_pid;
     uint16_t remaining_processes;
     int32_t current_quantum;
+    uint8_t num_bg_processes;
 } scheduler_cdt;
 
 uint8_t sig_fg_kill = 0;
+uint8_t idle_rotation = 0;
 
-void print_process_lists();
+// void print_process_lists();
 
 scheduler_adt init_scheduler() {
     scheduler_adt scheduler = (scheduler_adt)SCHEDULER_ADDRESS;
 
     scheduler->process_list = create_linked_list();
     scheduler->blocked_process_list = create_linked_list();
-
+    
     for (int i = 0; i <MAX_PROCESSES; i++) {
         scheduler->processes[i] = NULL;
+        scheduler->bg_process_list[i] = foreground;
     }
 
     scheduler->remaining_processes=0;
@@ -52,10 +59,19 @@ scheduler_adt get_scheduler_adt() {
     return (scheduler_adt)SCHEDULER_ADDRESS;
 }
 
-
+//TODO: fix it.
 int32_t get_next_ready_pid() {
     
     scheduler_adt scheduler = get_scheduler_adt();
+
+    // si hay procesos en background, y ningun proceso foreground, idle deberia correr cada tanto.
+    if (scheduler->remaining_processes - scheduler->num_bg_processes <=1){
+        idle_rotation = (idle_rotation+1)%2;
+        if (idle_rotation == 0){
+            return idle_pid;
+        }
+    }
+
     start_iterator(scheduler->process_list);
     while(has_next(scheduler->process_list)){
         process_t * process = (process_t *) get_next(scheduler->process_list);
@@ -78,8 +94,9 @@ void* scheduler(void* stack_pointer) {
     }
 
     scheduler->current_quantum--;
+
+    // print_number(((process_t *)((node_t *)scheduler->processes[0])->process)->state);
     
-   
     if (scheduler->current_quantum > 0 && 
         current_process != NULL && 
         (current_process->state == running || current_process->state == ready)) {
@@ -131,8 +148,15 @@ void* scheduler(void* stack_pointer) {
     return next_process->stack_pointer;
 }
 
+  //TODO: fix it.
 static uint32_t get_next_unused_pid(){
     scheduler_adt scheduler = get_scheduler_adt();
+
+    if (scheduler->remaining_processes >= MAX_PROCESSES){
+        ker_write("max processes reached\n");
+        return -1;
+    }
+
     int i = idle_pid + 1;
     while(scheduler->processes[i] != NULL){
         i++;
@@ -251,6 +275,11 @@ int kill_process(uint32_t pid) {
         return -1;
     }
 
+    if (scheduler->bg_process_list[pid] == background){
+        scheduler->num_bg_processes--;
+    }
+    scheduler->bg_process_list[pid] = foreground;
+
     if (scheduler->processes[pid] == NULL) {
         ker_write("process not found\n");
         return -1;
@@ -337,7 +366,7 @@ int unblock_process(uint64_t pid) {
     return 0;
 }
 
-uint32_t get_current_pid() {
+int get_current_pid() {
     scheduler_adt scheduler = get_scheduler_adt();
     return scheduler->current_pid;
 }
@@ -419,6 +448,13 @@ void print_process_lists() {
         print_number(blocked_process->pid);
         blocked_node = (node_t *) (process_node->next);
     }
+}
+
+void set_bg_process(uint32_t pid) {
+    scheduler_adt scheduler = get_scheduler_adt();
+    ((process_t *)scheduler->processes[pid]->process)->fg = background;
+    scheduler->bg_process_list[pid] = background;
+    scheduler->num_bg_processes++;
 }
 
 #undef capped_priority

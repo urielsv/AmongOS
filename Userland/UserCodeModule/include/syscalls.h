@@ -28,7 +28,7 @@
  * @param bgcolor background color.
  * 
  */
-extern int64_t write(uint8_t fd, const char *buffer, uint64_t count, uint64_t fgcolor, uint64_t bgcolor);
+extern int64_t write(int8_t fd, const char *buffer, uint64_t count, uint64_t fgcolor, uint64_t bgcolor);
 
 /*
  * @name read
@@ -38,14 +38,14 @@ extern int64_t write(uint8_t fd, const char *buffer, uint64_t count, uint64_t fg
  * @param buffer buffer to be modified.
  * @param count amount of bytes to be read.
  */
-extern int8_t * read(uint8_t fd, char *buffer, uint64_t count);
+extern int64_t read(int8_t fd, char *buffer, uint64_t count);
 
 
 /*
  * @name read_char
  * @brief returns the last character read from the keyboard.
  */
-extern int8_t read_char();
+// extern int64_t read_char();
 
 
 /*
@@ -152,7 +152,8 @@ extern process_snapshot_t *process_snapshot(uint32_t pid);
 extern uint16_t create_pipe();
 extern uint16_t  open_pipe(uint16_t pid, uint16_t pipe_id, uint8_t mode);
 extern uint16_t  close_pipe(uint16_t pipe_id);
-extern uint16_t change_process_fd(uint32_t pid, uint16_t fd_index, uint16_t new_fd);
+extern uint16_t change_process_fd(uint32_t pid, uint16_t fd_index, int16_t new_fd);
 extern size_t *memory_info();
+extern void set_bg(uint32_t pid);
 
 #endif
